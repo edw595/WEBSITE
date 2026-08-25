@@ -35,28 +35,29 @@
     }
 
     /* ====== 整合後的 Header ====== */
-    header {
-      padding: 0 24px;
-      background: rgba(42, 43, 60, 0.95);
-      backdrop-filter: blur(10px);
-      border-bottom: 2px solid var(--border-dark);
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      height: var(--top-nav-h);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .header-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: relative;
-      width: 100%;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
+   /* ====== 1. Header 與導覽置中 ====== */
+header {
+  padding: 0 24px;
+  background: rgba(42, 43, 60, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 2px solid var(--border-dark);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: var(--top-nav-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* 讓標題與 1 2 3 按鈕完全置中 */
+  gap: 32px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
     .pixel-title {
       font-family: 'Press Start 2P', 'DotGothic16', monospace;
       font-size: 1.4rem;
@@ -68,6 +69,28 @@
       justify-content: center;
       gap: 10px;
     }
+
+    /* ====== 2. 全域獨立「上一步/下一步」常駐浮動列 ====== */
+.global-history-bar {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(30, 30, 46, 0.92);
+  backdrop-filter: blur(12px);
+  padding: 8px 12px;
+  border-radius: 50px;
+  border: 1.5px solid var(--border-dark);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+    
+
+    
     .pixel-heart-icon {
       width: 26px;
       height: 24px;
@@ -505,34 +528,10 @@
     }
 
     @media (max-width: 768px) {
-      :root { --sidebar-w: 86vw; --top-nav-h: 104px; --header-size: 28px; }
-      header { padding: 8px 12px; }
-      .header-content { flex-direction: column; justify-content: center; gap: 10px; }
-      .pixel-title { font-size: 1.15rem; letter-spacing: 1px; gap: 6px; }
-      .pixel-heart-icon { width: 20px; height: 18px; }
-      .stage-nav { gap: 3px; padding: 3px; }
-      .stage-tab { padding: 3px 8px 3px 3px; font-size: 0.72rem; gap: 5px; }
-      .stage-num { width: 24px; height: 24px; font-size: 0.75rem; }
-      
-      .sidebar {
-        top: 0; bottom: 0; left: 0; max-width: 360px; z-index: 100;
-        box-shadow: 6px 0 25px rgba(0, 0, 0, 0.7);
-        border-radius: 0;
-      }
-      .sidebar.mobile-open { transform: translateX(0); }
-      .sidebar.collapsed { transform: translateX(-100%); }
-      .sidebar-toggle-container { justify-content: flex-end; align-items: center; margin-bottom: 8px; }
-      
-      .main-content { padding: 12px; gap: 14px; }
-      .view-card { padding: 12px 10px; border-radius: 12px; }
-      .view-header { flex-direction: column; align-items: flex-start; gap: 8px; }
-      .zoom-toolbar { width: 100%; justify-content: flex-start; }
-      .edit-bar { flex-direction: column; align-items: flex-start; }
-      .orig-viewport { min-height: 280px; padding: 8px; }
-      .grid-frozen-container { height: 400px; }
-      .canvas-flex-container { flex-direction: column; }
-      .palette-dropdown-menu { width: 200px; }
-    }
+  .header-content {
+    flex-direction: column;
+    gap: 8px;
+  }
   </style>
 </head>
 <body>
@@ -557,7 +556,7 @@
       染上拼豆之路
     </h1>
 
-    <nav class="stage-nav" id="stageNav" aria-label="主要步驟">
+   <nav class="stage-nav" id="stageNav" aria-label="主要步驟">
       <button type="button" class="stage-tab active" data-stage="upload" aria-pressed="true">
         <span class="stage-num">1</span>
         <span>上傳圖片</span>
@@ -583,17 +582,7 @@
     </div>
 
     <div class="sidebar-content-wrapper">
-      <div class="history-toolbar">
-        <button class="history-btn" id="sidebarUndoBtn" onclick="undoAction()" disabled title="上一步 (Ctrl+Z)">
-          <span>↩</span> 上一步
-        </button>
-        <button class="history-btn" id="sidebarRedoBtn" onclick="redoAction()" disabled title="下一步 (Ctrl+Y)">
-          <span>↪</span> 下一步
-        </button>
-        <button class="history-btn reset-btn" id="sidebarResetBtn" onclick="resetAllChanges()" disabled title="復原重設所有修改與濾鏡">
-          <span>🔄</span> 復原重設
-        </button>
-      </div>
+ 
 
       <div class="form-group">
         <label>1. 上傳圖片</label>
@@ -795,6 +784,15 @@
     </div>
   </main>
 </div>
+  <!-- 全域通用常駐 上一步 / 下一步 / 復原 重設 -->
+<div class="global-history-bar" id="globalHistoryBar">
+  <button class="zoom-btn" id="globalUndoBtn" onclick="handleGlobalUndo()" disabled title="上一步 (Ctrl+Z)">
+    <span>↩</span> 上一步
+  </button>
+  <button class="zoom-btn" id="globalRedoBtn" onclick="handleGlobalRedo()" disabled title="下一步 (Ctrl+Y)">
+    <span>↪</span> 下一步
+  </button>
+</div>
 
 <script>
   const sidebar = document.getElementById("sidebar");
@@ -865,6 +863,8 @@
         }
       });
     }
+    // 同步切換後的上一步/下一步按鈕狀態
+  updateGlobalHistoryButtons();
   }
 
   document.getElementById("stageNav").addEventListener("click", (e) => {
@@ -921,6 +921,44 @@
       paletteDropdownMenu.appendChild(item);
     });
   }
+  function handleGlobalUndo() {
+  if (currentStage === "upload") {
+    undoUploadAction();
+  } else if (currentStage === "edit") {
+    undoAction();
+  }
+}
+  function handleGlobalRedo() {
+  if (currentStage === "upload") {
+    redoUploadAction();
+  } else if (currentStage === "edit") {
+    redoAction();
+  }
+}
+
+  // 同步全域按鈕狀態
+function updateGlobalHistoryButtons() {
+  const undoBtn = document.getElementById("globalUndoBtn");
+  const redoBtn = document.getElementById("globalRedoBtn");
+  const historyBar = document.getElementById("globalHistoryBar");
+  if (!undoBtn || !redoBtn || !historyBar) return;
+
+  if (currentStage === "upload") {
+    historyBar.style.display = "flex";
+    undoBtn.disabled = (uploadHistoryIndex <= 0);
+    redoBtn.disabled = (uploadHistoryIndex < 0 || uploadHistoryIndex >= uploadHistoryStack.length - 1);
+  } else if (currentStage === "edit") {
+    historyBar.style.display = "flex";
+    undoBtn.disabled = (historyIndex <= 0);
+    redoBtn.disabled = (historyIndex < 0 || historyIndex >= historyStack.length - 1);
+  } else {
+    // 收藏庫分頁自動隱藏
+    historyBar.style.display = "none";
+  }
+}
+
+  
+  
 
   function togglePaletteDropdown() { paletteDropdownMenu.classList.toggle("open"); }
   function selectPaletteColor(bead) {
@@ -1031,24 +1069,28 @@
     updateHistoryButtons();
   }
 
-  function updateHistoryButtons() {
-    const canUndo = (historyIndex > 0);
-    const canRedo = (historyIndex >= 0 && historyIndex < historyStack.length - 1);
-    const canReset = (historyStack.length > 0);
+ // 替換原本的按鈕更新函式
+function updateHistoryButtons() {
+  const editUndo = document.getElementById("undoBtn");
+  const editRedo = document.getElementById("redoBtn");
+  const canUndo = (historyIndex > 0);
+  const canRedo = (historyIndex >= 0 && historyIndex < historyStack.length - 1);
 
-    document.getElementById("sidebarUndoBtn").disabled = !canUndo;
-    document.getElementById("sidebarRedoBtn").disabled = !canRedo;
-    document.getElementById("sidebarResetBtn").disabled = !canReset;
+  if (editUndo) editUndo.disabled = !canUndo;
+  if (editRedo) editRedo.disabled = !canRedo;
 
-    document.getElementById("undoBtn").disabled = !canUndo;
-    document.getElementById("redoBtn").disabled = !canRedo;
-  }
+  updateGlobalHistoryButtons();
+}
 
   function undoAction() {
     if (historyIndex <= 0) return;
     historyIndex--;
     restoreHistoryState(historyStack[historyIndex]);
   }
+  
+  function updateUploadHistoryButtons() {
+  updateGlobalHistoryButtons();
+}
 
   function redoAction() {
     if (historyIndex >= historyStack.length - 1) return;
