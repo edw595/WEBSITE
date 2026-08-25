@@ -1,0 +1,2611 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>染上拼豆之路</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&family=Silkscreen&family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #1e1e2e;
+      --card-dark: #2a2b3c;
+      --border-dark: #45475a;
+      --text-main: #cdd6f4;
+      --text-sub: #a6adc8;
+      --title-red: #ff3344;
+      --title-red-shadow: #990011;
+      --highlight-active: #ffe600;
+      --accent-blue: #0088ff;
+      --sidebar-w: 360px;
+      --header-size: 32px;
+      --top-nav-h: 76px;
+      --sub-nav-h: 0px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Zen Maru Gothic', 'DotGothic16', monospace, sans-serif; }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ====== 整合後的 Header ====== */
+    header {
+      padding: 0 24px;
+      background: rgba(42, 43, 60, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid var(--border-dark);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: var(--top-nav-h);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .pixel-title {
+      font-family: 'Press Start 2P', 'DotGothic16', monospace;
+      font-size: 1.4rem;
+      color: var(--title-red);
+      letter-spacing: 2px;
+      text-shadow: 3px 3px 0px var(--title-red-shadow), -1px -1px 0px #ff8899;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .pixel-heart-icon {
+      width: 26px;
+      height: 24px;
+      filter: drop-shadow(2px 2px 0px var(--title-red-shadow));
+      flex-shrink: 0;
+    }
+
+    .app-body {
+      display: flex;
+      flex: 1;
+      position: relative;
+      min-height: calc(100vh - var(--top-nav-h));
+    }
+
+    /* 導覽按鈕 */
+    .stage-nav {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: rgba(24, 24, 37, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1.5px solid var(--border-dark);
+      border-radius: 50px;
+      padding: 4px 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    .stage-tab {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      border: none;
+      color: var(--text-sub);
+      cursor: pointer;
+      padding: 4px 12px 4px 4px;
+      border-radius: 40px;
+      font-weight: 800;
+      font-size: 0.82rem;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+    .stage-tab:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .stage-tab.active {
+      color: var(--highlight-active);
+      background: rgba(255, 230, 0, 0.14);
+    }
+    .stage-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--highlight-active);
+      color: #1e1e2e;
+      font-family: 'Silkscreen', 'Press Start 2P', monospace;
+      font-weight: 900;
+      font-size: 0.88rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 2px 2px 0 #c4b000;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .stage-tab.active .stage-num {
+      box-shadow: 0 0 12px rgba(255, 230, 0, 0.75), 2px 2px 0 #c4b000;
+    }
+
+    .view-panel { display: none; width: 100%; }
+    .view-panel.active { display: flex; flex-direction: column; }
+
+    .library-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 12px;
+    }
+    .library-empty {
+      color: #6c7086;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-align: center;
+      padding: 72px 16px;
+      line-height: 1.7;
+    }
+    .library-card {
+      background: #181825;
+      border: 1.5px solid var(--border-dark);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .library-card img {
+      width: 100%;
+      height: 140px;
+      object-fit: contain;
+      background: #11111b;
+      display: block;
+    }
+    .library-card-body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 8px; }
+    .library-card-title { font-size: 0.85rem; font-weight: 900; color: var(--text-main); word-break: break-all; }
+    .library-card-meta { font-size: 0.75rem; color: var(--text-sub); }
+    .library-card-actions { display: flex; gap: 6px; }
+    .library-card-actions .zoom-btn { flex: 1; justify-content: center; }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(3px);
+      z-index: 70;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .sidebar-overlay.active {
+      display: block;
+      opacity: 1;
+    }
+
+    /* ====== 側邊欄 ====== */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: rgba(42, 43, 60, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-dark);
+      border-left: none;
+      border-radius: 0 16px 16px 0;
+      padding: 16px 18px 24px;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: fixed;
+      top: calc(var(--top-nav-h) + 12px);
+      bottom: 12px;
+      left: 0;
+      z-index: 100;
+      overflow-y: auto;
+      box-shadow: 6px 6px 24px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sidebar.collapsed {
+      transform: translateX(-100%);
+      box-shadow: none;
+    }
+
+    .sidebar-toggle-container {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 2px;
+    }
+    .sidebar-toggle {
+      background: var(--title-red);
+      color: #fff;
+      border: 2px solid #fff;
+      border-radius: 50px;
+      padding: 5px 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(255, 51, 68, 0.4);
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sidebar-toggle:hover {
+      background: #dd1122;
+      transform: scale(1.05);
+    }
+
+    .floating-sidebar-trigger {
+      position: fixed;
+      top: calc(var(--top-nav-h) + 14px);
+      left: 16px;
+      z-index: 90;
+      background: var(--card-dark);
+      color: var(--text-main);
+      border: 1.5px solid var(--border-dark);
+      padding: 8px 14px;
+      border-radius: 50px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      transition: all 0.2s ease;
+    }
+    .floating-sidebar-trigger:hover {
+      background: #313244;
+      border-color: var(--highlight-active);
+      color: #fff;
+      transform: scale(1.05);
+    }
+    .floating-sidebar-trigger.visible {
+      display: inline-flex;
+    }
+    body.stage-library .floating-sidebar-trigger {
+      display: none !important;
+    }
+    body.stage-library .sidebar {
+      transform: translateX(-100%);
+      box-shadow: none;
+    }
+
+    .history-toolbar {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.2fr;
+      gap: 6px;
+      margin-bottom: 12px;
+      background: rgba(24, 24, 37, 0.8);
+      padding: 6px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border-dark);
+    }
+    .history-btn {
+      background: #313244;
+      color: var(--text-main);
+      border: 1px solid var(--border-dark);
+      border-radius: 6px;
+      padding: 7px 4px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .history-btn:hover:not(:disabled) { background: #45475a; color: #ffffff; border-color: var(--highlight-active); }
+    .history-btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(80%); }
+    .history-btn.reset-btn:hover:not(:disabled) { background: #ff4d5e; border-color: #ff3344; color: #ffffff; }
+
+    .section-divider { border: none; border-top: 1px dashed var(--border-dark); margin: 8px 0; }
+    .section-heading { font-size: 0.85rem; font-weight: 900; color: var(--highlight-active); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .form-group { margin-bottom: 10px; }
+    label { display: block; font-weight: 700; font-size: 0.82rem; margin-bottom: 5px; color: var(--text-sub); }
+    input[type="file"], input[type="range"], select { width: 100%; accent-color: var(--title-red); }
+    select { background: #1e1e2e; color: var(--text-main); border: 1.5px solid var(--border-dark); border-radius: 8px; padding: 8px 10px; font-weight: 700; font-size: 0.82rem; cursor: pointer; }
+    .range-val { font-size: 0.8rem; color: var(--highlight-active); float: right; font-weight: 900; font-family: 'Silkscreen', monospace; }
+    .checkbox-group { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .checkbox-group input { width: 18px; height: 18px; accent-color: var(--title-red); cursor: pointer; flex-shrink: 0; }
+    .checkbox-group label { margin-bottom: 0; cursor: pointer; font-size: 0.82rem; font-weight: 700; color: var(--text-main); }
+
+    .btn-ketchup {
+      display: inline-flex; align-items: center; justify-content: center; width: 100%;
+      background: linear-gradient(135deg, #ff4d5e, var(--title-red));
+      color: white; border: none; border-radius: 10px;
+      padding: 12px 16px; font-weight: 900; font-size: 0.92rem; cursor: pointer;
+      box-shadow: 0 4px 12px rgba(255, 51, 68, 0.35); transition: 0.2s;
+    }
+    .btn-ketchup:hover { background: #dd1122; transform: translateY(-1px); }
+    .btn-ketchup:disabled { background: #45475a; color: #6c7086; box-shadow: none; cursor: not-allowed; }
+
+    /* ====== 內容區 ====== */
+    .main-content {
+      flex: 1;
+      padding: 20px 24px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .view-card {
+      background: var(--card-dark);
+      border: 2px solid var(--border-dark);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+    }
+    .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px dashed var(--border-dark); flex-wrap: wrap; gap: 8px; }
+    .view-title { font-weight: 900; font-size: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+    .badge { font-size: 0.72rem; background: #313244; color: var(--highlight-active); padding: 4px 10px; border-radius: 20px; font-weight: 700; border: 1px solid var(--border-dark); font-family: 'Silkscreen', monospace; }
+
+    .zoom-toolbar { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+    .zoom-btn { background: #313244; border: 1px solid var(--border-dark); border-radius: 6px; padding: 5px 9px; font-size: 0.78rem; font-weight: 700; cursor: pointer; color: var(--text-main); transition: 0.15s; display: inline-flex; align-items: center; gap: 4px; user-select: none; }
+    .zoom-btn:hover { background: #45475a; color: #fff; }
+    .zoom-btn.highlight { background: #45475a; border-color: var(--highlight-active); color: var(--highlight-active); }
+    .zoom-btn.active-edit { background: var(--title-red); border-color: #fff; color: #FFFFFF; box-shadow: 0 0 10px rgba(255, 51, 68, 0.6); }
+    .zoom-btn.active-compare { background: #9c27b0; border-color: #ffffff; color: #ffffff; box-shadow: 0 0 10px rgba(156, 39, 176, 0.7); }
+    .zoom-btn.active-pipette { background: var(--accent-blue); border-color: #ffffff; color: #ffffff; box-shadow: 0 0 10px rgba(0, 136, 255, 0.7); }
+    .zoom-level-text { font-size: 0.78rem; font-weight: 700; color: var(--highlight-active); min-width: 42px; text-align: center; font-family: 'Silkscreen', monospace; }
+
+    .edit-bar { display: none; background: #181825; border: 2px solid var(--border-dark); border-radius: 10px; padding: 8px 12px; margin-bottom: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .edit-bar.show { display: flex; }
+    .edit-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; position: relative; }
+
+    .custom-palette-picker { position: relative; display: inline-block; }
+    .palette-trigger-btn { display: flex; align-items: center; gap: 6px; background: #313244; border: 1.5px solid var(--border-dark); border-radius: 8px; padding: 5px 10px; font-weight: 800; font-size: 0.8rem; color: var(--text-main); cursor: pointer; transition: 0.15s; }
+    .palette-trigger-btn:hover { border-color: var(--title-red); }
+    .palette-selected-swatch { width: 16px; height: 16px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.3); }
+    .palette-dropdown-menu { display: none; position: absolute; top: calc(100% + 6px); left: 0; width: 240px; max-height: 260px; overflow-y: auto; background: #1e1e2e; border: 2px solid var(--border-dark); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); z-index: 120; padding: 6px; }
+    .palette-dropdown-menu.open { display: block; }
+    .palette-option-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; cursor: pointer; font-size: 0.78rem; font-weight: 700; color: var(--text-main); transition: background 0.12s; }
+    .palette-option-item:hover { background: #313244; color: #fff; }
+    .palette-opt-swatch { width: 16px; height: 16px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.2); flex-shrink: 0; }
+
+    /* ====== 上傳視窗 ====== */
+    .orig-viewport {
+      min-height: 420px;
+      max-height: 70vh;
+      height: auto;
+      background: #181825;
+      border-radius: 12px;
+      border: 2px dashed var(--border-dark);
+      overflow: auto;
+      display: block;
+      text-align: center;
+      padding: 24px;
+      position: relative;
+      cursor: pointer;
+      box-sizing: border-box;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+    .orig-viewport.drag-over {
+      border-color: var(--highlight-active);
+      background-color: rgba(255, 230, 0, 0.08);
+    }
+    .orig-zoom-wrapper {
+      display: inline-block;
+      vertical-align: middle;
+      transform-origin: 0 0;
+      transition: transform 0.1s ease-out;
+    }
+    .orig-viewport img {
+      max-width: none;
+      height: auto;
+      border-radius: 6px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+      display: block;
+    }
+
+    .upload-hint-banner {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(17, 17, 27, 0.9);
+      border: 1px solid var(--border-dark);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      pointer-events: none;
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+    .edit-tools-panel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 10px;
+      background: #181825;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-dark);
+    }
+    .crop-canvas-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+    .crop-canvas-overlay.active {
+      pointer-events: auto;
+      cursor: crosshair;
+    }
+
+    .grid-frozen-container { position: relative; height: 520px; background: #181825; border-radius: 12px; border: 1px solid var(--border-dark); overflow: hidden; touch-action: pan-x pan-y; }
+    .frozen-corner { position: absolute; top: 0; left: 0; width: var(--header-size); height: var(--header-size); background: #1e1e2e; border-right: 2px solid var(--border-dark); border-bottom: 2px solid var(--border-dark); z-index: 30; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 900; color: var(--text-sub); font-family: 'Silkscreen', monospace; }
+    .frozen-top-wrapper { position: absolute; top: 0; left: var(--header-size); right: 0; height: var(--header-size); overflow: hidden; background: #1e1e2e; border-bottom: 2px solid var(--border-dark); z-index: 20; }
+    .frozen-left-wrapper { position: absolute; top: var(--header-size); left: 0; bottom: 0; width: var(--header-size); overflow: hidden; background: #1e1e2e; border-right: 2px solid var(--border-dark); z-index: 20; }
+    .frozen-main-scroll { position: absolute; top: var(--header-size); left: var(--header-size); right: 0; bottom: 0; overflow: auto; background: #181825; -webkit-overflow-scrolling: touch; }
+
+    .canvas-flex-container { display: inline-flex; align-items: flex-start; gap: 16px; padding: 0 16px 16px 0; }
+    .main-canvas-inner { padding: 0; display: inline-block; line-height: 0; position: relative; cursor: crosshair; }
+    .main-canvas-inner.pipette-mode { cursor: copy; }
+    .layered-canvas { position: absolute; top: 0; left: 0; pointer-events: none; }
+    #interactionCanvas { pointer-events: auto; }
+    .main-canvas-wrapper { position: relative; }
+
+    .compare-wrapper { display: none; flex-direction: column; align-items: center; background: #1e1e2e; border: 2px solid var(--border-dark); border-radius: 10px; padding: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); }
+    .compare-wrapper.show { display: inline-flex; }
+    .compare-title-tag { font-size: 0.72rem; font-weight: 900; color: var(--highlight-active); margin-bottom: 6px; font-family: 'Silkscreen', monospace; }
+    .compare-canvas { display: block; border-radius: 4px; border: 1px solid var(--border-dark); }
+    canvas { display: block; }
+
+    .color-filter-card { margin-top: 14px; background: #181825; border: 2px solid var(--border-dark); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+    .color-filter-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .color-filter-title { font-size: 0.85rem; font-weight: 900; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
+    .color-filter-btn-group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .all-colors-btn { background: #313244; border: 1.5px solid var(--border-dark); color: var(--text-main); border-radius: 8px; padding: 6px 14px; font-size: 0.8rem; font-weight: 900; cursor: pointer; transition: all 0.15s ease; height: 38px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+    .all-colors-btn:hover { background: #45475a; color: #fff; }
+    .all-colors-btn.active { background: var(--title-red); color: #fff; border-color: #fff; box-shadow: 0 0 10px rgba(255, 51, 68, 0.6); }
+    .color-filter-btn { width: 38px; height: 38px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.2); cursor: pointer; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.68rem; font-weight: 900; font-family: 'Silkscreen', monospace; transition: all 0.18s ease; position: relative; box-shadow: 0 2px 6px rgba(0,0,0,0.35); user-select: none; }
+    .color-filter-btn:hover { transform: translateY(-2px) scale(1.08); border-color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+    .color-filter-btn.active { transform: translateY(-3px) scale(1.15); border-color: #ffffff; outline: 3px solid var(--highlight-active); box-shadow: 0 0 14px var(--highlight-active); z-index: 10; }
+    .color-filter-btn.dimmed { opacity: 0.35; filter: grayscale(40%); }
+
+    #beadTooltip { position: fixed; pointer-events: none; background: rgba(17, 17, 27, 0.95); color: #FFFFFF; padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6); z-index: 100; display: none; white-space: nowrap; border: 1px solid var(--border-dark); }
+    #beadTooltip .tip-coord { color: var(--highlight-active); margin-bottom: 2px; font-family: 'Silkscreen', monospace; }
+    #beadTooltip .tip-color { display: flex; align-items: center; gap: 6px; }
+    #beadTooltip .tip-swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; border: 1px solid #fff; }
+
+    .stats-card { margin-top: 14px; border-top: 2px dashed var(--border-dark); padding-top: 12px; }
+    .stats-title { font-size: 0.9rem; font-weight: 900; margin-bottom: 8px; color: var(--text-main); }
+    .color-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 6px; max-height: 200px; overflow-y: auto; padding-right: 4px; }
+    .color-item { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; border: 1px solid var(--border-dark); border-radius: 6px; padding: 5px 6px; background: #1e1e2e; }
+    .color-swatch { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.2); flex-shrink: 0; }
+    .empty-state { color: #6c7086; font-size: 0.85rem; font-weight: 700; text-align: center; padding: 40px; }
+
+    @media (max-width: 1024px) {
+      :root { --sidebar-w: 320px; }
+      .main-content { padding: 16px 18px 20px 18px; }
+      .orig-viewport { min-height: 360px; }
+      .grid-frozen-container { height: 460px; }
+    }
+
+    @media (max-width: 768px) {
+      :root { --sidebar-w: 86vw; --top-nav-h: 104px; --header-size: 28px; }
+      header { padding: 8px 12px; }
+      .header-content { flex-direction: column; justify-content: center; gap: 10px; }
+      .pixel-title { font-size: 1.15rem; letter-spacing: 1px; gap: 6px; }
+      .pixel-heart-icon { width: 20px; height: 18px; }
+      .stage-nav { gap: 3px; padding: 3px; }
+      .stage-tab { padding: 3px 8px 3px 3px; font-size: 0.72rem; gap: 5px; }
+      .stage-num { width: 24px; height: 24px; font-size: 0.75rem; }
+      
+      .sidebar {
+        top: 0; bottom: 0; left: 0; max-width: 360px; z-index: 100;
+        box-shadow: 6px 0 25px rgba(0, 0, 0, 0.7);
+        border-radius: 0;
+      }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .sidebar.collapsed { transform: translateX(-100%); }
+      .sidebar-toggle-container { justify-content: flex-end; align-items: center; margin-bottom: 8px; }
+      
+      .main-content { padding: 12px; gap: 14px; }
+      .view-card { padding: 12px 10px; border-radius: 12px; }
+      .view-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .zoom-toolbar { width: 100%; justify-content: flex-start; }
+      .edit-bar { flex-direction: column; align-items: flex-start; }
+      .orig-viewport { min-height: 280px; padding: 8px; }
+      .grid-frozen-container { height: 400px; }
+      .canvas-flex-container { flex-direction: column; }
+      .palette-dropdown-menu { width: 200px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="beadTooltip"></div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<button class="floating-sidebar-trigger" id="floatingSidebarTrigger">
+  <span>⚙️</span> <span>設定選單</span>
+</button>
+
+<header>
+  <div class="header-content">
+    <h1 class="pixel-title">
+      <svg class="pixel-heart-icon" viewBox="0 0 16 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M2 3H4V2H7V3H9V2H12V3H14V5H15V8H14V10H13V11H12V12H11V13H10V14H9V15H7V14H6V13H5V12H4V11H3V10H2V8H1V5H2V3Z" fill="#990011"/>
+        <path d="M2 5H4V4H6V3H7V5H9V3H10V4H12V5H14V8H13V10H12V11H11V12H10V13H9V14H7V13H6V12H5V11H4V10H3V8H2V5Z" fill="#ff3344"/>
+        <path d="M4 6H6V5H7V7H9V5H10V6H12V8H11V10H10V11H9V12H7V11H6V10H5V8H4V6Z" fill="#ff6677"/>
+        <rect x="3" y="4" width="2" height="2" fill="#FFFFFF"/>
+        <rect x="5" y="3" width="1" height="1" fill="#FFFFFF"/>
+      </svg>
+      染上拼豆之路
+    </h1>
+
+    <nav class="stage-nav" id="stageNav" aria-label="主要步驟">
+      <button type="button" class="stage-tab active" data-stage="upload" aria-pressed="true">
+        <span class="stage-num">1</span>
+        <span>上傳圖片</span>
+      </button>
+      <button type="button" class="stage-tab" data-stage="edit" aria-pressed="false">
+        <span class="stage-num">2</span>
+        <span>編輯圖紙</span>
+      </button>
+      <button type="button" class="stage-tab" data-stage="library" aria-pressed="false">
+        <span class="stage-num">3</span>
+        <span>圖紙收藏庫</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<div class="app-body">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-toggle-container">
+      <button class="sidebar-toggle" id="toggleSidebarBtn">
+        <span id="toggleIcon">◀</span> <span id="toggleText">收合選單</span>
+      </button>
+    </div>
+
+    <div class="sidebar-content-wrapper">
+      <div class="history-toolbar">
+        <button class="history-btn" id="sidebarUndoBtn" onclick="undoAction()" disabled title="上一步 (Ctrl+Z)">
+          <span>↩</span> 上一步
+        </button>
+        <button class="history-btn" id="sidebarRedoBtn" onclick="redoAction()" disabled title="下一步 (Ctrl+Y)">
+          <span>↪</span> 下一步
+        </button>
+        <button class="history-btn reset-btn" id="sidebarResetBtn" onclick="resetAllChanges()" disabled title="復原重設所有修改與濾鏡">
+          <span>🔄</span> 復原重設
+        </button>
+      </div>
+
+      <div class="form-group">
+        <label>1. 上傳圖片</label>
+        <input type="file" id="imageInput" accept="image/*" />
+      </div>
+
+      <div class="form-group">
+        <label>2. 拼豆板寬度 (顆數) <span class="range-val" id="widthVal">29 顆</span></label>
+        <input type="range" id="beadWidth" min="10" max="600" value="29" />
+      </div>
+
+      <hr class="section-divider" />
+      <div class="section-heading">✨ 清晰度與雜色智慧優化</div>
+
+      <div class="form-group">
+        <label>取樣演算法 (清晰邊緣推薦：像素硬邊)</label>
+        <select id="samplingMode">
+          <option value="smooth">平滑縮放 (預設柔和)</option>
+          <option value="pixel" selected>像素硬邊 (清晰防糊 / 去灰色)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>輪廓銳利化強度 <span class="range-val" id="sharpenVal">30%</span></label>
+        <input type="range" id="sharpen" min="0" max="100" value="30" />
+      </div>
+
+      <div class="form-group">
+        <label>飽和度增強 (防色彩變灰) <span class="range-val" id="saturationVal">20%</span></label>
+        <input type="range" id="saturation" min="-100" max="100" value="20" />
+      </div>
+
+      <div class="form-group">
+        <label>對比度增強 <span class="range-val" id="contrastVal">0%</span></label>
+        <input type="range" id="contrast" min="-100" max="100" value="0" />
+      </div>
+
+      <div class="form-group">
+        <label>亮度調節 <span class="range-val" id="brightnessVal">0%</span></label>
+        <input type="range" id="brightness" min="-100" max="100" value="0" />
+      </div>
+
+      <div class="checkbox-group">
+        <input type="checkbox" id="cleanNoise" checked />
+        <label for="cleanNoise">🧹 智慧孤立噪點過濾 (清理雜散灰點)</label>
+      </div>
+
+      <hr class="section-divider" />
+      <div class="section-heading">📐 輸出設定</div>
+
+      <div class="form-group">
+        <label>圖紙單格解析度 <span class="range-val" id="gridSizeVal">24 px</span></label>
+        <input type="range" id="gridSize" min="12" max="48" value="24" />
+      </div>
+
+      <div class="checkbox-group">
+        <input type="checkbox" id="showLabels" />
+        <label for="showLabels">在方形豆上印出色號代碼 (如 A1, B5)</label>
+      </div>
+
+      <button id="downloadBtn" class="btn-ketchup" disabled>📥 下載拼豆圖紙 (PNG)</button>
+
+      <div class="stats-card" id="statsCard" style="display: none;">
+        <div class="stats-title">材料清單 (總計: <span id="totalBeads" style="color:var(--highlight-active); font-family:'Silkscreen';">0</span> 顆)</div>
+        <div class="color-list" id="colorList"></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="view-panel active" id="panelUpload">
+      <div class="view-card">
+        <div class="view-header">
+          <div class="view-title">🖼️ 圖片上傳與預處理</div>
+          <div class="zoom-toolbar">
+            <span class="badge" id="origDimensions">尚未載入</span>
+            <button class="zoom-btn" onclick="adjustOrigZoom(-0.15)">➖ 縮小</button>
+            <span class="zoom-level-text" id="origZoomText">100%</span>
+            <button class="zoom-btn" onclick="adjustOrigZoom(0.15)">➕ 放大</button>
+            <button class="zoom-btn highlight" onclick="fitOrigToWindow()">🔍 適應視窗</button>
+            <button class="zoom-btn" onclick="setOrigZoom(1.0)">1:1</button>
+          </div>
+        </div>
+
+        <div class="edit-tools-panel" id="uploadToolsPanel" style="display: none;">
+          <button class="zoom-btn" id="rectCropBtn" onclick="setUploadTool('rect')">📐 框選大小</button>
+          <button class="zoom-btn" id="polyCropBtn" onclick="setUploadTool('poly')">📍 錨點選取</button>
+          <button class="zoom-btn" id="wandBtn" onclick="setUploadTool('wand')">🪄 魔術棒去背</button>
+          <button class="zoom-btn" onclick="autoAiRemoveBg()">🤖 智能去背</button>
+          <button class="zoom-btn" id="applyCropBtn" onclick="applyCurrentSelection()" style="display:none; background:var(--title-red); color:#fff;">✔ 確認套用裁切</button>
+          <button class="zoom-btn reset-btn" onclick="resetOrigImage()">🔄 還原原圖</button>
+        </div>
+
+        <div class="orig-viewport" id="origViewport" onclick="triggerFileInput(event)">
+          <div class="orig-zoom-wrapper" id="origZoomWrapper">
+            <div style="position: relative; display: inline-block;">
+              <img id="originalImg" style="display: none;" alt="原圖預覽" />
+              <canvas id="cropOverlayCanvas" class="crop-canvas-overlay"></canvas>
+            </div>
+            <div class="empty-state" id="origPlaceholder">
+              📁 點擊此處或將圖片檔案拖曳至此上傳
+            </div>
+          </div>
+          <div class="upload-hint-banner" id="uploadHintBanner" style="display: none;">💡 支援拖曳更換圖片或點擊留白處選取檔案</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="view-panel" id="panelEdit">
+      <div class="view-card">
+        <div class="view-header">
+          <div class="view-title">✨ 轉換後的拼豆圖紙</div>
+          <div class="zoom-toolbar">
+            <span class="badge" id="patternDimensions">0 × 0 格 (0.00 × 0.00 cm)</span>
+            <button class="zoom-btn" id="compareBtn" onclick="toggleCompareMode()">🔍 比較原圖</button>
+            <button class="zoom-btn highlight" id="toggleEditBtn" onclick="toggleEditMode()">✏️ 編輯</button>
+            <button class="zoom-btn highlight" id="saveLibraryBtn" onclick="saveCurrentPatternToLibrary()">⭐ 加入收藏</button>
+            <button class="zoom-btn" onclick="adjustCanvasZoom(-0.15)">➖ 縮小</button>
+            <span class="zoom-level-text" id="canvasZoomText">100%</span>
+            <button class="zoom-btn" onclick="adjustCanvasZoom(0.15)">➕ 放大</button>
+            <button class="zoom-btn highlight" onclick="fitCanvasToWindow()">🔍 全圖顯示</button>
+            <button class="zoom-btn" onclick="setCanvasZoom(1.0)">1:1</button>
+          </div>
+        </div>
+
+        <div class="edit-bar" id="editBar">
+          <div class="edit-group">
+            <span style="font-weight:900; font-size:0.82rem; color:var(--highlight-active);" id="selectCountText">已選擇: 0 顆</span>
+            <button class="zoom-btn" onclick="selectAllBeads()">全選</button>
+            <button class="zoom-btn" onclick="clearSelection()">取消選取</button>
+            <button class="zoom-btn" id="pipetteBtn" onclick="togglePipetteMode()">💧 滴管吸色</button>
+          </div>
+          <div class="edit-group">
+            <label style="margin:0; font-size:0.82rem;">色號選擇：</label>
+            
+            <div class="custom-palette-picker" id="customPalettePicker">
+              <button class="palette-trigger-btn" type="button" id="paletteTriggerBtn" onclick="togglePaletteDropdown()">
+                <span class="palette-selected-swatch" id="selectedSwatch" style="background:#FAF4C8;"></span>
+                <span id="selectedCodeText">A1 (#FAF4C8)</span>
+                <span style="font-size:0.75rem; color:var(--text-sub);">▼</span>
+              </button>
+              <div class="palette-dropdown-menu" id="paletteDropdownMenu"></div>
+            </div>
+
+            <button class="zoom-btn highlight" onclick="applyReplaceColor()">🎨 替換顏色</button>
+            <button class="zoom-btn" onclick="applyDeleteBeads()" style="color:#ff4d5e; font-weight:900;">✂️ 刪除</button>
+            <button class="zoom-btn" id="undoBtn" onclick="undoAction()" disabled>↩ 上一步</button>
+            <button class="zoom-btn" id="redoBtn" onclick="redoAction()" disabled>↪ 下一步</button>
+          </div>
+        </div>
+
+        <div class="grid-frozen-container" id="gridFrozenContainer">
+          <div class="frozen-corner">XY</div>
+          <div class="frozen-top-wrapper" id="topHeaderWrapper">
+            <canvas id="topHeaderCanvas"></canvas>
+          </div>
+          <div class="frozen-left-wrapper" id="leftHeaderWrapper">
+            <canvas id="leftHeaderCanvas"></canvas>
+          </div>
+          <div class="frozen-main-scroll" id="mainScroll">
+            <div class="canvas-flex-container">
+              <div class="main-canvas-wrapper" id="mainCanvasInner">
+                <canvas id="patternCanvas" class="layered-canvas"></canvas>
+                <canvas id="gridCanvas" class="layered-canvas"></canvas>
+                <canvas id="interactionCanvas" class="layered-canvas"></canvas>
+              </div>
+              <div class="compare-wrapper" id="compareWrapper">
+                <span class="compare-title-tag">🖼️ 原圖對照</span>
+                <canvas class="compare-canvas" id="compareCanvas"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="color-filter-card" id="colorFilterCard" style="display: none;">
+          <div class="color-filter-header">
+            <div class="color-filter-title">
+              <span>🎨 顏色高亮篩選：</span>
+              <span style="font-size:0.75rem; color:var(--text-sub);" id="filterStatusText">(點擊顏色單獨顯示該色，其他暗掉)</span>
+            </div>
+          </div>
+          <div class="color-filter-btn-group" id="colorFilterButtonGroup">
+            <button class="all-colors-btn active" id="allColorsBtn" onclick="filterByColor(null)">全部顏色</button>
+            <div id="paletteFilterItems" style="display: contents;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="view-panel" id="panelLibrary">
+      <div class="view-card">
+        <div class="view-header">
+          <div class="view-title">⭐ 圖紙收藏庫</div>
+          <span class="badge" id="libraryCountBadge">0 份</span>
+        </div>
+        <div id="libraryEmpty" class="library-empty">收藏庫還是空的。<br>在「編輯圖紙」完成後，點擊「加入收藏」即可把圖紙存在這裡。</div>
+        <div class="library-grid" id="libraryGrid"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const sidebar = document.getElementById("sidebar");
+  const toggleBtn = document.getElementById("toggleSidebarBtn");
+  const floatingSidebarTrigger = document.getElementById("floatingSidebarTrigger");
+  const sidebarOverlay = document.getElementById("sidebarOverlay");
+
+  function isMobileView() { return window.innerWidth <= 768; }
+
+  function openSidebar() {
+    sidebar.classList.remove("collapsed");
+    sidebar.classList.add("mobile-open");
+    floatingSidebarTrigger.classList.remove("visible");
+    if (isMobileView()) {
+      sidebarOverlay.classList.add("active");
+      document.body.style.overflow = "hidden";
+    }
+  }
+
+  function closeSidebar() {
+    sidebar.classList.add("collapsed");
+    sidebar.classList.remove("mobile-open");
+    floatingSidebarTrigger.classList.add("visible");
+    sidebarOverlay.classList.remove("active");
+    document.body.style.overflow = "";
+  }
+
+  toggleBtn.addEventListener("click", closeSidebar);
+  floatingSidebarTrigger.addEventListener("click", openSidebar);
+  sidebarOverlay.addEventListener("click", closeSidebar);
+
+  window.addEventListener("resize", () => {
+    if (!isMobileView()) {
+      sidebarOverlay.classList.remove("active");
+      document.body.style.overflow = "";
+    }
+  });
+
+  let currentStage = "upload";
+  const stagePanels = {
+    upload: document.getElementById("panelUpload"),
+    edit: document.getElementById("panelEdit"),
+    library: document.getElementById("panelLibrary")
+  };
+
+  function switchStageView(stage) {
+    currentStage = stage;
+    document.body.classList.toggle("stage-library", stage === "library");
+    document.querySelectorAll(".stage-tab").forEach(tab => {
+      const on = tab.dataset.stage === stage;
+      tab.classList.toggle("active", on);
+      tab.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    Object.entries(stagePanels).forEach(([key, panel]) => {
+      panel.classList.toggle("active", key === stage);
+    });
+
+    if (stage === "library") {
+      closeSidebar();
+      renderLibraryGrid();
+    } else if (stage === "edit") {
+      requestAnimationFrame(() => {
+        if (patternGridData.length > 0) {
+          resizeCanvases();
+          renderBasePattern();
+          renderGrid();
+          renderInteractionLayer();
+        }
+      });
+    }
+  }
+
+  document.getElementById("stageNav").addEventListener("click", (e) => {
+    const tab = e.target.closest(".stage-tab");
+    if (tab) switchStageView(tab.dataset.stage);
+  });
+
+  const MARD_PALETTE_RAW = [
+    {"code":"A1","r":250,"g":244,"b":200,"hex":"#FAF4C8"},{"code":"A2","r":255,"g":255,"b":213,"hex":"#FFFFD5"},{"code":"A3","r":254,"g":255,"b":139,"hex":"#FEFF8B"},{"code":"A4","r":251,"g":237,"b":86,"hex":"#FBED56"},{"code":"A5","r":244,"g":215,"b":56,"hex":"#F4D738"},{"code":"A6","r":254,"g":172,"b":76,"hex":"#FEAC4C"},{"code":"A7","r":254,"g":139,"b":76,"hex":"#FE8B4C"},{"code":"A8","r":255,"g":218,"b":69,"hex":"#FFDA45"},{"code":"A9","r":255,"g":153,"b":91,"hex":"#FF995B"},{"code":"A10","r":247,"g":124,"b":49,"hex":"#F77C31"},{"code":"A11","r":255,"g":221,"b":153,"hex":"#FFDD99"},{"code":"A12","r":254,"g":159,"b":114,"hex":"#FE9F72"},{"code":"A13","r":255,"g":195,"b":101,"hex":"#FFC365"},{"code":"A14","r":253,"g":84,"b":61,"hex":"#FD543D"},{"code":"A15","r":255,"g":243,"b":101,"hex":"#FFF365"},{"code":"A16","r":255,"g":255,"b":159,"hex":"#FFFF9F"},{"code":"A17","r":255,"g":227,"b":110,"hex":"#FFE36E"},{"code":"A18","r":254,"g":190,"b":125,"hex":"#FEBE7D"},{"code":"A19","r":253,"g":124,"b":114,"hex":"#FD7C72"},{"code":"A20","r":255,"g":213,"b":104,"hex":"#FFD568"},{"code":"A21","r":255,"g":227,"b":149,"hex":"#FFE395"},{"code":"A22","r":244,"g":245,"b":125,"hex":"#F4F57D"},{"code":"A23","r":230,"g":201,"b":183,"hex":"#E6C9B7"},{"code":"A24","r":247,"g":248,"b":162,"hex":"#F7F8A2"},{"code":"A25","r":255,"g":214,"b":125,"hex":"#FFD67D"},{"code":"A26","r":255,"g":200,"b":48,"hex":"#FFC830"},
+    {"code":"B1","r":230,"g":238,"b":49,"hex":"#E6EE31"},{"code":"B2","r":99,"g":243,"b":71,"hex":"#63F347"},{"code":"B3","r":158,"g":247,"b":128,"hex":"#9EF780"},{"code":"B4","r":93,"g":224,"b":53,"hex":"#5DE035"},{"code":"B5","r":53,"g":227,"b":82,"hex":"#35E352"},{"code":"B6","r":101,"g":226,"b":166,"hex":"#65E2A6"},{"code":"B7","r":61,"g":175,"b":128,"hex":"#3DAF80"},{"code":"B8","r":28,"g":156,"b":79,"hex":"#1C9C4F"},{"code":"B9","r":39,"g":82,"b":58,"hex":"#27523A"},{"code":"B10","r":149,"g":211,"b":194,"hex":"#95D3C2"},{"code":"B11","r":93,"g":114,"b":42,"hex":"#5D722A"},{"code":"B12","r":22,"g":111,"b":65,"hex":"#166F41"},{"code":"B13","r":202,"g":235,"b":123,"hex":"#CAEB7B"},{"code":"B14","r":173,"g":233,"b":70,"hex":"#ADE946"},{"code":"B15","r":46,"g":81,"b":50,"hex":"#2E5132"},{"code":"B16","r":197,"g":237,"b":156,"hex":"#C5ED9C"},{"code":"B17","r":155,"g":177,"b":58,"hex":"#9BB13A"},{"code":"B18","r":230,"g":238,"b":73,"hex":"#E6EE49"},{"code":"B19","r":36,"g":184,"b":140,"hex":"#24B88C"},{"code":"B20","r":194,"g":240,"b":204,"hex":"#C2F0CC"},{"code":"B21","r":21,"g":106,"b":107,"hex":"#156A6B"},{"code":"B22","r":11,"g":60,"b":67,"hex":"#0B3C43"},{"code":"B23","r":48,"g":58,"b":33,"hex":"#303A21"},{"code":"B24","r":238,"g":252,"b":165,"hex":"#EEFCA5"},{"code":"B25","r":78,"g":132,"b":109,"hex":"#4E846D"},{"code":"B26","r":141,"g":122,"b":53,"hex":"#8D7A35"},{"code":"B27","r":204,"g":225,"b":175,"hex":"#CCE1AF"},{"code":"B28","r":158,"g":229,"b":185,"hex":"#9EE5B9"},{"code":"B29","r":197,"g":226,"b":84,"hex":"#C5E254"},{"code":"B30","r":226,"g":252,"b":177,"hex":"#E2FCB1"},{"code":"B31","r":176,"g":231,"b":146,"hex":"#B0E792"},{"code":"B32","r":156,"g":171,"b":90,"hex":"#9CAB5A"},
+    {"code":"C1","r":232,"g":255,"b":231,"hex":"#E8FFE7"},{"code":"C2","r":169,"g":249,"b":252,"hex":"#A9F9FC"},{"code":"C3","r":160,"g":226,"b":251,"hex":"#A0E2FB"},{"code":"C4","r":65,"g":204,"b":255,"hex":"#41CCFF"},{"code":"C5","r":1,"g":172,"b":235,"hex":"#01ACEB"},{"code":"C6","r":80,"g":170,"b":240,"hex":"#50AAF0"},{"code":"C7","r":54,"g":119,"b":210,"hex":"#3677D2"},{"code":"C8","r":15,"g":84,"b":192,"hex":"#0F54C0"},{"code":"C9","r":50,"g":75,"b":202,"hex":"#324BCA"},{"code":"C10","r":62,"g":188,"b":226,"hex":"#3EBCE2"},{"code":"C11","r":40,"g":221,"b":222,"hex":"#28DDDE"},{"code":"C12","r":28,"g":51,"b":77,"hex":"#1C334D"},{"code":"C13","r":205,"g":232,"b":255,"hex":"#CDE8FF"},{"code":"C14","r":213,"g":253,"b":255,"hex":"#D5FDFF"},{"code":"C15","r":34,"g":196,"b":198,"hex":"#22C4C6"},{"code":"C16","r":21,"g":87,"b":168,"hex":"#1557A8"},{"code":"C17","r":4,"g":209,"b":246,"hex":"#04D1F6"},{"code":"C18","r":29,"g":51,"b":68,"hex":"#1D3344"},{"code":"C19","r":24,"g":135,"b":162,"hex":"#1887A2"},{"code":"C20","r":23,"g":109,"b":175,"hex":"#176DAF"},{"code":"C21","r":190,"g":221,"b":255,"hex":"#BEDDFF"},{"code":"C22","r":103,"g":180,"b":190,"hex":"#67B4BE"},{"code":"C23","r":200,"g":226,"b":255,"hex":"#C8E2FF"},{"code":"C24","r":124,"g":196,"b":255,"hex":"#7CC4FF"},{"code":"C25","r":169,"g":229,"b":229,"hex":"#A9E5E5"},{"code":"C26","r":60,"g":174,"b":216,"hex":"#3CAED8"},{"code":"C27","r":211,"g":223,"b":250,"hex":"#D3DFFA"},{"code":"C28","r":187,"g":207,"b":237,"hex":"#BBCFED"},{"code":"C29","r":52,"g":72,"b":142,"hex":"#34488E"},
+    {"code":"D1","r":174,"g":180,"b":242,"hex":"#AEB4F2"},{"code":"D2","r":133,"g":142,"b":221,"hex":"#858EDD"},{"code":"D3","r":47,"g":84,"b":175,"hex":"#2F54AF"},{"code":"D4","r":24,"g":42,"b":132,"hex":"#182A84"},{"code":"D5","r":184,"g":67,"b":197,"hex":"#B843C5"},{"code":"D6","r":172,"g":123,"b":222,"hex":"#AC7BDE"},{"code":"D7","r":136,"g":84,"b":179,"hex":"#8854B3"},{"code":"D8","r":226,"g":211,"b":255,"hex":"#E2D3FF"},{"code":"D9","r":213,"g":185,"b":248,"hex":"#D5B9F8"},{"code":"D10","r":54,"g":24,"b":81,"hex":"#361851"},{"code":"D11","r":185,"g":186,"b":225,"hex":"#B9BAE1"},{"code":"D12","r":222,"g":154,"b":212,"hex":"#DE9AD4"},{"code":"D13","r":185,"g":0,"b":149,"hex":"#B90095"},{"code":"D14","r":139,"g":39,"b":155,"hex":"#8B279B"},{"code":"D15","r":47,"g":31,"b":144,"hex":"#2F1F90"},{"code":"D16","r":227,"g":225,"b":238,"hex":"#E3E1EE"},{"code":"D17","r":196,"g":212,"b":246,"hex":"#C4D4F6"},{"code":"D18","r":164,"g":94,"b":199,"hex":"#A45EC7"},{"code":"D19","r":216,"g":195,"b":215,"hex":"#D8C3D7"},{"code":"D20","r":156,"g":50,"b":178,"hex":"#9C32B2"},{"code":"D21","r":154,"g":0,"b":155,"hex":"#9A009B"},{"code":"D22","r":51,"g":58,"b":149,"hex":"#333A95"},{"code":"D23","r":235,"g":218,"b":252,"hex":"#EBDAFC"},{"code":"D24","r":119,"g":134,"b":229,"hex":"#7786E5"},{"code":"D25","r":73,"g":79,"b":199,"hex":"#494FC7"},{"code":"D26","r":223,"g":194,"b":248,"hex":"#DFC2F8"},
+    {"code":"E1","r":253,"g":211,"b":204,"hex":"#FDD3CC"},{"code":"E2","r":254,"g":192,"b":223,"hex":"#FEC0DF"},{"code":"E3","r":255,"g":183,"b":231,"hex":"#FFB7E7"},{"code":"E4","r":232,"g":100,"b":158,"hex":"#E8649E"},{"code":"E5","r":245,"g":81,"b":162,"hex":"#F551A2"},{"code":"E6","r":241,"g":61,"b":116,"hex":"#F13D74"},{"code":"E7","r":198,"g":52,"b":120,"hex":"#C63478"},{"code":"E8","r":255,"g":219,"b":233,"hex":"#FFDBE9"},{"code":"E9","r":233,"g":112,"b":204,"hex":"#E970CC"},{"code":"E10","r":211,"g":55,"b":147,"hex":"#D33793"},{"code":"E11","r":252,"g":221,"b":210,"hex":"#FCDDD2"},{"code":"E12","r":247,"g":143,"b":195,"hex":"#F78FC3"},{"code":"E13","r":181,"g":0,"b":109,"hex":"#B5006D"},{"code":"E14","r":255,"g":209,"b":186,"hex":"#FFD1BA"},{"code":"E15","r":248,"g":199,"b":201,"hex":"#F8C7C9"},{"code":"E16","r":255,"g":243,"b":235,"hex":"#FFF3EB"},{"code":"E17","r":255,"g":226,"b":234,"hex":"#FFE2EA"},{"code":"E18","r":255,"g":199,"b":219,"hex":"#FFC7DB"},{"code":"E19","r":254,"g":186,"b":213,"hex":"#FEBBD5"},{"code":"E20","r":216,"g":199,"b":209,"hex":"#D8C7D1"},{"code":"E21","r":189,"g":157,"b":161,"hex":"#BD9DA1"},{"code":"E22","r":183,"g":133,"b":161,"hex":"#B785A1"},{"code":"E23","r":147,"g":122,"b":141,"hex":"#937A8D"},{"code":"E24","r":225,"g":188,"b":232,"hex":"#E1BCE8"},
+    {"code":"F1","r":253,"g":149,"b":123,"hex":"#FD957B"},{"code":"F2","r":252,"g":61,"b":70,"hex":"#FC3D46"},{"code":"F3","r":247,"g":73,"b":65,"hex":"#F74941"},{"code":"F4","r":252,"g":40,"b":60,"hex":"#FC283C"},{"code":"F5","r":231,"g":0,"b":47,"hex":"#E7002F"},{"code":"F6","r":148,"g":54,"b":48,"hex":"#943630"},{"code":"F7","r":151,"g":25,"b":55,"hex":"#971937"},{"code":"F8","r":188,"g":0,"b":40,"hex":"#BC0028"},{"code":"F9","r":226,"g":103,"b":122,"hex":"#E2677A"},{"code":"F10","r":138,"g":69,"b":38,"hex":"#8A4526"},{"code":"F11","r":90,"g":33,"b":33,"hex":"#5A2121"},{"code":"F12","r":253,"g":78,"b":106,"hex":"#FD4E6A"},{"code":"F13","r":243,"g":87,"b":68,"hex":"#F35744"},{"code":"F14","r":255,"g":169,"b":173,"hex":"#FFA9AD"},{"code":"F15","r":211,"g":0,"b":34,"hex":"#D30022"},{"code":"F16","r":254,"g":194,"b":166,"hex":"#FEC2A6"},{"code":"F17","r":230,"g":156,"b":121,"hex":"#E69C79"},{"code":"F18","r":211,"g":124,"b":70,"hex":"#D37C46"},{"code":"F19","r":193,"g":68,"b":74,"hex":"#C1444A"},{"code":"F20","r":205,"g":147,"b":145,"hex":"#CD9391"},{"code":"F21","r":247,"g":180,"b":198,"hex":"#F7B4C6"},{"code":"F22","r":253,"g":192,"b":208,"hex":"#FDC0D0"},{"code":"F23","r":246,"g":126,"b":102,"hex":"#F67E66"},{"code":"F24","r":230,"g":152,"b":170,"hex":"#E698AA"},{"code":"F25","r":229,"g":75,"b":79,"hex":"#E54B4F"},
+    {"code":"G1","r":255,"g":226,"b":206,"hex":"#FFE2CE"},{"code":"G2","r":255,"g":196,"b":170,"hex":"#FFC4AA"},{"code":"G3","r":244,"g":195,"b":165,"hex":"#F4C3A5"},{"code":"G4","r":225,"g":179,"b":131,"hex":"#E1B383"},{"code":"G5","r":237,"g":176,"b":69,"hex":"#EDB045"},{"code":"G6","r":233,"g":156,"b":23,"hex":"#E99C17"},{"code":"G7","r":157,"g":91,"b":62,"hex":"#9D5B3E"},{"code":"G8","r":117,"g":56,"b":50,"hex":"#753832"},{"code":"G9","r":230,"g":180,"b":131,"hex":"#E6B483"},{"code":"G10","r":217,"g":140,"b":57,"hex":"#D98C39"},{"code":"G11","r":224,"g":197,"b":147,"hex":"#E0C593"},{"code":"G12","r":255,"g":200,"b":144,"hex":"#FFC890"},{"code":"G13","r":183,"g":113,"b":74,"hex":"#B7714A"},{"code":"G14","r":141,"g":97,"b":76,"hex":"#8D614C"},{"code":"G15","r":252,"g":249,"b":224,"hex":"#FCF9E0"},{"code":"G16","r":242,"g":217,"b":186,"hex":"#F2D9BA"},{"code":"G17","r":120,"g":82,"b":75,"hex":"#78524B"},{"code":"G18","r":255,"g":228,"b":204,"hex":"#FFE4CC"},{"code":"G19","r":224,"g":121,"b":53,"hex":"#E07935"},{"code":"G20","r":169,"g":64,"b":35,"hex":"#A94023"},{"code":"G21","r":184,"g":133,"b":88,"hex":"#B88558"},
+    {"code":"H1","r":253,"g":251,"b":255,"hex":"#FDFBFF"},{"code":"H2","r":254,"g":255,"b":255,"hex":"#FEFFFF"},{"code":"H3","r":182,"g":177,"b":186,"hex":"#B6B1BA"},{"code":"H4","r":137,"g":133,"b":140,"hex":"#89858C"},{"code":"H5","r":72,"g":70,"b":78,"hex":"#48464E"},{"code":"H6","r":47,"g":43,"b":47,"hex":"#2F2B2F"},{"code":"H7","r":0,"g":0,"b":0,"hex":"#000000"},{"code":"H8","r":231,"g":214,"b":219,"hex":"#E7D6DB"},{"code":"H9","r":237,"g":237,"b":237,"hex":"#EDEDED"},{"code":"H10","r":238,"g":233,"b":234,"hex":"#EEE9EA"},{"code":"H11","r":206,"g":205,"b":213,"hex":"#CECDD5"},{"code":"H12","r":255,"g":245,"b":237,"hex":"#FFF5ED"},{"code":"H13","r":245,"g":236,"b":210,"hex":"#F5ECD2"},{"code":"H14","r":207,"g":215,"b":211,"hex":"#CFD7D3"},{"code":"H15","r":152,"g":166,"b":168,"hex":"#98A6A8"},{"code":"H16","r":29,"g":20,"b":20,"hex":"#1D1414"},{"code":"H17","r":241,"g":237,"b":237,"hex":"#F1EDED"},{"code":"H18","r":255,"g":253,"b":240,"hex":"#FFFDF0"},{"code":"H19","r":246,"g":239,"b":226,"hex":"#F6EFE2"},{"code":"H20","r":148,"g":159,"b":163,"hex":"#949FA3"},{"code":"H21","r":255,"g":251,"b":225,"hex":"#FFFBE1"},{"code":"H22","r":202,"g":202,"b":212,"hex":"#CACAD4"},{"code":"H23","r":154,"g":157,"b":148,"hex":"#9A9D94"},
+    {"code":"M1","r":188,"g":198,"b":184,"hex":"#BCC6B8"},{"code":"M2","r":138,"g":163,"b":134,"hex":"#8AA386"},{"code":"M3","r":105,"g":125,"b":128,"hex":"#697D80"},{"code":"M4","r":227,"g":210,"b":188,"hex":"#E3D2BC"},{"code":"M5","r":208,"g":204,"b":170,"hex":"#D0CCAA"},{"code":"M6","r":176,"g":167,"b":130,"hex":"#B0A782"},{"code":"M7","r":180,"g":164,"b":151,"hex":"#B4A497"},{"code":"M8","r":179,"g":130,"b":129,"hex":"#B38281"},{"code":"M9","r":165,"g":135,"b":103,"hex":"#A58767"},{"code":"M10","r":197,"g":178,"b":188,"hex":"#C5B2BC"},{"code":"M11","r":159,"g":117,"b":148,"hex":"#9F7594"},{"code":"M12","r":100,"g":71,"b":73,"hex":"#644749"},{"code":"M13","r":209,"g":144,"b":102,"hex":"#D19066"},{"code":"M14","r":199,"g":115,"b":98,"hex":"#C77362"},{"code":"M15","r":117,"g":125,"b":120,"hex":"#757D78"},
+    {"code":"P1","r":252,"g":247,"b":248,"hex":"#FCF7F8"},{"code":"P2","r":176,"g":169,"b":172,"hex":"#B0A9AC"},{"code":"P3","r":175,"g":220,"b":171,"hex":"#AFDCAB"},{"code":"P4","r":254,"g":164,"b":159,"hex":"#FEA49F"},{"code":"P5","r":238,"g":140,"b":62,"hex":"#EE8C3E"},{"code":"P6","r":95,"g":208,"b":167,"hex":"#5FD0A7"},{"code":"P7","r":235,"g":146,"b":112,"hex":"#EB9270"},{"code":"P8","r":240,"g":217,"b":88,"hex":"#F0D958"},{"code":"P9","r":217,"g":217,"b":217,"hex":"#D9D9D9"},{"code":"P10","r":217,"g":199,"b":234,"hex":"#D9C7EA"},{"code":"P11","r":243,"g":236,"b":201,"hex":"#F3ECC9"},{"code":"P12","r":230,"g":238,"b":242,"hex":"#E6EEF2"},{"code":"P13","r":170,"g":203,"b":239,"hex":"#AACBEF"},{"code":"P14","r":51,"g":118,"b":128,"hex":"#337680"},{"code":"P15","r":102,"g":133,"b":117,"hex":"#668575"},{"code":"P16","r":254,"g":191,"b":69,"hex":"#FEBF45"},{"code":"P17","r":254,"g":163,"b":36,"hex":"#FEA324"},{"code":"P18","r":254,"g":184,"b":159,"hex":"#FEB89F"},{"code":"P19","r":255,"g":254,"b":236,"hex":"#FFFEEC"},{"code":"P20","r":254,"g":190,"b":207,"hex":"#FEBECF"},{"code":"P21","r":236,"g":190,"b":191,"hex":"#ECBEBF"},{"code":"P22","r":228,"g":168,"b":159,"hex":"#E4A89F"},{"code":"P23","r":165,"g":98,"b":104,"hex":"#A56268"},
+    {"code":"Q1","r":242,"g":165,"b":232,"hex":"#F2A5E8"},{"code":"Q2","r":233,"g":236,"b":145,"hex":"#E9EC91"},{"code":"Q3","r":255,"g":255,"b":0,"hex":"#FFFF00"},{"code":"Q4","r":255,"g":235,"b":250,"hex":"#FFEBFA"},{"code":"Q5","r":118,"g":206,"b":222,"hex":"#76CEDE"},{"code":"R1","r":213,"g":13,"b":33,"hex":"#D50D21"},{"code":"R2","r":249,"g":47,"b":131,"hex":"#F92F83"},{"code":"R3","r":253,"g":131,"b":36,"hex":"#FD8324"},{"code":"R4","r":248,"g":236,"b":49,"hex":"#F8EC31"},{"code":"R5","r":53,"g":199,"b":91,"hex":"#35C75B"},{"code":"R6","r":35,"g":136,"b":145,"hex":"#238891"},{"code":"R7","r":25,"g":119,"b":157,"hex":"#19779D"},{"code":"R8","r":26,"g":96,"b":195,"hex":"#1A60C3"},{"code":"R9","r":154,"g":86,"b":180,"hex":"#9A56B4"},{"code":"R10","r":255,"g":219,"b":76,"hex":"#FFDB4C"},{"code":"R11","r":255,"g":235,"b":250,"hex":"#FFEBFA"},{"code":"R12","r":216,"g":213,"b":206,"hex":"#D8D5CE"},{"code":"R13","r":85,"g":81,"b":76,"hex":"#55514C"},{"code":"R14","r":159,"g":228,"b":223,"hex":"#9FE4DF"},{"code":"R15","r":119,"g":206,"b":233,"hex":"#77CEE9"},{"code":"R16","r":62,"g":207,"b":202,"hex":"#3ECFCA"},{"code":"R17","r":74,"g":134,"b":122,"hex":"#4A867A"},{"code":"R18","r":127,"g":205,"b":157,"hex":"#7FCD9D"},{"code":"R19","r":205,"g":229,"b":93,"hex":"#CDE55D"},{"code":"R20","r":232,"g":199,"b":180,"hex":"#E8C7B4"},{"code":"R21","r":173,"g":111,"b":60,"hex":"#AD6F3C"},{"code":"R22","r":108,"g":55,"b":47,"hex":"#6C372F"},{"code":"R23","r":254,"g":184,"b":114,"hex":"#FEB872"},{"code":"R24","r":243,"g":193,"b":192,"hex":"#F3C1C0"},{"code":"R25","r":201,"g":103,"b":94,"hex":"#C9675E"},{"code":"R26","r":210,"g":147,"b":190,"hex":"#D293BE"},{"code":"R27","r":234,"g":140,"b":177,"hex":"#EA8CB1"},{"code":"R28","r":156,"g":135,"b":214,"hex":"#9C87D6"},
+    {"code":"T1","r":255,"g":255,"b":255,"hex":"#FFFFFF"},
+    {"code":"Y1","r":253,"g":111,"b":180,"hex":"#FD6FB4"},{"code":"Y2","r":254,"g":180,"b":129,"hex":"#FEB481"},{"code":"Y3","r":215,"g":250,"b":160,"hex":"#D7FAA0"},{"code":"Y4","r":139,"g":219,"b":250,"hex":"#8BDBFA"},{"code":"Y5","r":233,"g":135,"b":234,"hex":"#E987EA"},
+    {"code":"ZG1","r":218,"g":171,"b":179,"hex":"#DAABB3"},{"code":"ZG2","r":214,"g":170,"b":135,"hex":"#D6AA87"},{"code":"ZG3","r":193,"g":189,"b":141,"hex":"#C1BD8D"},{"code":"ZG4","r":150,"g":134,"b":159,"hex":"#96869F"},{"code":"ZG5","r":132,"g":144,"b":166,"hex":"#8490A6"},{"code":"ZG6","r":148,"g":191,"b":226,"hex":"#94BFE2"},{"code":"ZG7","r":226,"g":169,"b":210,"hex":"#E2A9D2"},{"code":"ZG8","r":171,"g":145,"b":192,"hex":"#AB91C0"}
+  ];
+
+  function rgbToLab(r, g, b) {
+    let rLinear = r / 255, gLinear = g / 255, bLinear = b / 255;
+    rLinear = rLinear > 0.04045 ? Math.pow((rLinear + 0.055) / 1.055, 2.4) : rLinear / 12.92;
+    gLinear = gLinear > 0.04045 ? Math.pow((gLinear + 0.055) / 1.055, 2.4) : gLinear / 12.92;
+    bLinear = bLinear > 0.04045 ? Math.pow((bLinear + 0.055) / 1.055, 2.4) : bLinear / 12.92;
+    let x = (rLinear * 0.4124 + gLinear * 0.3576 + bLinear * 0.1805) / 0.95047;
+    let y = (rLinear * 0.2126 + gLinear * 0.7152 + bLinear * 0.0722) / 1.00000;
+    let z = (rLinear * 0.0193 + gLinear * 0.1192 + bLinear * 0.9505) / 1.08883;
+    x = x > 0.008856 ? Math.pow(x, 1/3) : (7.787 * x) + (16 / 116);
+    y = y > 0.008856 ? Math.pow(y, 1/3) : (7.787 * y) + (16 / 116);
+    z = z > 0.008856 ? Math.pow(z, 1/3) : (7.787 * z) + (16 / 116);
+    return { L: (116 * y) - 16, a: 500 * (x - y), b: 200 * (y - z) };
+  }
+
+  const BEAD_PALETTE = MARD_PALETTE_RAW.map(item => ({ ...item, lab: rgbToLab(item.r, item.g, item.b) }));
+  let currentSelectedBead = BEAD_PALETTE[0];
+
+  const paletteTriggerBtn = document.getElementById("paletteTriggerBtn");
+  const selectedSwatch = document.getElementById("selectedSwatch");
+  const selectedCodeText = document.getElementById("selectedCodeText");
+  const paletteDropdownMenu = document.getElementById("paletteDropdownMenu");
+
+  function initPaletteDropdown() {
+    paletteDropdownMenu.innerHTML = "";
+    BEAD_PALETTE.forEach(bead => {
+      const item = document.createElement("div");
+      item.className = "palette-option-item";
+      item.innerHTML = `<span class="palette-opt-swatch" style="background:${bead.hex};"></span><span><strong>${bead.code}</strong> (${bead.hex})</span>`;
+      item.onclick = (e) => { e.stopPropagation(); selectPaletteColor(bead); };
+      paletteDropdownMenu.appendChild(item);
+    });
+  }
+
+  function togglePaletteDropdown() { paletteDropdownMenu.classList.toggle("open"); }
+  function selectPaletteColor(bead) {
+    currentSelectedBead = bead;
+    selectedSwatch.style.background = bead.hex;
+    selectedCodeText.textContent = `${bead.code} (${bead.hex})`;
+    paletteDropdownMenu.classList.remove("open");
+  }
+  window.addEventListener("click", (e) => { if (!document.getElementById("customPalettePicker").contains(e.target)) paletteDropdownMenu.classList.remove("open"); });
+  initPaletteDropdown();
+
+  const colorCache = new Map();
+  function getClosestBeadLab(r, g, b, a) {
+    if (a < 64) return null;
+    const cacheKey = `${r},${g},${b}`;
+    if (colorCache.has(cacheKey)) return colorCache.get(cacheKey);
+
+    const targetLab = rgbToLab(r, g, b);
+    let minDiff = Infinity, matched = BEAD_PALETTE[0];
+    for (const bead of BEAD_PALETTE) {
+      const dL = targetLab.L - bead.lab.L, da = targetLab.a - bead.lab.a, db = targetLab.b - bead.lab.b;
+      const diff = dL * dL + da * da + db * db;
+      if (diff < minDiff) { minDiff = diff; matched = bead; }
+    }
+    colorCache.set(cacheKey, matched);
+    return matched;
+  }
+
+  let currentImage = null;
+  let rawSourceImage = null;
+  let patternGridData = [];
+
+  let currentCols = 0;
+  let currentRows = 0;
+  let baseCellSize = 24;
+  let canvasZoom = 1.0;
+  let origZoom = 1.0;
+  let hoveredCell = null;
+
+  let isEditMode = false, isPipetteMode = false, isCompareMode = false;
+  let highlightedColorCode = null;
+  let selectedCells = new Set();
+  let isMouseDown = false, dragStartCell = null, isDeselecting = false;
+  let selectionSnapshot = new Set();
+  let processDebounceTimer = null;
+
+  const MAX_HISTORY = 30;
+  let historyStack = [];
+  let historyIndex = -1;
+  let isHistoryNavigating = false;
+
+  function cloneGrid(grid) {
+    return grid.map(row => [...row]);
+  }
+
+  function getSliderState() {
+    return {
+      beadWidth: document.getElementById("beadWidth").value,
+      sharpen: document.getElementById("sharpen").value,
+      saturation: document.getElementById("saturation").value,
+      contrast: document.getElementById("contrast").value,
+      brightness: document.getElementById("brightness").value,
+      samplingMode: document.getElementById("samplingMode").value,
+      cleanNoise: document.getElementById("cleanNoise").checked,
+      gridSize: document.getElementById("gridSize").value,
+      showLabels: document.getElementById("showLabels").checked
+    };
+  }
+
+  function setSliderState(s) {
+    document.getElementById("beadWidth").value = s.beadWidth;
+    document.getElementById("widthVal").textContent = `${s.beadWidth} 顆`;
+    document.getElementById("sharpen").value = s.sharpen;
+    document.getElementById("sharpenVal").textContent = `${s.sharpen}%`;
+    document.getElementById("saturation").value = s.saturation;
+    document.getElementById("saturationVal").textContent = `${s.saturation}%`;
+    document.getElementById("contrast").value = s.contrast;
+    document.getElementById("contrastVal").textContent = `${s.contrast}%`;
+    document.getElementById("brightness").value = s.brightness;
+    document.getElementById("brightnessVal").textContent = `${s.brightness}%`;
+    document.getElementById("samplingMode").value = s.samplingMode;
+    document.getElementById("cleanNoise").checked = s.cleanNoise;
+    document.getElementById("gridSize").value = s.gridSize;
+    document.getElementById("gridSizeVal").textContent = `${s.gridSize} px`;
+    document.getElementById("showLabels").checked = s.showLabels;
+  }
+
+  function pushHistoryState(actionTitle) {
+    if (isHistoryNavigating || patternGridData.length === 0) return;
+
+    if (historyIndex < historyStack.length - 1) {
+      historyStack = historyStack.slice(0, historyIndex + 1);
+    }
+
+    const state = {
+      action: actionTitle,
+      grid: cloneGrid(patternGridData),
+      cols: currentCols,
+      rows: currentRows,
+      sliders: getSliderState()
+    };
+
+    historyStack.push(state);
+    if (historyStack.length > MAX_HISTORY) {
+      historyStack.shift();
+    }
+    historyIndex = historyStack.length - 1;
+    updateHistoryButtons();
+  }
+
+  function updateHistoryButtons() {
+    const canUndo = (historyIndex > 0);
+    const canRedo = (historyIndex >= 0 && historyIndex < historyStack.length - 1);
+    const canReset = (historyStack.length > 0);
+
+    document.getElementById("sidebarUndoBtn").disabled = !canUndo;
+    document.getElementById("sidebarRedoBtn").disabled = !canRedo;
+    document.getElementById("sidebarResetBtn").disabled = !canReset;
+
+    document.getElementById("undoBtn").disabled = !canUndo;
+    document.getElementById("redoBtn").disabled = !canRedo;
+  }
+
+  function undoAction() {
+    if (historyIndex <= 0) return;
+    historyIndex--;
+    restoreHistoryState(historyStack[historyIndex]);
+  }
+
+  function redoAction() {
+    if (historyIndex >= historyStack.length - 1) return;
+    historyIndex++;
+    restoreHistoryState(historyStack[historyIndex]);
+  }
+
+  function restoreHistoryState(state) {
+    isHistoryNavigating = true;
+    patternGridData = cloneGrid(state.grid);
+    currentCols = state.cols;
+    currentRows = state.rows;
+    baseCellSize = parseInt(state.sliders.gridSize, 10);
+    setSliderState(state.sliders);
+
+    const widthCm = (currentCols * 0.266).toFixed(2);
+    const heightCm = (currentRows * 0.266).toFixed(2);
+    document.getElementById("patternDimensions").textContent = `${currentCols} × ${currentRows} 格 (${widthCm} × ${heightCm} cm)`;
+
+    clearSelection();
+    recalculateStats();
+    resizeCanvases();
+    renderBasePattern();
+    renderGrid();
+    renderInteractionLayer();
+    updateHistoryButtons();
+    isHistoryNavigating = false;
+  }
+
+  function resetAllChanges() {
+    if (!currentImage) return;
+    if (confirm("確定要復原並重設所有修改與濾鏡參數嗎？")) {
+      document.getElementById("beadWidth").value = 29;
+      document.getElementById("widthVal").textContent = "29 顆";
+      document.getElementById("samplingMode").value = "pixel";
+      document.getElementById("sharpen").value = 30;
+      document.getElementById("sharpenVal").textContent = "30%";
+      document.getElementById("saturation").value = 20;
+      document.getElementById("saturationVal").textContent = "20%";
+      document.getElementById("contrast").value = 0;
+      document.getElementById("contrastVal").textContent = "0%";
+      document.getElementById("brightness").value = 0;
+      document.getElementById("brightnessVal").textContent = "0%";
+      document.getElementById("cleanNoise").checked = true;
+      document.getElementById("gridSize").value = 24;
+      document.getElementById("gridSizeVal").textContent = "24 px";
+      document.getElementById("showLabels").checked = false;
+
+      historyStack = [];
+      historyIndex = -1;
+      processImageCore(true);
+    }
+  }
+
+  window.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+      if (e.shiftKey) redoAction();
+      else undoAction();
+      e.preventDefault();
+    } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
+      redoAction();
+      e.preventDefault();
+    }
+  });
+
+  const headerBarSize = 32;
+
+  const topHeaderCanvas = document.getElementById("topHeaderCanvas");
+  const leftHeaderCanvas = document.getElementById("leftHeaderCanvas");
+  const patternCanvas = document.getElementById("patternCanvas");
+  const gridCanvas = document.getElementById("gridCanvas");
+  const interactionCanvas = document.getElementById("interactionCanvas");
+  const compareCanvas = document.getElementById("compareCanvas");
+  const mainCanvasWrapper = document.getElementById("mainCanvasInner");
+
+  const ctxTop = topHeaderCanvas.getContext("2d", { alpha: false });
+  const ctxLeft = leftHeaderCanvas.getContext("2d", { alpha: false });
+  const ctxPattern = patternCanvas.getContext("2d", { alpha: false });
+  const ctxGrid = gridCanvas.getContext("2d");
+  const ctxInteract = interactionCanvas.getContext("2d");
+  const ctxCompare = compareCanvas.getContext("2d", { alpha: false });
+
+  const mainScroll = document.getElementById("mainScroll");
+  const topHeaderWrapper = document.getElementById("topHeaderWrapper");
+  const leftHeaderWrapper = document.getElementById("leftHeaderWrapper");
+  
+  mainScroll.addEventListener("scroll", () => {
+    topHeaderWrapper.scrollLeft = mainScroll.scrollLeft;
+    leftHeaderWrapper.scrollTop = mainScroll.scrollTop;
+  });
+
+  function rgbToHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+    if (max === min) h = s = 0;
+    else {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+    return { h, s, l };
+  }
+
+  function hslToRgb(h, s, l) {
+    let r, g, b;
+    if (s === 0) r = g = b = l;
+    else {
+      const hue2rgb = (p, q, t) => {
+        if (t < 0) t += 1; if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+      };
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1/3); g = hue2rgb(p, q, h); b = hue2rgb(p, q, h - 1/3);
+    }
+    return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
+  }
+
+  function applyAdjustments(r, g, b, brightnessPercent, contrastPercent, saturationPercent) {
+    if (saturationPercent !== 0) {
+      const hsl = rgbToHsl(r, g, b);
+      hsl.s = Math.max(0, Math.min(1, hsl.s * (1 + saturationPercent / 100)));
+      const rgb = hslToRgb(hsl.h, hsl.s, hsl.l);
+      r = rgb.r; g = rgb.g; b = rgb.b;
+    }
+    const bOffset = (brightnessPercent / 100) * 255;
+    let adjR = r + bOffset, adjG = g + bOffset, adjB = b + bOffset;
+    const c = Math.max(-100, Math.min(100, contrastPercent));
+    const contrastVal = (c / 100) * 255;
+    const factor = (259 * (contrastVal + 255)) / (255 * (259 - contrastVal));
+    return {
+      r: Math.min(255, Math.max(0, factor * (adjR - 128) + 128)),
+      g: Math.min(255, Math.max(0, factor * (adjG - 128) + 128)),
+      b: Math.min(255, Math.max(0, factor * (adjB - 128) + 128))
+    };
+  }
+
+  function applySharpenKernel(srcData, width, height, strength) {
+    if (strength <= 0) return srcData;
+    const factor = strength / 100;
+    const output = new Uint8ClampedArray(srcData.length);
+    output.set(srcData);
+    const kernel = [ 0, -1*factor, 0, -1*factor, 1+4*factor, -1*factor, 0, -1*factor, 0 ];
+    for (let y = 1; y < height - 1; y++) {
+      for (let x = 1; x < width - 1; x++) {
+        for (let c = 0; c < 3; c++) {
+          let sum = 0;
+          for (let ky = -1; ky <= 1; ky++) {
+            for (let kx = -1; kx <= 1; kx++) {
+              const pIdx = ((y + ky) * width + (x + kx)) * 4 + c;
+              sum += srcData[pIdx] * kernel[(ky + 1) * 3 + (kx + 1)];
+            }
+          }
+          output[(y * width + x) * 4 + c] = Math.min(255, Math.max(0, sum));
+        }
+        output[(y * width + x) * 4 + 3] = srcData[(y * width + x) * 4 + 3];
+      }
+    }
+    return output;
+  }
+
+  function applyDenoiseFilter(grid, cols, rows) {
+    const cleanGrid = grid.map(row => [...row]);
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const cur = grid[y][x];
+        if (!cur) continue;
+        const neighborCounts = {};
+        let totalNeighbors = 0, sameNeighborCount = 0;
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            if (dx === 0 && dy === 0) continue;
+            const nx = x + dx, ny = y + dy;
+            if (nx >= 0 && nx < cols && ny >= 0 && ny < rows && grid[ny][nx]) {
+              totalNeighbors++;
+              const nCode = grid[ny][nx].code;
+              neighborCounts[nCode] = (neighborCounts[nCode] || 0) + 1;
+              if (nCode === cur.code) sameNeighborCount++;
+            }
+          }
+        }
+        if (totalNeighbors >= 4 && sameNeighborCount === 0) {
+          let dominantCode = null, maxC = 0;
+          for (const code in neighborCounts) {
+            if (neighborCounts[code] > maxC) { maxC = neighborCounts[code]; dominantCode = code; }
+          }
+          if (dominantCode && maxC >= 3) {
+            cleanGrid[y][x] = BEAD_PALETTE.find(b => b.code === dominantCode) || cur;
+          }
+        }
+      }
+    }
+    return cleanGrid;
+  }
+
+  function effectiveCellSize() { return baseCellSize * canvasZoom; }
+
+  let renderDebounceTimer = null;
+
+  function scheduleProcessImage(actionName) {
+    if (processDebounceTimer) clearTimeout(processDebounceTimer);
+    processDebounceTimer = setTimeout(() => {
+      processImageCore(false, actionName);
+    }, 150);
+  }
+
+  function applyGridSizeAndRedraw() {
+    baseCellSize = parseInt(document.getElementById("gridSize").value, 10);
+    if (currentCols === 0) return;
+    resizeCanvases();
+    renderBasePattern();
+    renderGrid();
+    renderInteractionLayer();
+  }
+
+  function scheduleGridSizeRedraw() {
+    if (renderDebounceTimer) clearTimeout(renderDebounceTimer);
+    renderDebounceTimer = setTimeout(applyGridSizeAndRedraw, 50);
+  }
+
+  function processImageCore(isInitial = false, actionName = "濾鏡調整") {
+    if (!currentImage) return;
+
+    currentCols = parseInt(document.getElementById("beadWidth").value, 10);
+    baseCellSize = parseInt(document.getElementById("gridSize").value, 10);
+    const contrast = parseInt(document.getElementById("contrast").value, 10);
+    const brightness = parseInt(document.getElementById("brightness").value, 10);
+    const saturation = parseInt(document.getElementById("saturation").value, 10);
+    const sharpen = parseInt(document.getElementById("sharpen").value, 10);
+    const samplingMode = document.getElementById("samplingMode").value;
+    const cleanNoise = document.getElementById("cleanNoise").checked;
+
+    const scale = currentCols / currentImage.width;
+    currentRows = Math.round(currentImage.height * scale);
+
+    const widthCm = (currentCols * 0.266).toFixed(2);
+    const heightCm = (currentRows * 0.266).toFixed(2);
+    document.getElementById("patternDimensions").textContent = `${currentCols} × ${currentRows} 格 (${widthCm} × ${heightCm} cm)`;
+
+    const sampleCanvas = document.createElement("canvas");
+    sampleCanvas.width = currentCols; sampleCanvas.height = currentRows;
+    const sCtx = sampleCanvas.getContext("2d", { willReadFrequently: true });
+    sCtx.imageSmoothingEnabled = (samplingMode !== "pixel");
+    sCtx.imageSmoothingQuality = "high";
+    sCtx.drawImage(currentImage, 0, 0, currentCols, currentRows);
+
+    let rawImgData = sCtx.getImageData(0, 0, currentCols, currentRows).data;
+    if (sharpen > 0) rawImgData = applySharpenKernel(rawImgData, currentCols, currentRows, sharpen);
+
+    patternGridData = [];
+    for (let r = 0; r < currentRows; r++) patternGridData[r] = new Array(currentCols).fill(null);
+
+    for (let y = 0; y < currentRows; y++) {
+      for (let x = 0; x < currentCols; x++) {
+        const idx = (y * currentCols + x) * 4;
+        if (rawImgData[idx + 3] < 64) continue;
+        const adj = applyAdjustments(rawImgData[idx], rawImgData[idx+1], rawImgData[idx+2], brightness, contrast, saturation);
+        patternGridData[y][x] = getClosestBeadLab(adj.r, adj.g, adj.b, 255);
+      }
+    }
+
+    if (cleanNoise) patternGridData = applyDenoiseFilter(patternGridData, currentCols, currentRows);
+
+    pushHistoryState(actionName);
+    clearSelection();
+    recalculateStats();
+    resizeCanvases();
+    renderBasePattern();
+    renderGrid();
+    renderInteractionLayer();
+    document.getElementById("downloadBtn").disabled = false;
+  }
+
+  function recalculateStats() {
+    const counts = {};
+    let totalCount = 0;
+    for (let y = 0; y < currentRows; y++) {
+      for (let x = 0; x < currentCols; x++) {
+        const bead = patternGridData[y]?.[x];
+        if (bead) {
+          counts[bead.code] = (counts[bead.code] || 0) + 1;
+          totalCount++;
+        }
+      }
+    }
+    updateStats(counts, totalCount);
+    updateColorFilterBar(counts);
+  }
+
+  function filterByColor(code) {
+    highlightedColorCode = code;
+    recalculateStats();
+    renderBasePattern();
+  }
+
+  function updateColorFilterBar(counts) {
+    const colorFilterCard = document.getElementById("colorFilterCard");
+    const paletteFilterItems = document.getElementById("paletteFilterItems");
+    const filterStatusText = document.getElementById("filterStatusText");
+    const allColorsBtn = document.getElementById("allColorsBtn");
+
+    const codes = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+    if (codes.length === 0) { colorFilterCard.style.display = "none"; return; }
+
+    colorFilterCard.style.display = "flex";
+    paletteFilterItems.innerHTML = "";
+    allColorsBtn.className = (highlightedColorCode === null) ? "all-colors-btn active" : "all-colors-btn";
+
+    codes.forEach(code => {
+      const bead = BEAD_PALETTE.find(b => b.code === code);
+      if (!bead) return;
+      const isCurrentActive = (highlightedColorCode === code);
+      const isDimmed = (highlightedColorCode !== null && !isCurrentActive);
+
+      const btn = document.createElement("button");
+      btn.className = `color-filter-btn ${isCurrentActive ? 'active' : ''} ${isDimmed ? 'dimmed' : ''}`;
+      btn.style.backgroundColor = bead.hex;
+      btn.style.color = (bead.lab.L > 55) ? "#000000" : "#ffffff";
+      btn.title = `色號: ${bead.code} (${counts[code]} 顆)`;
+      btn.textContent = bead.code;
+      btn.onclick = () => { filterByColor(highlightedColorCode === code ? null : code); };
+      paletteFilterItems.appendChild(btn);
+    });
+    filterStatusText.textContent = highlightedColorCode ? `📍 正凸顯色號：【${highlightedColorCode}】` : "(點擊顏色單獨顯示該色，其他暗掉)";
+    filterStatusText.style.color = highlightedColorCode ? "var(--highlight-active)" : "var(--text-sub)";
+  }
+
+  function resizeCanvases() {
+    if (currentCols === 0) return;
+    const cell = effectiveCellSize();
+    const totalW = Math.round(currentCols * cell);
+    const totalH = Math.round(currentRows * cell);
+
+    mainCanvasWrapper.style.width = `${totalW}px`;
+    mainCanvasWrapper.style.height = `${totalH}px`;
+
+    [patternCanvas, gridCanvas, interactionCanvas, compareCanvas].forEach(canvas => {
+      if (canvas.width !== totalW || canvas.height !== totalH) {
+        canvas.width = totalW;
+        canvas.height = totalH;
+      }
+    });
+
+    if (topHeaderCanvas.width !== totalW || topHeaderCanvas.height !== headerBarSize) {
+      topHeaderCanvas.width = totalW; topHeaderCanvas.height = headerBarSize;
+    }
+    if (leftHeaderCanvas.width !== headerBarSize || leftHeaderCanvas.height !== totalH) {
+      leftHeaderCanvas.width = headerBarSize; leftHeaderCanvas.height = totalH;
+    }
+  }
+
+  function renderGrid() {
+    if (currentCols === 0) return;
+    const cell = effectiveCellSize();
+    const totalW = gridCanvas.width;
+    const totalH = gridCanvas.height;
+    ctxGrid.clearRect(0, 0, totalW, totalH);
+    ctxGrid.beginPath();
+    
+    for (let x = 0; x <= currentCols; x++) {
+      const curX = Math.round(x * cell);
+      ctxGrid.moveTo(curX, 0); ctxGrid.lineTo(curX, totalH);
+    }
+    for (let y = 0; y <= currentRows; y++) {
+      const curY = Math.round(y * cell);
+      ctxGrid.moveTo(0, curY); ctxGrid.lineTo(totalW, curY);
+    }
+    ctxGrid.strokeStyle = "rgba(255,255,255,0.08)";
+    ctxGrid.lineWidth = 0.8;
+    ctxGrid.stroke();
+
+    ctxGrid.beginPath();
+    for (let x = 5; x < currentCols; x += 5) {
+      const curX = Math.round(x * cell);
+      ctxGrid.moveTo(curX, 0); ctxGrid.lineTo(curX, totalH);
+    }
+    ctxGrid.strokeStyle = "#ff3344";
+    ctxGrid.lineWidth = 1.2;
+    ctxGrid.stroke();
+
+    ctxGrid.beginPath();
+    ctxGrid.setLineDash([4, 3]);
+    for (let y = 5; y < currentRows; y += 5) {
+      const curY = Math.round(y * cell);
+      ctxGrid.moveTo(0, curY); ctxGrid.lineTo(totalW, curY);
+    }
+    ctxGrid.stroke();
+    ctxGrid.setLineDash([]);
+  }
+
+  function renderBasePattern() {
+    if (patternGridData.length === 0) return;
+    const cell = effectiveCellSize();
+    const totalW = patternCanvas.width;
+    const totalH = patternCanvas.height;
+    const showLabels = document.getElementById("showLabels").checked;
+
+    ctxPattern.fillStyle = "#181825";
+    ctxPattern.fillRect(0, 0, totalW, totalH);
+
+    for (let y = 0; y < currentRows; y++) {
+      for (let x = 0; x < currentCols; x++) {
+        const bead = patternGridData[y]?.[x];
+        const posX = Math.round(x * cell), posY = Math.round(y * cell);
+        const curCellW = Math.round((x + 1) * cell) - posX;
+        const curCellH = Math.round((y + 1) * cell) - posY;
+
+        if (bead) {
+          const isMatched = (highlightedColorCode === null || bead.code === highlightedColorCode);
+          if (isMatched) {
+            ctxPattern.fillStyle = bead.hex;
+            ctxPattern.fillRect(posX, posY, curCellW, curCellH);
+
+            ctxPattern.fillStyle = "rgba(255,255,255,0.22)";
+            ctxPattern.fillRect(posX, posY, curCellW, Math.max(1, Math.floor(curCellH * 0.1)));
+            ctxPattern.fillRect(posX, posY, Math.max(1, Math.floor(curCellW * 0.1)), curCellH);
+            ctxPattern.fillStyle = "rgba(0,0,0,0.22)";
+            ctxPattern.fillRect(posX, posY + curCellH - Math.max(1, Math.floor(curCellH * 0.1)), curCellW, Math.max(1, Math.floor(curCellH * 0.1)));
+            ctxPattern.fillRect(posX + curCellW - Math.max(1, Math.floor(curCellW * 0.1)), posY, Math.max(1, Math.floor(curCellW * 0.1)), curCellH);
+
+            if (showLabels && cell >= 14) {
+              ctxPattern.fillStyle = (bead.lab.L > 55) ? "rgba(0,0,0,0.85)" : "rgba(255,255,255,0.95)";
+              ctxPattern.font = `bold ${Math.max(8, Math.floor(cell * 0.36))}px monospace`;
+              ctxPattern.textAlign = "center"; ctxPattern.textBaseline = "middle";
+              ctxPattern.fillText(bead.code, posX + curCellW / 2, posY + curCellH / 2);
+            }
+          } else {
+            ctxPattern.fillStyle = "#222330";
+            ctxPattern.fillRect(posX, posY, curCellW, curCellH);
+            ctxPattern.fillStyle = bead.hex;
+            ctxPattern.globalAlpha = 0.12;
+            ctxPattern.fillRect(posX, posY, curCellW, curCellH);
+            ctxPattern.globalAlpha = 1.0;
+          }
+        } else {
+          ctxPattern.fillStyle = "#1e1e2e";
+          ctxPattern.fillRect(posX + 1, posY + 1, curCellW - 2, curCellH - 2);
+        }
+      }
+    }
+    renderHeaders();
+    renderCompareCanvas();
+  }
+
+  function renderInteractionLayer() {
+    if (currentCols === 0) return;
+    const cell = effectiveCellSize();
+    const totalW = interactionCanvas.width;
+    const totalH = interactionCanvas.height;
+    ctxInteract.clearRect(0, 0, totalW, totalH);
+
+    selectedCells.forEach(key => {
+      const [x, y] = key.split(",").map(Number);
+      const posX = Math.round(x * cell), posY = Math.round(y * cell);
+      const curCellW = Math.round((x + 1) * cell) - posX;
+      const curCellH = Math.round((y + 1) * cell) - posY;
+      ctxInteract.fillStyle = "rgba(0, 150, 255, 0.4)";
+      ctxInteract.fillRect(posX, posY, curCellW, curCellH);
+      ctxInteract.strokeStyle = "#0088ff";
+      ctxInteract.lineWidth = Math.max(2, Math.floor(cell * 0.12));
+      ctxInteract.strokeRect(posX + 1, posY + 1, curCellW - 2, curCellH - 2);
+    });
+
+    if (hoveredCell && hoveredCell.col < currentCols && hoveredCell.row < currentRows) {
+      const hX = Math.round(hoveredCell.col * cell), hY = Math.round(hoveredCell.row * cell);
+      const hW = Math.round((hoveredCell.col + 1) * cell) - hX, hH = Math.round((hoveredCell.row + 1) * cell) - hY;
+
+      ctxInteract.fillStyle = isPipetteMode ? "rgba(0, 136, 255, 0.28)" : "rgba(255, 230, 0, 0.28)";
+      ctxInteract.fillRect(hX, 0, hW, totalH);
+      ctxInteract.fillRect(0, hY, totalW, hH);
+      ctxInteract.fillStyle = isPipetteMode ? "rgba(0, 136, 255, 0.55)" : "rgba(255, 230, 0, 0.55)";
+      ctxInteract.fillRect(hX, hY, hW, hH);
+      ctxInteract.strokeStyle = isPipetteMode ? "#0088ff" : "#ffe600";
+      ctxInteract.lineWidth = Math.max(2, Math.floor(cell * 0.12));
+      ctxInteract.strokeRect(hX + 1, hY + 1, hW - 2, hH - 2);
+    }
+  }
+
+  function renderHeaders() {
+    if (currentCols === 0) return;
+    const cell = effectiveCellSize();
+    const totalW = topHeaderCanvas.width, totalH = leftHeaderCanvas.height;
+
+    ctxTop.clearRect(0, 0, totalW, headerBarSize);
+    ctxTop.font = `bold ${Math.max(9, Math.min(13, Math.floor(cell * 0.38)))}px 'Silkscreen', monospace`;
+    ctxTop.textAlign = "center"; ctxTop.textBaseline = "middle";
+
+    for (let x = 0; x < currentCols; x++) {
+      const sX = Math.round(x * cell), sW = Math.round((x + 1) * cell) - sX;
+      const isHoveredX = (hoveredCell !== null && hoveredCell.col === x);
+      ctxTop.fillStyle = isHoveredX ? "#ffe600" : ((x % 5 === 4 || x === currentCols - 1) ? "#242538" : "#1e1e2e");
+      ctxTop.fillRect(sX, 0, sW, headerBarSize);
+      ctxTop.strokeStyle = isHoveredX ? "#ffffff" : "#45475a";
+      ctxTop.lineWidth = isHoveredX ? 2 : 1;
+      ctxTop.strokeRect(sX + (isHoveredX?1:0.5), isHoveredX?1:0.5, sW - (isHoveredX?2:1), headerBarSize - (isHoveredX?2:1));
+      ctxTop.fillStyle = isHoveredX ? "#000000" : "#a6adc8";
+      ctxTop.fillText((x + 1).toString(), sX + sW / 2, headerBarSize / 2);
+    }
+
+    ctxLeft.clearRect(0, 0, headerBarSize, totalH);
+    ctxLeft.font = `bold ${Math.max(9, Math.min(13, Math.floor(cell * 0.38)))}px 'Silkscreen', monospace`;
+    ctxLeft.textAlign = "center"; ctxLeft.textBaseline = "middle";
+
+    for (let y = 0; y < currentRows; y++) {
+      const sY = Math.round(y * cell), sH = Math.round((y + 1) * cell) - sY;
+      const isHoveredY = (hoveredCell !== null && hoveredCell.row === y);
+      ctxLeft.fillStyle = isHoveredY ? "#ffe600" : ((y % 5 === 4 || y === currentRows - 1) ? "#242538" : "#1e1e2e");
+      ctxLeft.fillRect(0, sY, headerBarSize, sH);
+      ctxLeft.strokeStyle = isHoveredY ? "#ffffff" : "#45475a";
+      ctxLeft.lineWidth = isHoveredY ? 2 : 1;
+      ctxLeft.strokeRect(isHoveredY?1:0.5, sY + (isHoveredY?1:0.5), headerBarSize - (isHoveredY?2:1), sH - (isHoveredY?2:1));
+      ctxLeft.fillStyle = isHoveredY ? "#000000" : "#a6adc8";
+      ctxLeft.fillText((y + 1).toString(), headerBarSize / 2, sY + sH / 2);
+    }
+  }
+
+  function renderCompareCanvas() {
+    if (!isCompareMode || !currentImage || currentCols === 0) return;
+    ctxCompare.fillStyle = "#181825";
+    ctxCompare.fillRect(0, 0, compareCanvas.width, compareCanvas.height);
+    ctxCompare.imageSmoothingQuality = "high";
+    ctxCompare.drawImage(currentImage, 0, 0, compareCanvas.width, compareCanvas.height);
+  }
+
+  function toggleCompareMode() {
+    isCompareMode = !isCompareMode;
+    document.getElementById("compareBtn").classList.toggle("active-compare", isCompareMode);
+    document.getElementById("compareWrapper").classList.toggle("show", isCompareMode);
+    if(isCompareMode) renderCompareCanvas();
+  }
+
+  function toggleEditMode() {
+    isEditMode = !isEditMode;
+    const btn = document.getElementById("toggleEditBtn");
+    btn.classList.toggle("active-edit", isEditMode);
+    btn.textContent = isEditMode ? "✔ 完成" : "✏️ 編輯";
+    document.getElementById("editBar").classList.toggle("show", isEditMode);
+    if (!isEditMode) { setPipetteMode(false); clearSelection(); }
+  }
+
+  function togglePipetteMode() { setPipetteMode(!isPipetteMode); }
+  function setPipetteMode(active) {
+    isPipetteMode = active;
+    document.getElementById("pipetteBtn").classList.toggle("active-pipette", isPipetteMode);
+    document.getElementById("mainCanvasInner").classList.toggle("pipette-mode", isPipetteMode);
+    renderInteractionLayer();
+  }
+
+  function updateSelectCount() {
+    document.getElementById("selectCountText").textContent = `已選擇: ${selectedCells.size} 顆`;
+  }
+  function clearSelection() { selectedCells.clear(); updateSelectCount(); renderInteractionLayer(); }
+  function selectAllBeads() {
+    for (let y = 0; y < currentRows; y++) for (let x = 0; x < currentCols; x++) selectedCells.add(`${x},${y}`);
+    updateSelectCount(); renderInteractionLayer();
+  }
+
+  function applyReplaceColor() {
+    if (selectedCells.size === 0) { alert("請先在圖紙上選取拼豆！"); return; }
+    selectedCells.forEach(key => {
+      const [x, y] = key.split(",").map(Number);
+      patternGridData[y][x] = currentSelectedBead;
+    });
+    pushHistoryState("替換顏色");
+    clearSelection();
+    recalculateStats();
+    renderBasePattern();
+  }
+
+  function applyDeleteBeads() {
+    if (selectedCells.size === 0) { alert("請先在圖紙上選取拼豆！"); return; }
+    selectedCells.forEach(key => {
+      const [x, y] = key.split(",").map(Number);
+      patternGridData[y][x] = null;
+    });
+    pushHistoryState("刪除拼豆");
+    clearSelection();
+    recalculateStats();
+    renderBasePattern();
+  }
+
+  function getCanvasCoordsFromEvent(e) {
+    const rect = interactionCanvas.getBoundingClientRect();
+    const cell = effectiveCellSize();
+    let clientX = e.clientX, clientY = e.clientY;
+    if (e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+    const mouseX = (clientX - rect.left) * (interactionCanvas.width / rect.width);
+    const mouseY = (clientY - rect.top) * (interactionCanvas.height / rect.height);
+    return { col: Math.floor(mouseX / cell), row: Math.floor(mouseY / cell), clientX, clientY };
+  }
+
+  interactionCanvas.addEventListener("mousedown", handlePointerStart);
+  interactionCanvas.addEventListener("touchstart", (e) => { if (isEditMode) { e.preventDefault(); handlePointerStart(e); } }, { passive: false });
+
+  function handlePointerStart(e) {
+    if (!isEditMode || patternGridData.length === 0) return;
+    const { col, row } = getCanvasCoordsFromEvent(e);
+    if (col >= 0 && col < currentCols && row >= 0 && row < currentRows) {
+      if (isPipetteMode) {
+        const bead = patternGridData[row][col];
+        if (bead) { selectPaletteColor(bead); setPipetteMode(false); }
+        return;
+      }
+      isMouseDown = true; dragStartCell = { col, row };
+      const key = `${col},${row}`;
+      selectionSnapshot = new Set(selectedCells);
+      if (selectedCells.has(key)) { isDeselecting = true; selectedCells.delete(key); }
+      else { isDeselecting = false; selectedCells.add(key); }
+      updateSelectCount(); renderInteractionLayer();
+    }
+  }
+
+  window.addEventListener("mouseup", handlePointerEnd);
+  window.addEventListener("touchend", handlePointerEnd);
+  function handlePointerEnd() { isMouseDown = false; dragStartCell = null; selectionSnapshot.clear(); }
+
+  interactionCanvas.addEventListener("mousemove", handlePointerMove);
+  interactionCanvas.addEventListener("touchmove", (e) => { if (isEditMode && isMouseDown) { e.preventDefault(); handlePointerMove(e); } }, { passive: false });
+
+  function handlePointerMove(e) {
+    if (patternGridData.length === 0) return;
+    const { col, row, clientX, clientY } = getCanvasCoordsFromEvent(e);
+
+    if (col >= 0 && col < currentCols && row >= 0 && row < currentRows) {
+      if (isEditMode && isMouseDown && dragStartCell && !isPipetteMode) {
+        selectedCells = new Set(selectionSnapshot);
+        const minX = Math.min(dragStartCell.col, col), maxX = Math.max(dragStartCell.col, col);
+        const minY = Math.min(dragStartCell.row, row), maxY = Math.max(dragStartCell.row, row);
+        for (let y = minY; y <= maxY; y++) {
+          for (let x = minX; x <= maxX; x++) {
+            const key = `${x},${y}`;
+            if (isDeselecting) selectedCells.delete(key); else selectedCells.add(key);
+          }
+        }
+        updateSelectCount();
+      }
+
+      if (!hoveredCell || hoveredCell.col !== col || hoveredCell.row !== row) {
+        hoveredCell = { col, row };
+        renderInteractionLayer();
+        renderHeaders();
+      }
+
+      const bead = patternGridData[row][col];
+      const tooltip = document.getElementById("beadTooltip");
+      tooltip.style.display = "block"; tooltip.style.left = `${clientX + 14}px`; tooltip.style.top = `${clientY + 14}px`;
+      if (bead) {
+        tooltip.innerHTML = `<div class="tip-coord">📍 X: ${col + 1}, Y: ${row + 1}</div>
+          <div class="tip-color"><span class="tip-swatch" style="background: ${bead.hex}"></span><span>色號: <strong>${bead.code}</strong></span></div>
+          ${isPipetteMode ? '<div style="color:#0088ff; margin-top:2px;">💧 點擊吸取此色</div>' : ''}`;
+      } else {
+        tooltip.innerHTML = `<div class="tip-coord">📍 X: ${col + 1}, Y: ${row + 1}</div><div style="color:#a6adc8;">(空白透明)</div>`;
+      }
+      return;
+    }
+    clearHover();
+  }
+
+  interactionCanvas.addEventListener("mouseleave", clearHover);
+  function clearHover() {
+    if (hoveredCell !== null) { hoveredCell = null; renderInteractionLayer(); renderHeaders(); }
+    document.getElementById("beadTooltip").style.display = "none";
+  }
+
+  function setOrigZoom(scale) {
+    origZoom = Math.min(4.0, Math.max(0.05, scale));
+    document.getElementById("origZoomWrapper").style.transform = `scale(${origZoom})`;
+    document.getElementById("origZoomText").textContent = `${Math.round(origZoom * 100)}%`;
+    if (uploadTool === 'poly' && (polyPoints.length > 0 || polyPolygons.length > 0)) {
+      drawPolySelection();
+    }
+  }
+  function adjustOrigZoom(delta) { setOrigZoom(origZoom + delta); }
+  function fitOrigToWindow() {
+    const img = document.getElementById("originalImg");
+    if (!img.complete || img.naturalWidth === 0) return;
+    const vp = document.getElementById("origViewport");
+    const scale = Math.min((vp.clientWidth - 48) / img.naturalWidth, (vp.clientHeight - 48) / img.naturalHeight, 1.0);
+    setOrigZoom(Math.max(0.05, scale));
+  }
+  function setCanvasZoom(scale) {
+    canvasZoom = Math.min(4.0, Math.max(0.05, scale));
+    document.getElementById("canvasZoomText").textContent = `${Math.round(canvasZoom * 100)}%`;
+    resizeCanvases();
+    renderBasePattern();
+    renderGrid();
+    renderInteractionLayer();
+  }
+  function adjustCanvasZoom(delta) { setCanvasZoom(canvasZoom + delta); }
+  function fitCanvasToWindow() {
+    if (currentCols === 0) return;
+    const vW = mainScroll.clientWidth - 20, vH = mainScroll.clientHeight - 20;
+    const fullW = currentCols * baseCellSize, fullH = currentRows * baseCellSize;
+    setCanvasZoom(Math.min(vW / fullW, vH / fullH, 1.0));
+  }
+
+  function updateStats(counts, total) {
+    document.getElementById("statsCard").style.display = "block";
+    document.getElementById("totalBeads").textContent = total;
+    const colorList = document.getElementById("colorList");
+    colorList.innerHTML = "";
+    Object.keys(counts).sort((a, b) => counts[b] - counts[a]).forEach(code => {
+      const bead = BEAD_PALETTE.find(b => b.code === code);
+      if (!bead) return;
+      const item = document.createElement("div");
+      item.className = "color-item";
+      item.innerHTML = `<div class="color-swatch" style="background: ${bead.hex}"></div><div><div><strong>${bead.code}</strong></div><div style="color: #a6adc8;">${counts[code]} 顆</div></div>`;
+      colorList.appendChild(item);
+    });
+  }
+
+  document.getElementById("beadWidth").addEventListener("input", (e) => { document.getElementById("widthVal").textContent = `${e.target.value} 顆`; scheduleProcessImage("調整寬度"); });
+  document.getElementById("gridSize").addEventListener("input", (e) => {
+    document.getElementById("gridSizeVal").textContent = `${e.target.value} px`;
+    scheduleGridSizeRedraw();
+  });
+  document.getElementById("sharpen").addEventListener("input", (e) => { document.getElementById("sharpenVal").textContent = `${e.target.value}%`; scheduleProcessImage("調整銳利度"); });
+  document.getElementById("saturation").addEventListener("input", (e) => { document.getElementById("saturationVal").textContent = `${e.target.value}%`; scheduleProcessImage("調整飽和度"); });
+  document.getElementById("contrast").addEventListener("input", (e) => { document.getElementById("contrastVal").textContent = `${e.target.value}%`; scheduleProcessImage("調整對比度"); });
+  document.getElementById("brightness").addEventListener("input", (e) => { document.getElementById("brightnessVal").textContent = `${e.target.value}%`; scheduleProcessImage("調整亮度"); });
+  
+  document.getElementById("samplingMode").addEventListener("change", () => scheduleProcessImage("變更取樣模式"));
+  document.getElementById("cleanNoise").addEventListener("change", () => scheduleProcessImage("噪點過濾"));
+  document.getElementById("showLabels").addEventListener("change", () => { renderBasePattern(); });
+
+  document.getElementById("downloadBtn").addEventListener("click", () => {
+    if (!currentImage || patternGridData.length === 0) return;
+    const cell = baseCellSize, headerSize = Math.max(28, Math.floor(cell * 1.1));
+    const fullW = headerSize + currentCols * cell, fullH = headerSize + currentRows * cell;
+
+    const expCanvas = document.createElement("canvas");
+    expCanvas.width = fullW; expCanvas.height = fullH;
+    const expCtx = expCanvas.getContext("2d", { alpha: false });
+    expCtx.fillStyle = "#ffffff"; expCtx.fillRect(0, 0, fullW, fullH);
+
+    for (let y = 0; y < currentRows; y++) {
+      for (let x = 0; x < currentCols; x++) {
+        const bead = patternGridData[y]?.[x];
+        const pX = headerSize + x * cell, pY = headerSize + y * cell;
+        if (bead) {
+          expCtx.fillStyle = bead.hex; expCtx.fillRect(pX, pY, cell, cell);
+          if (document.getElementById("showLabels").checked && cell >= 14) {
+            expCtx.fillStyle = (bead.lab.L > 55) ? "rgba(0,0,0,0.85)" : "rgba(255,255,255,0.95)";
+            expCtx.font = `bold ${Math.max(8, Math.floor(cell * 0.36))}px monospace`;
+            expCtx.textAlign = "center"; expCtx.textBaseline = "middle";
+            expCtx.fillText(bead.code, pX + cell / 2, pY + cell / 2);
+          }
+        }
+      }
+    }
+
+    expCtx.beginPath();
+    for (let x = 0; x <= currentCols; x++) {
+      const pX = headerSize + x * cell; expCtx.moveTo(pX, headerSize); expCtx.lineTo(pX, fullH);
+    }
+    for (let y = 0; y <= currentRows; y++) {
+      const pY = headerSize + y * cell; expCtx.moveTo(headerSize, pY); expCtx.lineTo(fullW, pY);
+    }
+    expCtx.strokeStyle = "rgba(0,0,0,0.12)"; expCtx.lineWidth = 0.8; expCtx.stroke();
+    
+    expCtx.beginPath();
+    for (let x = 5; x < currentCols; x+=5) {
+      const pX = headerSize + x * cell; expCtx.moveTo(pX, headerSize); expCtx.lineTo(pX, fullH);
+    }
+    expCtx.strokeStyle = "#ff3344"; expCtx.lineWidth = 1.2; expCtx.stroke();
+    
+    expCtx.beginPath(); expCtx.setLineDash([4, 3]);
+    for (let y = 5; y < currentRows; y+=5) {
+      const pY = headerSize + y * cell; expCtx.moveTo(headerSize, pY); expCtx.lineTo(fullW, pY);
+    }
+    expCtx.stroke(); expCtx.setLineDash([]);
+
+    expCtx.fillStyle = "#1e1e2e"; expCtx.fillRect(0, 0, headerSize, headerSize);
+    expCtx.strokeStyle = "#45475a"; expCtx.strokeRect(0, 0, headerSize, headerSize);
+    expCtx.font = `bold ${Math.max(9, Math.floor(headerSize * 0.42))}px 'Silkscreen', monospace`;
+    expCtx.textAlign = "center"; expCtx.textBaseline = "middle";
+
+    for (let x = 0; x < currentCols; x++) {
+      const sX = headerSize + x * cell;
+      expCtx.fillStyle = (x % 5 === 4 || x === currentCols - 1) ? "#242538" : "#1e1e2e";
+      expCtx.fillRect(sX, 0, cell, headerSize);
+      expCtx.strokeStyle = "#45475a"; expCtx.strokeRect(sX, 0, cell, headerSize);
+      expCtx.fillStyle = "#a6adc8"; expCtx.fillText((x + 1).toString(), sX + cell / 2, headerSize / 2);
+    }
+    for (let y = 0; y < currentRows; y++) {
+      const sY = headerSize + y * cell;
+      expCtx.fillStyle = (y % 5 === 4 || y === currentRows - 1) ? "#242538" : "#1e1e2e";
+      expCtx.fillRect(0, sY, headerSize, cell);
+      expCtx.strokeStyle = "#45475a"; expCtx.strokeRect(0, sY, headerSize, cell);
+      expCtx.fillStyle = "#a6adc8"; expCtx.fillText((y + 1).toString(), headerSize / 2, sY + cell / 2);
+    }
+
+    const link = document.createElement("a");
+    link.download = `bead-pattern-${Date.now()}.png`;
+    link.href = expCanvas.toDataURL("image/png");
+    link.click();
+  });
+
+  // ==========================================
+  // 上傳區互動與裁切去背
+  // ==========================================
+  let uploadTool = 'none';
+  let cropOverlay = document.getElementById("cropOverlayCanvas");
+  let ctxCrop = cropOverlay.getContext("2d");
+  let polyPolygons = [];
+  let polyPoints = [];
+  let rectStart = null, rectCurrent = null;
+  let marchingAntsOffset = 0;
+  let antsAnimId = null;
+
+  const offscreenMask = document.createElement("canvas");
+  const offscreenStroke = document.createElement("canvas");
+  const offscreenAnts = document.createElement("canvas");
+  const mCtx = offscreenMask.getContext("2d");
+  const sCtx = offscreenStroke.getContext("2d");
+  const aCtx = offscreenAnts.getContext("2d");
+
+  function triggerFileInput(e) {
+    if (uploadTool !== 'none' || e.target.tagName.toLowerCase() === 'button') return;
+    document.getElementById("imageInput").click();
+  }
+
+  const origViewport = document.getElementById("origViewport");
+  origViewport.addEventListener("dragover", (e) => { e.preventDefault(); origViewport.classList.add("drag-over"); });
+  origViewport.addEventListener("dragleave", () => { origViewport.classList.remove("drag-over"); });
+  origViewport.addEventListener("drop", (e) => {
+    e.preventDefault();
+    origViewport.classList.remove("drag-over");
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleImageLoad(e.dataTransfer.files[0]);
+    }
+  });
+
+  async function handleImageLoad(file) {
+    try {
+      const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+      const cvs = document.createElement("canvas");
+      cvs.width = bitmap.width;
+      cvs.height = bitmap.height;
+      const ctx = cvs.getContext("2d");
+      ctx.drawImage(bitmap, 0, 0);
+      setupImageFromDataUrl(cvs.toDataURL("image/png"));
+    } catch (err) {
+      const reader = new FileReader();
+      reader.onload = (event) => setupImageFromDataUrl(event.target.result);
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function setupImageFromDataUrl(dataUrl) {
+    rawSourceImage = new Image();
+    rawSourceImage.onload = () => {
+      currentImage = new Image();
+      currentImage.onload = () => {
+        const origImgEl = document.getElementById("originalImg");
+        origImgEl.src = currentImage.src;
+        origImgEl.style.display = "block";
+        origImgEl.style.width = currentImage.width + "px";
+        origImgEl.style.height = currentImage.height + "px";
+
+        document.getElementById("origPlaceholder").style.display = "none";
+        document.getElementById("uploadToolsPanel").style.display = "flex";
+        document.getElementById("uploadHintBanner").style.display = "block";
+        document.getElementById("origDimensions").textContent = `${currentImage.width} × ${currentImage.height} px`;
+
+        cropOverlay.width = currentImage.width;
+        cropOverlay.height = currentImage.height;
+        cropOverlay.style.width = currentImage.width + "px";
+        cropOverlay.style.height = currentImage.height + "px";
+
+        historyStack = [];
+        historyIndex = -1;
+        processImageCore(true, "載入圖片");
+        setTimeout(() => { fitOrigToWindow(); fitCanvasToWindow(); }, 50);
+      };
+      currentImage.src = dataUrl;
+    };
+    rawSourceImage.src = dataUrl;
+  }
+
+  document.getElementById("imageInput").addEventListener("change", (e) => {
+    if (e.target.files[0]) handleImageLoad(e.target.files[0]);
+  });
+
+  function setUploadTool(tool) {
+    uploadTool = (uploadTool === tool) ? 'none' : tool;
+    
+    polyPoints = [];
+    polyPolygons = [];
+    rectStart = null;
+    rectCurrent = null;
+    stopMarchingAnts();
+    ctxCrop.clearRect(0, 0, cropOverlay.width, cropOverlay.height);
+    
+    cropOverlay.classList.toggle("active", uploadTool !== 'none');
+    
+    document.getElementById("rectCropBtn").classList.toggle("highlight", uploadTool === 'rect');
+    document.getElementById("wandBtn").classList.toggle("highlight", uploadTool === 'wand');
+    
+    const polyBtn = document.getElementById("polyCropBtn");
+    const isPolyActive = (uploadTool === 'poly');
+    polyBtn.classList.toggle("highlight", isPolyActive);
+    polyBtn.textContent = isPolyActive ? "❌ 取消選取" : "📍 錨點選取";
+    
+    document.getElementById("applyCropBtn").style.display = isPolyActive ? 'inline-flex' : 'none';
+  }
+
+  function startMarchingAnts() {
+    if (antsAnimId) return;
+    function animate() {
+      marchingAntsOffset = (marchingAntsOffset + 0.5) % 12;
+      drawPolySelection();
+      antsAnimId = requestAnimationFrame(animate);
+    }
+    antsAnimId = requestAnimationFrame(animate);
+  }
+
+  function stopMarchingAnts() {
+    if (antsAnimId) {
+      cancelAnimationFrame(antsAnimId);
+      antsAnimId = null;
+    }
+  }
+
+  function resetOrigImage() {
+    if (!rawSourceImage) return;
+    currentImage = new Image();
+    currentImage.onload = () => {
+      const origImgEl = document.getElementById("originalImg");
+      origImgEl.src = currentImage.src;
+      origImgEl.style.width = currentImage.width + "px";
+      origImgEl.style.height = currentImage.height + "px";
+
+      cropOverlay.width = currentImage.width;
+      cropOverlay.height = currentImage.height;
+      cropOverlay.style.width = currentImage.width + "px";
+      cropOverlay.style.height = currentImage.height + "px";
+
+      document.getElementById("origDimensions").textContent = `${currentImage.width} × ${currentImage.height} px`;
+
+      setUploadTool('none');
+      processImageCore(true, "還原原圖");
+      setTimeout(() => { fitOrigToWindow(); }, 30);
+    };
+    currentImage.src = rawSourceImage.src;
+  }
+
+  function getCropPreciseCoords(e) {
+    const rect = cropOverlay.getBoundingClientRect();
+    let clientX = e.clientX, clientY = e.clientY;
+    if (e.touches && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    }
+    
+    const scaleX = cropOverlay.width / rect.width;
+    const scaleY = cropOverlay.height / rect.height;
+
+    const x = Math.round((clientX - rect.left) * scaleX);
+    const y = Math.round((clientY - rect.top) * scaleY);
+
+    return {
+      x: Math.max(0, Math.min(cropOverlay.width, x)),
+      y: Math.max(0, Math.min(cropOverlay.height, y))
+    };
+  }
+
+  cropOverlay.addEventListener("mousedown", (e) => {
+    if (!currentImage) return;
+    const { x, y } = getCropPreciseCoords(e);
+    const strokeScale = 1 / (origZoom || 1);
+    const clickTolerance = Math.max(8, 10 * strokeScale);
+
+    if (uploadTool === 'rect') {
+      rectStart = { x, y };
+      rectCurrent = { x, y };
+    } else if (uploadTool === 'poly') {
+      if (polyPoints.length > 0) {
+        if (polyPoints.length >= 3) {
+          const startP = polyPoints[0];
+          if (Math.hypot(x - startP.x, y - startP.y) <= clickTolerance) {
+            polyPolygons.push([...polyPoints]);
+            polyPoints = [];
+            startMarchingAnts();
+            return;
+          }
+        }
+
+        for (let i = polyPoints.length - 1; i >= 0; i--) {
+          const pt = polyPoints[i];
+          if (Math.hypot(x - pt.x, y - pt.y) <= clickTolerance) {
+            polyPoints.splice(i, 1);
+            drawPolySelection();
+            return;
+          }
+        }
+      }
+
+      polyPoints.push({ x, y });
+      drawPolySelection();
+    } else if (uploadTool === 'wand') {
+      magicWandRemove(x, y);
+    }
+  });
+
+  cropOverlay.addEventListener("mousemove", (e) => {
+    if (uploadTool === 'rect' && rectStart) {
+      const { x, y } = getCropPreciseCoords(e);
+      rectCurrent = { x, y };
+      drawRectSelection();
+    }
+  });
+
+  window.addEventListener("mouseup", () => {
+    if (uploadTool === 'rect' && rectStart && rectCurrent) {
+      const w = Math.abs(rectStart.x - rectCurrent.x);
+      const h = Math.abs(rectStart.y - rectCurrent.y);
+      if (w >= 5 && h >= 5) {
+        applyCurrentSelection();
+      } else {
+        ctxCrop.clearRect(0, 0, cropOverlay.width, cropOverlay.height);
+      }
+      rectStart = null;
+      rectCurrent = null;
+    }
+  });
+
+  function drawRectSelection() {
+    ctxCrop.clearRect(0, 0, cropOverlay.width, cropOverlay.height);
+    if (!rectStart || !rectCurrent) return;
+    
+    const x = Math.min(rectStart.x, rectCurrent.x);
+    const y = Math.min(rectStart.y, rectCurrent.y);
+    const w = Math.abs(rectStart.x - rectCurrent.x);
+    const h = Math.abs(rectStart.y - rectCurrent.y);
+
+    const viewScale = 1 / (origZoom || 1);
+
+    ctxCrop.fillStyle = "rgba(0, 0, 0, 0.55)";
+    ctxCrop.fillRect(0, 0, cropOverlay.width, cropOverlay.height);
+    ctxCrop.clearRect(x, y, w, h);
+
+    ctxCrop.save();
+    ctxCrop.strokeStyle = "#ff3344";
+    ctxCrop.lineWidth = Math.max(1.8, 3 * viewScale);
+    ctxCrop.setLineDash([Math.round(6 * viewScale), Math.round(6 * viewScale)]);
+    ctxCrop.strokeRect(x, y, w, h);
+    ctxCrop.restore();
+  }
+
+  function drawPolySelection() {
+    ctxCrop.clearRect(0, 0, cropOverlay.width, cropOverlay.height);
+
+    const viewScale = 1 / (origZoom || 1);
+    const lineWidthVal = Math.max(1.8, 3 * viewScale);
+    const dashVal = [Math.round(6 * viewScale), Math.round(6 * viewScale)];
+    const nodeRadius = Math.max(3.5, 5 * viewScale);
+
+    if (polyPolygons.length > 0) {
+      const W = cropOverlay.width;
+      const H = cropOverlay.height;
+
+      if (offscreenMask.width !== W || offscreenMask.height !== H) {
+        offscreenMask.width = W; offscreenMask.height = H;
+        offscreenStroke.width = W; offscreenStroke.height = H;
+        offscreenAnts.width = W; offscreenAnts.height = H;
+      }
+
+      mCtx.clearRect(0, 0, W, H);
+      sCtx.clearRect(0, 0, W, H);
+      aCtx.clearRect(0, 0, W, H);
+
+      mCtx.globalCompositeOperation = "source-over";
+      mCtx.fillStyle = "#ff3344";
+      polyPolygons.forEach(polygon => {
+        if (polygon.length < 3) return;
+        mCtx.beginPath();
+        mCtx.moveTo(polygon[0].x, polygon[0].y);
+        for (let i = 1; i < polygon.length; i++) mCtx.lineTo(polygon[i].x, polygon[i].y);
+        mCtx.closePath();
+        mCtx.fill();
+      });
+
+      sCtx.globalCompositeOperation = "source-over";
+      sCtx.fillStyle = "#ff3344";
+      sCtx.strokeStyle = "#ff3344";
+      sCtx.lineWidth = lineWidthVal * 2;
+      sCtx.lineJoin = "round";
+
+      polyPolygons.forEach(polygon => {
+        if (polygon.length < 3) return;
+        sCtx.beginPath();
+        sCtx.moveTo(polygon[0].x, polygon[0].y);
+        for (let i = 1; i < polygon.length; i++) sCtx.lineTo(polygon[i].x, polygon[i].y);
+        sCtx.closePath();
+        sCtx.fill();
+        sCtx.stroke();
+      });
+
+      sCtx.globalCompositeOperation = "destination-out";
+      sCtx.drawImage(offscreenMask, 0, 0);
+      sCtx.globalCompositeOperation = "source-over";
+
+      aCtx.globalCompositeOperation = "source-over";
+      aCtx.strokeStyle = "#ff3344";
+      aCtx.lineWidth = lineWidthVal;
+      aCtx.setLineDash(dashVal);
+      aCtx.lineDashOffset = -marchingAntsOffset * viewScale;
+
+      polyPolygons.forEach(polygon => {
+        if (polygon.length < 3) return;
+        aCtx.beginPath();
+        aCtx.moveTo(polygon[0].x, polygon[0].y);
+        for (let i = 1; i < polygon.length; i++) aCtx.lineTo(polygon[i].x, polygon[i].y);
+        aCtx.closePath();
+        aCtx.stroke();
+      });
+
+      aCtx.globalCompositeOperation = "destination-in";
+      aCtx.drawImage(offscreenStroke, 0, 0);
+      aCtx.globalCompositeOperation = "source-over";
+
+      ctxCrop.save();
+      ctxCrop.globalCompositeOperation = "source-over";
+      ctxCrop.globalAlpha = 0.28;
+      ctxCrop.drawImage(offscreenMask, 0, 0);
+      ctxCrop.restore();
+
+      ctxCrop.save();
+      ctxCrop.globalCompositeOperation = "source-over";
+      ctxCrop.globalAlpha = 1.0;
+      ctxCrop.drawImage(offscreenAnts, 0, 0);
+      ctxCrop.restore();
+    }
+
+    if (polyPoints.length > 0) {
+      ctxCrop.save();
+      ctxCrop.globalCompositeOperation = "source-over";
+      ctxCrop.globalAlpha = 1.0;
+      ctxCrop.beginPath();
+      ctxCrop.moveTo(polyPoints[0].x, polyPoints[0].y);
+      for (let i = 1; i < polyPoints.length; i++) ctxCrop.lineTo(polyPoints[i].x, polyPoints[i].y);
+      ctxCrop.strokeStyle = "#ff3344";
+      ctxCrop.lineWidth = lineWidthVal;
+      ctxCrop.setLineDash(dashVal);
+      ctxCrop.stroke();
+
+      polyPoints.forEach((p, idx) => {
+        const isStartNode = (idx === 0);
+        const canClose = (isStartNode && polyPoints.length >= 3);
+        const r = canClose ? nodeRadius * 1.35 : nodeRadius;
+
+        ctxCrop.beginPath();
+        ctxCrop.arc(p.x, p.y, r, 0, Math.PI * 2);
+        ctxCrop.fillStyle = canClose ? "#00ff88" : "#ffe600";
+        ctxCrop.fill();
+
+        ctxCrop.lineWidth = Math.max(1, 1.5 * viewScale);
+        ctxCrop.strokeStyle = "#181825";
+        ctxCrop.stroke();
+
+        ctxCrop.beginPath();
+        ctxCrop.arc(p.x, p.y, r + Math.max(1, 1.2 * viewScale), 0, Math.PI * 2);
+        ctxCrop.lineWidth = Math.max(0.8, 1 * viewScale);
+        ctxCrop.strokeStyle = "#ffffff";
+        ctxCrop.stroke();
+      });
+      ctxCrop.restore();
+    }
+  }
+
+  function applyCurrentSelection() {
+    if (!currentImage) return;
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+    if (uploadTool === 'rect' && rectStart && rectCurrent) {
+      minX = Math.min(rectStart.x, rectCurrent.x);
+      minY = Math.min(rectStart.y, rectCurrent.y);
+      maxX = Math.max(rectStart.x, rectCurrent.x);
+      maxY = Math.max(rectStart.y, rectCurrent.y);
+    } else if (uploadTool === 'poly') {
+      if (polyPoints.length >= 3) {
+        polyPolygons.push([...polyPoints]);
+        polyPoints = [];
+      }
+      if (polyPolygons.length === 0) return;
+
+      polyPolygons.forEach(polygon => {
+        polygon.forEach(p => {
+          if (p.x < minX) minX = p.x;
+          if (p.x > maxX) maxX = p.x;
+          if (p.y < minY) minY = p.y;
+          if (p.y > maxY) maxY = p.y;
+        });
+      });
+    } else return;
+
+    minX = Math.max(0, Math.floor(minX));
+    minY = Math.max(0, Math.floor(minY));
+    maxX = Math.min(currentImage.naturalWidth || currentImage.width, Math.ceil(maxX));
+    maxY = Math.min(currentImage.naturalHeight || currentImage.height, Math.ceil(maxY));
+
+    const cropW = maxX - minX;
+    const cropH = maxY - minY;
+    if (cropW < 5 || cropH < 5) return;
+
+    const cvs = document.createElement("canvas");
+    cvs.width = cropW;
+    cvs.height = cropH;
+    const ctx = cvs.getContext("2d");
+
+    if (uploadTool === 'rect') {
+      ctx.drawImage(currentImage, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
+    } else if (uploadTool === 'poly') {
+      ctx.beginPath();
+      polyPolygons.forEach(polygon => {
+        if (polygon.length < 3) return;
+        ctx.moveTo(polygon[0].x - minX, polygon[0].y - minY);
+        for (let i = 1; i < polygon.length; i++) {
+          ctx.lineTo(polygon[i].x - minX, polygon[i].y - minY);
+        }
+        ctx.closePath();
+      });
+      ctx.clip();
+      ctx.drawImage(currentImage, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
+      stopMarchingAnts();
+    }
+
+    updateCurrentImageFromCanvas(cvs);
+  }
+
+  function magicWandRemove(startX, startY, tolerance = 28) {
+    const cvs = document.createElement("canvas");
+    cvs.width = currentImage.width; cvs.height = currentImage.height;
+    const ctx = cvs.getContext("2d");
+    ctx.drawImage(currentImage, 0, 0);
+    const imgData = ctx.getImageData(0, 0, cvs.width, cvs.height);
+    const data = imgData.data;
+    const w = cvs.width, h = cvs.height;
+
+    const startIdx = (startY * w + startX) * 4;
+    const targetR = data[startIdx], targetG = data[startIdx + 1], targetB = data[startIdx + 2], targetA = data[startIdx + 3];
+    if (targetA === 0) return;
+
+    const visited = new Uint8Array(w * h);
+    const queue = [[startX, startY]];
+    visited[startY * w + startX] = 1;
+
+    while (queue.length > 0) {
+      const [x, y] = queue.pop();
+      const idx = (y * w + x) * 4;
+      data[idx + 3] = 0;
+
+      const neighbors = [[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]];
+      for (const [nx, ny] of neighbors) {
+        if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
+          const nPos = ny * w + nx;
+          if (!visited[nPos]) {
+            visited[nPos] = 1;
+            const nIdx = nPos * 4;
+            const diff = Math.abs(data[nIdx] - targetR) + Math.abs(data[nIdx + 1] - targetG) + Math.abs(data[nIdx + 2] - targetB);
+            if (diff <= tolerance * 3 && data[nIdx + 3] > 0) {
+              queue.push([nx, ny]);
+            }
+          }
+        }
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+    updateCurrentImageFromCanvas(cvs);
+  }
+
+  function autoAiRemoveBg() {
+    if (!currentImage) return;
+
+    const cvs = document.createElement("canvas");
+    const w = currentImage.width;
+    const h = currentImage.height;
+    cvs.width = w;
+    cvs.height = h;
+
+    const ctx = cvs.getContext("2d");
+    ctx.drawImage(currentImage, 0, 0);
+    const imgData = ctx.getImageData(0, 0, w, h);
+    const data = imgData.data;
+
+    const bgSamples = [];
+    const stepX = Math.max(1, Math.floor(w / 15));
+    const stepY = Math.max(1, Math.floor(h / 15));
+
+    for (let x = 0; x < w; x += stepX) {
+      bgSamples.push(getPixelLab(data, x, 0, w));
+      bgSamples.push(getPixelLab(data, x, h - 1, w));
+    }
+    for (let y = 0; y < h; y += stepY) {
+      bgSamples.push(getPixelLab(data, 0, y, w));
+      bgSamples.push(getPixelLab(data, w - 1, y, w));
+    }
+
+    const visited = new Uint8Array(w * h);
+    const queue = [];
+
+    for (let x = 0; x < w; x++) {
+      checkAndEnqueue(x, 0);
+      checkAndEnqueue(x, h - 1);
+    }
+    for (let y = 0; y < h; y++) {
+      checkAndEnqueue(0, y);
+      checkAndEnqueue(w - 1, y);
+    }
+
+    function getPixelLab(d, px, py, width) {
+      const idx = (py * width + px) * 4;
+      return rgbToLab(d[idx], d[idx + 1], d[idx + 2]);
+    }
+
+    function checkAndEnqueue(px, py) {
+      const pos = py * w + px;
+      if (visited[pos]) return;
+
+      const pLab = getPixelLab(data, px, py, w);
+      let minDiff = Infinity;
+      for (let i = 0; i < bgSamples.length; i++) {
+        const sLab = bgSamples[i];
+        const diff = Math.hypot(pLab.L - sLab.L, pLab.a - sLab.a, pLab.b - sLab.b);
+        if (diff < minDiff) minDiff = diff;
+      }
+
+      if (minDiff < 22) {
+        visited[pos] = 1;
+        queue.push(px, py);
+      }
+    }
+
+    let head = 0;
+    while (head < queue.length) {
+      const qx = queue[head++];
+      const qy = queue[head++];
+      const idx = (qy * w + qx) * 4;
+
+      data[idx + 3] = 0;
+
+      const neighbors = [[qx + 1, qy], [qx - 1, qy], [qx, qy + 1], [qx, qy - 1]];
+      for (let i = 0; i < 4; i++) {
+        const nx = neighbors[i][0];
+        const ny = neighbors[i][1];
+        if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
+          const nPos = ny * w + nx;
+          if (!visited[nPos]) {
+            const nLab = getPixelLab(data, nx, ny, w);
+            let minDiff = Infinity;
+            for (let j = 0; j < bgSamples.length; j++) {
+              const sLab = bgSamples[j];
+              const diff = Math.hypot(nLab.L - sLab.L, nLab.a - sLab.a, nLab.b - sLab.b);
+              if (diff < minDiff) minDiff = diff;
+            }
+
+            if (minDiff < 24) {
+              visited[nPos] = 1;
+              queue.push(nx, ny);
+            }
+          }
+        }
+      }
+    }
+
+    ctx.putImageData(imgData, 0, 0);
+    updateCurrentImageFromCanvas(cvs);
+  }
+
+  function updateCurrentImageFromCanvas(cvs) {
+    const newImg = new Image();
+    newImg.onload = () => {
+      currentImage = newImg;
+      const origImgEl = document.getElementById("originalImg");
+      origImgEl.src = currentImage.src;
+      origImgEl.style.width = currentImage.width + "px";
+      origImgEl.style.height = currentImage.height + "px";
+
+      cropOverlay.width = currentImage.width;
+      cropOverlay.height = currentImage.height;
+      cropOverlay.style.width = currentImage.width + "px";
+      cropOverlay.style.height = currentImage.height + "px";
+
+      document.getElementById("origDimensions").textContent = `${currentImage.width} × ${currentImage.height} px`;
+
+      setUploadTool('none');
+      processImageCore(false, "去背與裁切");
+      setTimeout(() => { fitOrigToWindow(); }, 30);
+    };
+    newImg.src = cvs.toDataURL("image/png");
+  }
+
+  // ==========================================
+  // 圖紙收藏庫功能 (LocalStorage)
+  // ==========================================
+  const LIBRARY_STORAGE_KEY = "bead_pattern_library_v1";
+
+  function getLibraryItems() {
+    try {
+      return JSON.parse(localStorage.getItem(LIBRARY_STORAGE_KEY)) || [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveLibraryItems(items) {
+    try {
+      localStorage.setItem(LIBRARY_STORAGE_KEY, JSON.stringify(items));
+    } catch (e) {
+      alert("儲存空間不足，無法儲存更多圖紙！");
+    }
+  }
+
+  function saveCurrentPatternToLibrary() {
+    if (!currentImage || patternGridData.length === 0) {
+      alert("目前尚無圖紙資料可供收藏！");
+      return;
+    }
+
+    const title = prompt("請輸入此份圖紙的收藏名稱：", `拼豆圖紙_${new Date().toLocaleDateString()}`);
+    if (!title) return;
+
+    // 建立輕量縮圖
+    const thumbCanvas = document.createElement("canvas");
+    thumbCanvas.width = currentCols;
+    thumbCanvas.height = currentRows;
+    const tCtx = thumbCanvas.getContext("2d");
+    for (let y = 0; y < currentRows; y++) {
+      for (let x = 0; x < currentCols; x++) {
+        const bead = patternGridData[y]?.[x];
+        if (bead) {
+          tCtx.fillStyle = bead.hex;
+          tCtx.fillRect(x, y, 1, 1);
+        }
+      }
+    }
+
+    const newItem = {
+      id: "lib_" + Date.now(),
+      title: title,
+      date: new Date().toLocaleString(),
+      cols: currentCols,
+      rows: currentRows,
+      grid: cloneGrid(patternGridData),
+      imageSrc: currentImage.src,
+      thumbnail: thumbCanvas.toDataURL("image/png"),
+      sliders: getSliderState()
+    };
+
+    const items = getLibraryItems();
+    items.unshift(newItem);
+    saveLibraryItems(items);
+    alert(`圖紙「${title}」已成功收藏！`);
+  }
+
+  function renderLibraryGrid() {
+    const items = getLibraryItems();
+    const grid = document.getElementById("libraryGrid");
+    const emptyNotice = document.getElementById("libraryEmpty");
+    const badge = document.getElementById("libraryCountBadge");
+
+    badge.textContent = `${items.length} 份`;
+    grid.innerHTML = "";
+
+    if (items.length === 0) {
+      emptyNotice.style.display = "block";
+      return;
+    }
+
+    emptyNotice.style.display = "none";
+    items.forEach(item => {
+      const card = document.createElement("div");
+      card.className = "library-card";
+      card.innerHTML = `
+        <img src="${item.thumbnail}" alt="${item.title}" />
+        <div class="library-card-body">
+          <div class="library-card-title">${item.title}</div>
+          <div class="library-card-meta">${item.cols} × ${item.rows} 格 (${item.date})</div>
+          <div class="library-card-actions">
+            <button class="zoom-btn highlight" onclick="loadPatternFromLibrary('${item.id}')">📂 載入</button>
+            <button class="zoom-btn reset-btn" onclick="deletePatternFromLibrary('${item.id}')">🗑 刪除</button>
+          </div>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  function loadPatternFromLibrary(id) {
+    const items = getLibraryItems();
+    const item = items.find(it => it.id === id);
+    if (!item) return;
+
+    currentImage = new Image();
+    currentImage.onload = () => {
+      rawSourceImage = currentImage;
+      const origImgEl = document.getElementById("originalImg");
+      origImgEl.src = currentImage.src;
+      origImgEl.style.display = "block";
+      origImgEl.style.width = currentImage.width + "px";
+      origImgEl.style.height = currentImage.height + "px";
+
+      document.getElementById("origPlaceholder").style.display = "none";
+      document.getElementById("uploadToolsPanel").style.display = "flex";
+      document.getElementById("uploadHintBanner").style.display = "block";
+      document.getElementById("origDimensions").textContent = `${currentImage.width} × ${currentImage.height} px`;
+
+      cropOverlay.width = currentImage.width;
+      cropOverlay.height = currentImage.height;
+      cropOverlay.style.width = currentImage.width + "px";
+      cropOverlay.style.height = currentImage.height + "px";
+
+      patternGridData = cloneGrid(item.grid);
+      currentCols = item.cols;
+      currentRows = item.rows;
+      baseCellSize = parseInt(item.sliders.gridSize, 10);
+      setSliderState(item.sliders);
+
+      const widthCm = (currentCols * 0.266).toFixed(2);
+      const heightCm = (currentRows * 0.266).toFixed(2);
+      document.getElementById("patternDimensions").textContent = `${currentCols} × ${currentRows} 格 (${widthCm} × ${heightCm} cm)`;
+
+      historyStack = [];
+      historyIndex = -1;
+      pushHistoryState("載入收藏圖紙");
+
+      clearSelection();
+      recalculateStats();
+      resizeCanvases();
+      renderBasePattern();
+      renderGrid();
+      renderInteractionLayer();
+      document.getElementById("downloadBtn").disabled = false;
+
+      switchStageView("edit");
+    };
+    currentImage.src = item.imageSrc;
+  }
+
+  function deletePatternFromLibrary(id) {
+    if (!confirm("確定要刪除這份收藏圖紙嗎？")) return;
+    let items = getLibraryItems();
+    items = items.filter(it => it.id !== id);
+    saveLibraryItems(items);
+    renderLibraryGrid();
+  }
+</script>
+</body>
+</html>
