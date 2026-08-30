@@ -1386,7 +1386,7 @@ body.stage-upload.has-upload-image .image-toolbox {
       height: 100%;
       image-rendering: auto;
     }
-    .frozen-main-scroll { position: absolute; top: var(--header-size); left: var(--header-size); right: 0; bottom: 0; overflow: auto; background: #181825; -webkit-overflow-scrolling: touch; }
+    .frozen-main-scroll { position: absolute; top: var(--header-size); left: var(--header-size); right: 0; bottom: 0; overflow: auto; background: #181825; -webkit-overflow-scrolling: touch; z-index: 10; }
     .axis-hover-badge {
       position: absolute;
       z-index: 40;
@@ -1523,7 +1523,7 @@ body.stage-upload.has-upload-image .image-toolbox {
         <rect x="5" y="3" width="1" height="1" fill="#FFFFFF"/>
       </svg>
       染上拼豆之路
-      <span class="app-version" id="appVersion" title="網站版本">v75</span>
+      <span class="app-version" id="appVersion" title="網站版本">v81</span>
     </h1>
   </div>
 </header>
@@ -1654,7 +1654,6 @@ body.stage-upload.has-upload-image .image-toolbox {
 
         <div class="edit-bar show" id="editBar">
           <div class="edit-group">
-            <span style="font-weight:900; font-size:0.82rem; color:var(--highlight-active);" id="selectCountText">匡選</span>
             <div class="pattern-size-toolbox" id="patternSizeToolbox">
               <button type="button" class="pattern-size-toggle" id="patternSizeToggle">選取工具</button>
               <div class="pattern-size-menu" id="patternSizeMenu">
@@ -2751,6 +2750,7 @@ function updateHistoryButtons() {
   });
 
   const headerBarSize = 32;
+  const AXIS_RULER_MIN_ZOOM = 0.55;
 
   const topHeaderCanvas = document.getElementById("topHeaderCanvas");
   const leftHeaderCanvas = document.getElementById("leftHeaderCanvas");
@@ -4938,6 +4938,7 @@ function updateHistoryButtons() {
     const { displayW, displayH } = patternDisplaySize();
     const cellW = displayW / currentCols;
     const cellH = currentRows > 0 ? displayH / currentRows : cellW;
+    const showRulerNums = canvasZoom >= AXIS_RULER_MIN_ZOOM;
     const fontPx = Math.max(10, Math.min(13, Math.round(Math.min(cellW, cellH, 28) * 0.42) || 11));
     const scrollX = mainScroll.scrollLeft;
     const scrollY = mainScroll.scrollTop;
@@ -4962,13 +4963,13 @@ function updateHistoryButtons() {
       const sX = Math.round(x * cellW - scrollX);
       const sW = Math.round((x + 1) * cellW - scrollX) - sX;
       if (sX + sW < 0 || sX > viewW) continue;
-      const isHoveredX = (hoveredCell !== null && hoveredCell.col === x);
+      const isHoveredX = hoveredCell !== null && hoveredCell.col === x;
       ctxTop.fillStyle = isHoveredX ? "#ffe600" : ((x % 5 === 4 || x === currentCols - 1) ? "#242538" : "#1e1e2e");
       ctxTop.fillRect(sX, 0, sW, headerBarSize);
       ctxTop.strokeStyle = isHoveredX ? "#ffffff" : "#45475a";
       ctxTop.lineWidth = isHoveredX ? 2 : 1;
       ctxTop.strokeRect(sX + (isHoveredX ? 1 : 0.5), isHoveredX ? 1 : 0.5, sW - (isHoveredX ? 2 : 1), headerBarSize - (isHoveredX ? 2 : 1));
-      if (!isHoveredX) {
+      if (showRulerNums && !isHoveredX) {
         ctxTop.fillStyle = "#a6adc8";
         ctxTop.fillText((x + 1).toString(), Math.round(sX + sW / 2), Math.round(headerBarSize / 2));
       }
@@ -4994,13 +4995,13 @@ function updateHistoryButtons() {
       const sY = Math.round(y * cellH - scrollY);
       const sH = Math.round((y + 1) * cellH - scrollY) - sY;
       if (sY + sH < 0 || sY > viewH) continue;
-      const isHoveredY = (hoveredCell !== null && hoveredCell.row === y);
+      const isHoveredY = hoveredCell !== null && hoveredCell.row === y;
       ctxLeft.fillStyle = isHoveredY ? "#ffe600" : ((y % 5 === 4 || y === currentRows - 1) ? "#242538" : "#1e1e2e");
       ctxLeft.fillRect(0, sY, headerBarSize, sH);
       ctxLeft.strokeStyle = isHoveredY ? "#ffffff" : "#45475a";
       ctxLeft.lineWidth = isHoveredY ? 2 : 1;
       ctxLeft.strokeRect(isHoveredY ? 1 : 0.5, sY + (isHoveredY ? 1 : 0.5), headerBarSize - (isHoveredY ? 2 : 1), sH - (isHoveredY ? 2 : 1));
-      if (!isHoveredY) {
+      if (showRulerNums && !isHoveredY) {
         ctxLeft.fillStyle = "#a6adc8";
         ctxLeft.fillText((y + 1).toString(), Math.round(headerBarSize / 2), Math.round(sY + sH / 2));
       }
@@ -5045,7 +5046,7 @@ function updateHistoryButtons() {
     colBadge.textContent = String(hoveredCell.col + 1);
     colBadge.classList.toggle("is-visible", colVisible);
     if (colVisible) {
-      const bw = colBadge.offsetWidth, bh = colBadge.offsetHeight;
+      const bw = Math.max(colBadge.offsetWidth, 32), bh = Math.max(colBadge.offsetHeight, 30);
       const cx = Math.max(headerSize + bw / 2, Math.min(headerSize + viewW - bw / 2, xCenter));
       colBadge.style.left = `${Math.round(cx - bw / 2)}px`;
       colBadge.style.top = `${Math.round((headerSize - bh) / 2)}px`;
@@ -5054,7 +5055,7 @@ function updateHistoryButtons() {
     rowBadge.textContent = String(hoveredCell.row + 1);
     rowBadge.classList.toggle("is-visible", rowVisible);
     if (rowVisible) {
-      const bw = rowBadge.offsetWidth, bh = rowBadge.offsetHeight;
+      const bw = Math.max(rowBadge.offsetWidth, 32), bh = Math.max(rowBadge.offsetHeight, 30);
       const cy = Math.max(headerSize + bh / 2, Math.min(headerSize + viewH - bh / 2, yCenter));
       rowBadge.style.left = `${Math.round((headerSize - bw) / 2)}px`;
       rowBadge.style.top = `${Math.round(cy - bh / 2)}px`;
@@ -5121,18 +5122,6 @@ function updateHistoryButtons() {
   }
 
   function updateSelectCount() {
-    const el = document.getElementById("selectCountText");
-    if (el) {
-      if (isPipetteMode) el.textContent = "滴管取色";
-      else if (editPaintTool === "pencil") el.textContent = "畫筆";
-      else if (editPaintTool === "eraser") el.textContent = "橡皮擦";
-      else if (editSelectTool === "rect") el.textContent = "匡選";
-      else if (editSelectTool === "circle") el.textContent = "圓形選取";
-      else if (editSelectTool === "ellipse") el.textContent = "橢圓形選取";
-      else if (editSelectTool === "poly") el.textContent = "錨點選取";
-      else if (editSelectTool === "movecopy") el.textContent = "移動複製";
-      else el.textContent = "編輯";
-    }
     const selectToggle = document.getElementById("patternSizeToggle");
     if (selectToggle) {
       const caption = selectedCells.size > 0 ? "取消選取" : "選取工具";
@@ -5266,12 +5255,17 @@ function updateHistoryButtons() {
     renderInteractionLayer();
   }
 
+  function hasMultiCellSelection() {
+    const b = getVisibleSelectionBounds();
+    return !!(b && (b.minX !== b.maxX || b.minY !== b.maxY));
+  }
+
   function canScaleSelection() {
-    return isEditMode && selectedCells.size > 0 && editPaintTool === "none" && !isPipetteMode && !(isAnchorSelectTool() && editPolyPoints.length);
+    return isEditMode && hasMultiCellSelection() && editPaintTool === "none" && !isPipetteMode && !(isAnchorSelectTool() && editPolyPoints.length);
   }
 
   function canMoveMarquee() {
-    return canScaleSelection();
+    return isEditMode && selectedCells.size > 0 && editPaintTool === "none" && !isPipetteMode && !(isAnchorSelectTool() && editPolyPoints.length);
   }
 
   function selectionMoveHandlePoint(bounds, cell) {
