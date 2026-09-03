@@ -527,6 +527,52 @@ body.stage-upload.has-upload-image .image-toolbox {
   background: rgba(255, 230, 0, 0.14);
   border-color: var(--highlight-active);
 }
+.wand-tool-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.wand-tolerance-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 168px;
+  padding: 8px 10px;
+  background: #1e1e2e;
+  border: 2px solid var(--border-dark);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 150;
+  flex-direction: column;
+  gap: 6px;
+}
+.wand-tolerance-menu::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -8px;
+  height: 8px;
+}
+.wand-tool-wrap:hover .wand-tolerance-menu,
+.wand-tool-wrap:focus-within .wand-tolerance-menu {
+  display: flex;
+}
+.wand-tolerance-menu label {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-sub);
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.wand-tolerance-menu input[type="range"] {
+  width: 100%;
+  accent-color: var(--title-red);
+}
 .image-toolbox-menu .global-history-bar {
   display: flex;
   align-items: center;
@@ -752,7 +798,108 @@ body.stage-upload.has-upload-image .image-toolbox {
     .library-card img:hover { outline: 2px solid var(--highlight-active); outline-offset: -2px; }
     .library-card.is-pickable img:hover { outline-color: var(--title-red); }
     .library-card-body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 6px; }
-    .library-card-title { font-size: 0.85rem; font-weight: 900; color: var(--text-main); word-break: break-all; text-align: center; }
+    .library-card-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-width: 0;
+    }
+    .library-card-title { font-size: 0.85rem; font-weight: 900; color: var(--text-main); word-break: break-all; text-align: left; min-width: 0; flex: 1; }
+    .library-card-rename { flex-shrink: 0; width: auto; }
+    .library-card.is-pickable .library-card-rename { display: none; }
+    .library-title-hint { font-size: 0.78rem; font-weight: 700; color: var(--text-sub); }
+    #panelLibrary .view-title .zoom-btn {
+      height: 32px;
+      min-height: 32px;
+      font-size: 0.78rem;
+      flex-shrink: 0;
+    }
+    .bead-stock-panel {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      margin: 0 0 12px;
+      padding: 12px;
+      background: #181825;
+      border: 1.5px solid var(--border-dark);
+      border-radius: 12px;
+    }
+    .bead-stock-panel.is-open { display: flex; }
+    .bead-stock-summary {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--text-sub);
+      line-height: 1.5;
+    }
+    .bead-stock-legend {
+      display: grid;
+      grid-template-columns: minmax(72px, 1fr) 88px 72px 72px;
+      gap: 8px;
+      padding: 0 6px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #a6adc8;
+    }
+    .bead-stock-list {
+      max-height: 360px;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .bead-stock-row {
+      display: grid;
+      grid-template-columns: minmax(72px, 1fr) 88px 72px 72px;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 6px;
+      border-radius: 8px;
+    }
+    .bead-stock-row:hover { background: #313244; }
+    .bead-stock-code {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .bead-stock-swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+      border: 1px solid rgba(255,255,255,0.25);
+      flex-shrink: 0;
+    }
+    .bead-stock-qty {
+      appearance: none;
+      width: 100%;
+      height: 30px;
+      padding: 0 8px;
+      border: 1.5px solid var(--border-dark);
+      border-radius: 6px;
+      background: #313244;
+      color: var(--text-main);
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-align: center;
+      cursor: pointer;
+    }
+    .bead-stock-qty:focus {
+      outline: none;
+      border-color: var(--highlight-active);
+      cursor: text;
+    }
+    .bead-stock-used, .bead-stock-left {
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-align: center;
+    }
+    .bead-stock-used { color: #cdd6f4; }
+    .bead-stock-left.is-short { color: #ff4d5e; }
+    .bead-stock-left.is-ok { color: #a6e3a1; }
     .library-card-meta { font-size: 0.75rem; color: var(--text-sub); line-height: 1.5; text-align: center; }
     .library-card-actions { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
     .library-card-actions .zoom-btn { width: 100%; justify-content: center; }
@@ -1120,7 +1267,6 @@ body.stage-upload.has-upload-image .image-toolbox {
       position: relative;
       align-items: center;
       gap: 8px;
-      min-height: 52px;
       margin: 0 0 12px;
       z-index: 50;
     }
@@ -1141,20 +1287,8 @@ body.stage-upload.has-upload-image .image-toolbox {
       position: static;
       box-shadow: none;
     }
-    .upload-tools-row .poly-confirm-row {
-      display: none;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 55;
-      align-items: center;
-      gap: 8px;
-      pointer-events: auto;
-    }
-    .upload-tools-row.has-crop-actions .poly-confirm-row {
-      display: flex;
-    }
+    .poly-confirm-bar .poly-confirm-row { display: none; }
+    .poly-confirm-bar.has-crop-actions .poly-confirm-row { display: flex; }
     #panelUpload .view-header { border-bottom: none; padding-bottom: 0; }
     .view-title { font-weight: 900; font-size: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
     .badge { font-size: 0.72rem; background: #313244; color: var(--highlight-active); padding: 4px 10px; border-radius: 20px; font-weight: 700; border: 1px solid var(--border-dark); font-family: 'Silkscreen', monospace; }
@@ -1632,6 +1766,34 @@ body.stage-upload.has-upload-image .image-toolbox {
       pointer-events: auto;
       cursor: crosshair;
     }
+    .crop-canvas-overlay.active.is-paused {
+      cursor: default;
+    }
+    .anchor-mini-bar {
+      position: fixed;
+      z-index: 240;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 4px;
+      padding: 4px;
+      background: #1e1e2e;
+      border: 1.5px solid var(--border-dark);
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+      pointer-events: auto;
+    }
+    .anchor-mini-bar[hidden] { display: none !important; }
+    .anchor-mini-bar .zoom-btn {
+      padding: 4px 8px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .anchor-mini-bar .zoom-btn:disabled {
+      opacity: 0.42;
+      cursor: default;
+    }
 
     .grid-frozen-container { position: relative; height: 520px; background: #181825; border-radius: 12px; border: 1px solid var(--border-dark); overflow: hidden; touch-action: pan-x pan-y; }
     .frozen-corner { position: absolute; top: 0; left: 0; width: var(--header-size); height: var(--header-size); background: #1e1e2e; border-right: 2px solid var(--border-dark); border-bottom: 2px solid var(--border-dark); z-index: 30; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 900; color: var(--text-sub); font-family: 'Silkscreen', monospace; }
@@ -1715,6 +1877,50 @@ body.stage-upload.has-upload-image .image-toolbox {
     }
     .bead-show-codes input { accent-color: var(--title-red); width: 14px; height: 14px; }
     body.stage-bead .bead-show-codes { display: inline-flex; }
+    .bead-fs-enter { display: none; }
+    body.stage-bead .bead-fs-enter { display: inline-flex; }
+    .bead-usage-btn { display: none; }
+    body.stage-bead .bead-usage-btn { display: inline-flex; }
+    .bead-usage-panel {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      padding-top: 4px;
+    }
+    .bead-usage-panel.is-open { display: flex; }
+    .bead-usage-summary {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--text-sub);
+    }
+    .bead-usage-panel .color-list { max-height: 240px; }
+    .bead-fs-exit {
+      display: none;
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 80;
+    }
+    .grid-frozen-container:fullscreen,
+    .grid-frozen-container:-webkit-full-screen,
+    .grid-frozen-container.is-bead-fs {
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      border-radius: 0;
+      border: none;
+      background: #181825;
+    }
+    .grid-frozen-container.is-bead-fs {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+    }
+    .grid-frozen-container:fullscreen .bead-fs-exit,
+    .grid-frozen-container:-webkit-full-screen .bead-fs-exit,
+    .grid-frozen-container.is-bead-fs .bead-fs-exit {
+      display: inline-flex;
+    }
     .color-filter-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
     .color-filter-title { font-size: 0.85rem; font-weight: 900; color: var(--text-main); display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
     .color-filter-title > .zoom-btn,
@@ -1818,7 +2024,7 @@ body.stage-upload.has-upload-image .image-toolbox {
         <rect x="5" y="3" width="1" height="1" fill="#FFFFFF"/>
       </svg>
       染上拼豆之路
-      <span class="app-version" id="appVersion" title="網站版本">v111</span>
+      <span class="app-version" id="appVersion" title="網站版本">v119</span>
     </h1>
   </div>
 </header>
@@ -1868,10 +2074,16 @@ body.stage-upload.has-upload-image .image-toolbox {
               <svg class="tool-icon" id="polyCropBtnIcon" viewBox="0 0 16 16" aria-hidden="true"><path fill="#ff6b9d" d="M8 1.2A4.4 4.4 0 0 0 3.6 5.6c0 3.2 4.4 8.6 4.4 8.6s4.4-5.4 4.4-8.6A4.4 4.4 0 0 0 8 1.2zm0 6.2A1.8 1.8 0 1 1 8 3.8a1.8 1.8 0 0 1 0 3.6z"/></svg>
               <span id="polyCropBtnLabel">錨點選取</span>
             </button>
-            <button class="zoom-btn" id="wandBtn" onclick="setUploadTool('wand')">
-              <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="#ff6b9d" stroke-width="1.7" stroke-linecap="round" d="M3.2 12.8 9.4 6.6"/><path fill="#ff6b9d" d="M10.2 2.1h1.2v2.6H10.2zM9.1 3.2h3.4v1.2H9.1zM12.4 5.1h1.1v1.8h-1.1zM13.6 4.3h1.6v1.1h-1.6z"/></svg>
-              魔術棒去背
-            </button>
+            <div class="wand-tool-wrap" id="wandToolWrap">
+              <button class="zoom-btn" id="wandBtn" onclick="setUploadTool('wand')">
+                <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="#ff6b9d" stroke-width="1.7" stroke-linecap="round" d="M3.2 12.8 9.4 6.6"/><path fill="#ff6b9d" d="M10.2 2.1h1.2v2.6H10.2zM9.1 3.2h3.4v1.2H9.1zM12.4 5.1h1.1v1.8h-1.1zM13.6 4.3h1.6v1.1h-1.6z"/></svg>
+                魔術棒去背
+              </button>
+              <div class="wand-tolerance-menu" id="wandToleranceMenu" onclick="event.stopPropagation()">
+                <label>容差 <span id="wandToleranceVal">30%</span></label>
+                <input type="range" id="wandTolerance" min="5" max="80" value="30" />
+              </div>
+            </div>
             <button class="zoom-btn" onclick="autoAiRemoveBg()">
               <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="5.2" width="10" height="7.6" rx="1.6" fill="none" stroke="#ff6b9d" stroke-width="1.4"/><circle cx="6.2" cy="8.8" r="1" fill="#ff6b9d"/><circle cx="9.8" cy="8.8" r="1" fill="#ff6b9d"/><rect x="7.35" y="2.2" width="1.3" height="3" rx="0.4" fill="#ff6b9d"/><rect x="5.4" y="13" width="1.6" height="1.4" rx="0.3" fill="#ff6b9d"/><rect x="9" y="13" width="1.6" height="1.4" rx="0.3" fill="#ff6b9d"/></svg>
               智能去背
@@ -1879,15 +2091,15 @@ body.stage-upload.has-upload-image .image-toolbox {
           </div>
         </div>
         <div class="upload-toolbar-slot" id="uploadToolbarSlot"></div>
-        <div class="poly-confirm-row" id="polyConfirmRow">
-          <button type="button" class="poly-confirm-btn ok" id="applyCropBtn" title="確認" onclick="event.stopPropagation(); applyCurrentSelection();">✓</button>
-          <button type="button" class="poly-confirm-btn cancel" id="cancelPolyBtn" title="取消" onclick="event.stopPropagation(); cancelCropAction();">✕</button>
-        </div>
         </div>
 
         <div class="orig-viewport-wrap">
           <div class="poly-confirm-bar" id="polyConfirmBar">
             <button type="button" class="poly-confirm-upload-btn" id="confirmUploadBtn" title="確認上傳" onclick="event.stopPropagation(); confirmUpload();">確認上傳</button>
+            <div class="poly-confirm-row" id="polyConfirmRow">
+              <button type="button" class="poly-confirm-btn ok" id="applyCropBtn" title="確認" onclick="event.stopPropagation(); applyCurrentSelection();">✓</button>
+              <button type="button" class="poly-confirm-btn cancel" id="cancelPolyBtn" title="取消" onclick="event.stopPropagation(); cancelCropAction();">✕</button>
+            </div>
           </div>
           <div class="orig-viewport" id="origViewport" onclick="triggerFileInput(event)">
           <div class="orig-zoom-frame" id="origZoomFrame">
@@ -2088,6 +2300,7 @@ body.stage-upload.has-upload-image .image-toolbox {
         <div class="color-filter-slot" id="colorFilterSlotTop"></div>
         <div class="edit-grid-row">
         <div class="grid-frozen-container" id="gridFrozenContainer">
+          <button type="button" class="zoom-btn highlight bead-fs-exit" id="beadFsExitBtn" hidden>取消全屏</button>
           <div class="frozen-corner">XY</div>
           <div class="frozen-top-wrapper" id="topHeaderWrapper">
             <canvas id="topHeaderCanvas"></canvas>
@@ -2216,6 +2429,8 @@ body.stage-upload.has-upload-image .image-toolbox {
                 <input type="checkbox" id="beadShowCodes" checked />
                 顯示色號
               </label>
+              <button type="button" class="zoom-btn bead-fs-enter" id="beadFsBtn" title="全屏顯示圖紙">全屏顯示</button>
+              <button type="button" class="zoom-btn bead-usage-btn" id="beadUsageBtn">顏色數量</button>
               <button type="button" class="zoom-btn highlight" id="replaceThisColorBtn" onclick="applyReplaceColor()">替換此色</button>
               <div class="custom-palette-picker" id="replacePalettePicker">
                 <button class="palette-trigger-btn" type="button" id="replacePaletteTriggerBtn" onclick="togglePaletteDropdown('replacePaletteMenu')">
@@ -2230,6 +2445,10 @@ body.stage-upload.has-upload-image .image-toolbox {
           <div class="color-filter-btn-group" id="colorFilterButtonGroup">
             <div id="paletteFilterItems" style="display: contents;"></div>
           </div>
+          <div class="bead-usage-panel" id="beadUsagePanel">
+            <div class="bead-usage-summary" id="beadUsageSummary"></div>
+            <div class="color-list" id="beadUsageList"></div>
+          </div>
         </div>
         </div>
       </div>
@@ -2239,7 +2458,9 @@ body.stage-upload.has-upload-image .image-toolbox {
     <div class="view-panel" id="panelLibrary">
       <div class="view-card">
         <div class="view-header">
-          <div class="view-title">⭐ 圖紙收藏庫</div>
+          <div class="view-title">⭐ 圖紙收藏庫 <span class="library-title-hint">（點擊縮圖進入 拼豆模式）</span>
+            <button type="button" class="zoom-btn" id="beadStockBtn">拼豆顏色庫存</button>
+          </div>
           <div class="library-header-actions">
             <button type="button" class="zoom-btn" id="libraryNewFolderBtn">＋ 新增資料夾</button>
             <div class="library-pick-wrap" id="libraryMoveWrap">
@@ -2254,6 +2475,17 @@ body.stage-upload.has-upload-image .image-toolbox {
             </div>
             <span class="badge" id="libraryCountBadge">0 份</span>
           </div>
+        </div>
+        <div class="bead-stock-panel" id="beadStockPanel">
+          <div class="bead-stock-summary" id="beadStockSummary"></div>
+          <div class="palette-letter-bar" id="beadStockTabs"></div>
+          <div class="bead-stock-legend">
+            <span>色號</span>
+            <span>庫存</span>
+            <span>圖紙已用</span>
+            <span>剩餘</span>
+          </div>
+          <div class="bead-stock-list" id="beadStockList"></div>
         </div>
         <div class="library-folder-bar" id="libraryFolderBar"></div>
         <div id="libraryEmpty" class="library-empty">收藏庫還是空的。<br>在「編輯圖紙」完成後，點擊「完成編輯」即可把圖紙存在這裡。</div>
@@ -2340,6 +2572,14 @@ body.stage-upload.has-upload-image .image-toolbox {
       <button type="button" class="zoom-btn highlight" id="appModalAlt" hidden>另存新檔</button>
     </div>
   </div>
+</div>
+
+<div class="anchor-mini-bar" id="anchorMiniBar" hidden>
+  <button type="button" class="zoom-btn" id="anchorPauseBtn">暫停錨點選取</button>
+  <button type="button" class="zoom-btn" id="anchorCornerBtn">銳角</button>
+</div>
+<div class="anchor-mini-bar" id="selectMiniBar" hidden>
+  <button type="button" class="zoom-btn" id="selectAddBoxBtn">增加選匡</button>
 </div>
 
 <script>
@@ -2430,6 +2670,71 @@ body.stage-upload.has-upload-image .image-toolbox {
   function isBeadStage() {
     return currentStage === "bead";
   }
+
+  function beadFsElement() {
+    return document.getElementById("gridFrozenContainer");
+  }
+  function isBeadFullscreen() {
+    const el = beadFsElement();
+    const native = document.fullscreenElement || document.webkitFullscreenElement;
+    return native === el || !!(el && el.classList.contains("is-bead-fs"));
+  }
+  function refreshAfterBeadFullscreen() {
+    requestAnimationFrame(() => {
+      if (patternGridData.length > 0) {
+        resizeCanvases();
+        renderBasePattern();
+        renderGrid();
+        renderInteractionLayer();
+        renderHeaders();
+      }
+      if (typeof updateMinimap === "function") updateMinimap();
+    });
+  }
+  function syncBeadFullscreenUi() {
+    const on = isBeadFullscreen();
+    const enter = document.getElementById("beadFsBtn");
+    const exit = document.getElementById("beadFsExitBtn");
+    if (enter) {
+      enter.textContent = on ? "取消全屏" : "全屏顯示";
+      enter.title = on ? "取消全屏" : "全屏顯示圖紙";
+      enter.classList.toggle("highlight", on);
+    }
+    if (exit) exit.hidden = !on;
+  }
+  function enterBeadFullscreen() {
+    const el = beadFsElement();
+    if (!el || isBeadFullscreen()) return;
+    const goCss = () => {
+      el.classList.add("is-bead-fs");
+      document.body.classList.add("is-bead-fs");
+      syncBeadFullscreenUi();
+      refreshAfterBeadFullscreen();
+    };
+    const req = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (req && !/iP(hone|ad|od)/.test(navigator.userAgent || "")) {
+      Promise.resolve(req.call(el)).catch(goCss);
+    } else {
+      goCss();
+    }
+  }
+  function exitBeadFullscreen() {
+    const el = beadFsElement();
+    const wasCss = !!(el && el.classList.contains("is-bead-fs"));
+    if (el) el.classList.remove("is-bead-fs");
+    document.body.classList.remove("is-bead-fs");
+    const native = document.fullscreenElement || document.webkitFullscreenElement;
+    if (native && (document.exitFullscreen || document.webkitExitFullscreen)) {
+      const leave = document.exitFullscreen || document.webkitExitFullscreen;
+      Promise.resolve(leave.call(document)).catch(() => {});
+    }
+    syncBeadFullscreenUi();
+    if (wasCss || native) refreshAfterBeadFullscreen();
+  }
+  function toggleBeadFullscreen() {
+    if (isBeadFullscreen()) exitBeadFullscreen();
+    else enterBeadFullscreen();
+  }
   const stagePanels = {
     upload: document.getElementById("panelUpload"),
     edit: document.getElementById("panelEdit"),
@@ -2493,6 +2798,7 @@ body.stage-upload.has-upload-image .image-toolbox {
       panel.classList.toggle("active", on);
     });
 
+    if (stage !== "bead") exitBeadFullscreen();
     closeSidebar();
     placeZoomBarForStage(stage);
     placeColorFilterForStage(stage);
@@ -2520,6 +2826,8 @@ body.stage-upload.has-upload-image .image-toolbox {
     }
     updateGlobalHistoryButtons();
     syncFloatingZoomBar();
+    syncAnchorMiniBar();
+    syncSelectMiniBar();
     requestAnimationFrame(syncFloatingDockFrost);
   }
 
@@ -2654,6 +2962,9 @@ body.stage-upload.has-upload-image .image-toolbox {
     fillPaletteMenu(document.getElementById("replacePaletteMenu"));
   }
   function handleGlobalUndo() {
+  if (undoInProgressAnchor()) return;
+  const sess = currentAnchorSession();
+  if (sess) sess.redo.length = 0;
   if (currentStage === "upload") {
     undoUploadAction();
   } else if (isPatternStage()) {
@@ -2661,6 +2972,7 @@ body.stage-upload.has-upload-image .image-toolbox {
   }
 }
   function handleGlobalRedo() {
+  if (redoInProgressAnchor()) return;
   if (currentStage === "upload") {
     redoUploadAction();
   } else if (isPatternStage()) {
@@ -2676,6 +2988,7 @@ body.stage-upload.has-upload-image .image-toolbox {
     if (dock) dock.classList.toggle("is-open");
   }
   function handleGlobalReset() {
+    if (clearInProgressAnchors()) return;
     if (currentStage === "upload") {
       closeEditResetMenu();
       resetOrigImage();
@@ -2714,12 +3027,15 @@ function updateGlobalHistoryButtons() {
     }
   }
 
+  const sess = currentAnchorSession();
+  const canAnchorUndo = !!(sess && sess.points.length);
+  const canAnchorRedo = !!(sess && sess.redo.length);
   if (currentStage === "upload") {
-    undoBtn.disabled = (uploadHistoryIndex <= 0);
-    redoBtn.disabled = (uploadHistoryIndex < 0 || uploadHistoryIndex >= uploadHistoryStack.length - 1);
+    undoBtn.disabled = !canAnchorUndo && (uploadHistoryIndex <= 0);
+    redoBtn.disabled = !canAnchorRedo && (uploadHistoryIndex < 0 || uploadHistoryIndex >= uploadHistoryStack.length - 1);
   } else if (isPatternStage()) {
-    undoBtn.disabled = (historyIndex <= 0);
-    redoBtn.disabled = (historyIndex < 0 || historyIndex >= historyStack.length - 1);
+    undoBtn.disabled = !canAnchorUndo && (historyIndex <= 0);
+    redoBtn.disabled = !canAnchorRedo && (historyIndex < 0 || historyIndex >= historyStack.length - 1);
   }
 }
 
@@ -2859,7 +3175,8 @@ function updateGlobalHistoryButtons() {
   let selectedCells = new Set();
   let isMouseDown = false, dragStartCell = null, isDeselecting = false;
   let selectionSnapshot = new Set();
-  let editSelectTool = "rect";
+  let editSelectTool = "none";
+  let selectAddArmed = false;
   let editPaintTool = "none";
   let editBrushSize = 1;
   let isPainting = false;
@@ -2868,6 +3185,13 @@ function updateGlobalHistoryButtons() {
   let editPolyHover = null;
   let isPolyHandleDrag = false;
   let polyHandleAnchorIndex = -1;
+  let polyHandleKind = null;
+  let editPolyRedo = [];
+  let uploadTool = "none";
+  let polyPoints = [];
+  let polyPolygons = [];
+  let polyPointRedo = [];
+  let anchorPaused = false;
   let isMovingSelection = false;
   let isMovingMarquee = false;
   let moveStartCell = null;
@@ -3378,6 +3702,8 @@ function updateHistoryButtons() {
     scheduleMinimapViewport();
     scheduleHeaderRender();
     updateAxisHoverBadges();
+    syncAnchorMiniBar();
+    syncSelectMiniBar();
   });
 
   function rgbToHsl(r, g, b) {
@@ -5475,49 +5801,21 @@ function updateHistoryButtons() {
       const hoverPt = closeHover ? editPolyPoints[0] : editPolyHover;
       ctxInteract.save();
       ctxInteract.beginPath();
-      ctxInteract.moveTo(editPolyPoints[0].x * cell, editPolyPoints[0].y * cell);
-      for (let i = 1; i < editPolyPoints.length; i++) {
-        const a = editPolyPoints[i - 1], b = editPolyPoints[i];
-        const c1 = a.hOut || a;
-        const c2 = b.hIn || b;
-        if (a.hOut || b.hIn) ctxInteract.bezierCurveTo(c1.x * cell, c1.y * cell, c2.x * cell, c2.y * cell, b.x * cell, b.y * cell);
-        else ctxInteract.lineTo(b.x * cell, b.y * cell);
-      }
-      if (hoverPt && !isPolyHandleDrag) {
-        const c1 = last.hOut || last;
-        if (last.hOut) ctxInteract.bezierCurveTo(c1.x * cell, c1.y * cell, hoverPt.x * cell, hoverPt.y * cell, hoverPt.x * cell, hoverPt.y * cell);
-        else ctxInteract.lineTo(hoverPt.x * cell, hoverPt.y * cell);
+      tracePolyPath(ctxInteract, editPolyPoints, false, cell);
+      if (hoverPt && !isPolyHandleDrag && !anchorPaused) {
+        if (last.hOut) {
+          ctxInteract.bezierCurveTo(last.hOut.x * cell, last.hOut.y * cell, hoverPt.x * cell, hoverPt.y * cell, hoverPt.x * cell, hoverPt.y * cell);
+        } else {
+          ctxInteract.lineTo(hoverPt.x * cell, hoverPt.y * cell);
+        }
       }
       ctxInteract.strokeStyle = closeHover ? "#00ff88" : "#ff6b9d";
       ctxInteract.lineWidth = Math.max(2, Math.floor(cell * 0.1));
       ctxInteract.setLineDash([6, 4]);
       ctxInteract.stroke();
       ctxInteract.setLineDash([]);
+      drawPolyHandleStems(ctxInteract, editPolyPoints, cell);
       editPolyPoints.forEach((p, i) => {
-        if (p.hIn) {
-          ctxInteract.beginPath();
-          ctxInteract.moveTo(p.x * cell, p.y * cell);
-          ctxInteract.lineTo(p.hIn.x * cell, p.hIn.y * cell);
-          ctxInteract.strokeStyle = "rgba(255, 230, 0, 0.85)";
-          ctxInteract.lineWidth = 1.2;
-          ctxInteract.stroke();
-          ctxInteract.beginPath();
-          ctxInteract.arc(p.hIn.x * cell, p.hIn.y * cell, Math.max(2.5, cell * 0.1), 0, Math.PI * 2);
-          ctxInteract.fillStyle = "#ffe600";
-          ctxInteract.fill();
-        }
-        if (p.hOut) {
-          ctxInteract.beginPath();
-          ctxInteract.moveTo(p.x * cell, p.y * cell);
-          ctxInteract.lineTo(p.hOut.x * cell, p.hOut.y * cell);
-          ctxInteract.strokeStyle = "rgba(255, 230, 0, 0.85)";
-          ctxInteract.lineWidth = 1.2;
-          ctxInteract.stroke();
-          ctxInteract.beginPath();
-          ctxInteract.arc(p.hOut.x * cell, p.hOut.y * cell, Math.max(2.5, cell * 0.1), 0, Math.PI * 2);
-          ctxInteract.fillStyle = "#ffe600";
-          ctxInteract.fill();
-        }
         const isCloseTarget = i === 0 && closeHover;
         const r = isCloseTarget ? Math.max(6, cell * 0.32) : (i === 0 ? Math.max(4, cell * 0.22) : Math.max(3, cell * 0.16));
         ctxInteract.beginPath();
@@ -5576,6 +5874,8 @@ function updateHistoryButtons() {
         ctxInteract.strokeRect(hX + 1, hY + 1, hW - 2, hH - 2);
       }
     }
+    syncAnchorMiniBar();
+    syncSelectMiniBar();
   }
 
   function renderHeaders() {
@@ -5797,6 +6097,8 @@ function updateHistoryButtons() {
     moveOffset = { dx: 0, dy: 0 };
     updateSelectCount();
     renderInteractionLayer();
+    if (isMarqueeSelectTool()) selectAddArmed = true;
+    syncSelectMiniBar();
   }
   const patternSizeToggleBtn = document.getElementById("patternSizeToggle");
   if (patternSizeToggleBtn) {
@@ -6170,20 +6472,275 @@ function updateHistoryButtons() {
     return editSelectTool === "poly";
   }
 
+  function currentAnchorSession() {
+    if (currentStage === "upload" && uploadTool === "poly") {
+      return { points: polyPoints, redo: polyPointRedo, mode: "upload" };
+    }
+    if (isPatternStage() && !isBeadStage() && editSelectTool === "poly") {
+      return { points: editPolyPoints, redo: editPolyRedo, mode: "edit" };
+    }
+    return null;
+  }
+
+  function isLatestAnchorCurve() {
+    const seg = latestAnchorSegment();
+    return !!(seg && (seg.prev.hOut || seg.last.hIn));
+  }
+
+  function latestAnchorSegment() {
+    const sess = currentAnchorSession();
+    if (!sess || sess.points.length < 2) return null;
+    return {
+      sess,
+      prev: sess.points[sess.points.length - 2],
+      last: sess.points[sess.points.length - 1]
+    };
+  }
+
+  function snapshotAnchor(p) {
+    return {
+      x: p.x,
+      y: p.y,
+      hIn: p.hIn ? { x: p.hIn.x, y: p.hIn.y } : null,
+      hOut: p.hOut ? { x: p.hOut.x, y: p.hOut.y } : null
+    };
+  }
+
+  function curveLatestSegment(prev, last, unit) {
+    const dx = last.x - prev.x, dy = last.y - prev.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const s = Math.min(unit * 1.2, Math.max(unit * 0.45, len * 0.32));
+    const ux = dx / len, uy = dy / len;
+    prev.hOut = { x: prev.x + ux * s, y: prev.y + uy * s };
+    last.hIn = { x: last.x - ux * s, y: last.y - uy * s };
+  }
+
+  function afterAnchorPointChange() {
+    if (currentStage === "upload") {
+      if (typeof drawPolySelection === "function") drawPolySelection();
+    } else if (typeof renderInteractionLayer === "function") {
+      renderInteractionLayer();
+    }
+    updateGlobalHistoryButtons();
+    syncAnchorMiniBar();
+  }
+
+  function undoInProgressAnchor() {
+    const sess = currentAnchorSession();
+    if (!sess || !sess.points.length) return false;
+    sess.redo.push(snapshotAnchor(sess.points.pop()));
+    if (sess.mode === "edit") {
+      editPolyHover = null;
+      isPolyHandleDrag = false;
+    } else {
+      isUploadPolyDrag = false;
+      uploadPolyDragIndex = -1;
+      uploadPolyDragKind = null;
+    }
+    afterAnchorPointChange();
+    return true;
+  }
+
+  function redoInProgressAnchor() {
+    const sess = currentAnchorSession();
+    if (!sess || !sess.redo.length) return false;
+    sess.points.push(sess.redo.pop());
+    afterAnchorPointChange();
+    return true;
+  }
+
+  function clearInProgressAnchors() {
+    const sess = currentAnchorSession();
+    if (!sess || (!sess.points.length && !sess.redo.length)) return false;
+    sess.points.length = 0;
+    sess.redo.length = 0;
+    if (sess.mode === "edit") {
+      editPolyHover = null;
+      isPolyHandleDrag = false;
+      polyHandleAnchorIndex = -1;
+      polyHandleKind = null;
+    } else {
+      isUploadPolyDrag = false;
+      uploadPolyDragIndex = -1;
+      uploadPolyDragKind = null;
+    }
+    afterAnchorPointChange();
+    return true;
+  }
+
+  function setAnchorPaused(on) {
+    anchorPaused = !!on;
+    isPolyHandleDrag = false;
+    polyHandleAnchorIndex = -1;
+    polyHandleKind = null;
+    isUploadPolyDrag = false;
+    uploadPolyDragIndex = -1;
+    uploadPolyDragKind = null;
+    const overlayEl = document.getElementById("cropOverlayCanvas");
+    if (overlayEl) {
+      overlayEl.classList.toggle("is-paused", currentStage === "upload" && uploadTool === "poly" && anchorPaused);
+      if (uploadTool === "poly") overlayEl.style.cursor = anchorPaused ? "default" : "crosshair";
+    }
+    if (currentStage === "upload" && typeof drawPolySelection === "function") drawPolySelection();
+    else if (typeof renderInteractionLayer === "function") renderInteractionLayer();
+    syncAnchorMiniBar();
+    updateGlobalHistoryButtons();
+  }
+
+  function toggleLatestAnchorCurve() {
+    const seg = latestAnchorSegment();
+    if (!seg) return;
+    if (seg.prev.hOut || seg.last.hIn) {
+      seg.prev.hOut = null;
+      seg.last.hIn = null;
+    } else {
+      curveLatestSegment(seg.prev, seg.last, seg.sess.mode === "upload" ? 28 : 0.75);
+    }
+    afterAnchorPointChange();
+  }
+
+  function placeMiniBarAbove(bar, sx, sy, extraGap) {
+    const gap = extraGap == null ? 8 : extraGap;
+    const barW = bar.offsetWidth || 168;
+    const barH = bar.offsetHeight || 36;
+    let left = sx - barW / 2;
+    let top = sy - gap - barH;
+    if (top < 8) top = sy + gap;
+    left = Math.max(8, Math.min(left, window.innerWidth - barW - 8));
+    top = Math.max(8, Math.min(top, window.innerHeight - barH - 8));
+    bar.style.left = `${Math.round(left)}px`;
+    bar.style.top = `${Math.round(top)}px`;
+  }
+
+  function syncAnchorMiniBar() {
+    const bar = document.getElementById("anchorMiniBar");
+    const pauseBtn = document.getElementById("anchorPauseBtn");
+    const cornerBtn = document.getElementById("anchorCornerBtn");
+    if (!bar) return;
+    const sess = currentAnchorSession();
+    if (!sess || !sess.points.length) {
+      bar.hidden = true;
+      return;
+    }
+    bar.hidden = false;
+    if (pauseBtn) pauseBtn.textContent = anchorPaused ? "回到錨點選取" : "暫停錨點選取";
+    if (cornerBtn) {
+      const hasSeg = sess.points.length >= 2;
+      const curve = isLatestAnchorCurve();
+      cornerBtn.disabled = !hasSeg;
+      cornerBtn.textContent = curve ? "銳角" : "曲線";
+      cornerBtn.title = !hasSeg ? "至少兩個錨點才能切換線段" : (curve ? "將最新線段改為銳角" : "將最新線段改為曲線");
+    }
+    const last = sess.points[sess.points.length - 1];
+    const overlayEl = document.getElementById("cropOverlayCanvas");
+    const canvasEl = sess.mode === "upload" ? overlayEl : interactionCanvas;
+    if (!canvasEl || !last) return;
+    const rect = canvasEl.getBoundingClientRect();
+    let sx, sy;
+    if (sess.mode === "upload") {
+      const scaleX = rect.width / (overlayEl.width || 1);
+      const scaleY = rect.height / (overlayEl.height || 1);
+      sx = rect.left + last.x * scaleX;
+      sy = rect.top + last.y * scaleY;
+    } else {
+      const cell = rect.width / (currentCols || 1);
+      sx = rect.left + last.x * cell;
+      sy = rect.top + last.y * cell;
+    }
+    placeMiniBarAbove(bar, sx, sy, 10);
+  }
+
+  function isMarqueeSelectTool() {
+    return editSelectTool === "rect" || editSelectTool === "circle" || editSelectTool === "ellipse";
+  }
+
+  function syncSelectMiniBar() {
+    const bar = document.getElementById("selectMiniBar");
+    const addBtn = document.getElementById("selectAddBoxBtn");
+    if (!bar) return;
+    const show = isPatternStage() && !isBeadStage() && isMarqueeSelectTool() && selectedCells.size > 0;
+    if (!show) {
+      bar.hidden = true;
+      return;
+    }
+    bar.hidden = false;
+    if (addBtn) {
+      addBtn.classList.toggle("highlight", selectAddArmed);
+      addBtn.textContent = "增加選匡";
+      addBtn.title = selectAddArmed ? "再拖曳畫布新增一塊選匡" : "點此後再拖曳，可新增選匡";
+    }
+    const bounds = (isScalingSelection && scalePreviewBounds) ? scalePreviewBounds : getVisibleSelectionBounds();
+    if (!bounds || !interactionCanvas) return;
+    const rect = interactionCanvas.getBoundingClientRect();
+    const cellW = rect.width / (currentCols || 1);
+    const cellH = rect.height / (currentRows || 1);
+    const sx = rect.left + ((bounds.minX + bounds.maxX + 1) / 2) * cellW;
+    const sy = rect.top + bounds.minY * cellH;
+    placeMiniBarAbove(bar, sx, sy, 40);
+  }
+
+  (function bindAnchorMiniBar() {
+    const bar = document.getElementById("anchorMiniBar");
+    const pauseBtn = document.getElementById("anchorPauseBtn");
+    const cornerBtn = document.getElementById("anchorCornerBtn");
+    const selectBar = document.getElementById("selectMiniBar");
+    const addBtn = document.getElementById("selectAddBoxBtn");
+    if (bar) {
+      bar.addEventListener("pointerdown", (e) => e.stopPropagation());
+      bar.addEventListener("click", (e) => e.stopPropagation());
+    }
+    if (selectBar) {
+      selectBar.addEventListener("pointerdown", (e) => e.stopPropagation());
+      selectBar.addEventListener("click", (e) => e.stopPropagation());
+    }
+    if (pauseBtn) {
+      pauseBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        setAnchorPaused(!anchorPaused);
+      });
+    }
+    if (cornerBtn) {
+      cornerBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleLatestAnchorCurve();
+      });
+    }
+    if (addBtn) {
+      addBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        selectAddArmed = !selectAddArmed;
+        syncSelectMiniBar();
+      });
+    }
+    window.addEventListener("resize", () => {
+      syncAnchorMiniBar();
+      syncSelectMiniBar();
+    });
+  })();
+
   function isMoveSelectTool() {
     return editSelectTool === "movecopy";
   }
 
   function setEditSelectTool(tool, opts) {
     const force = opts && opts.force;
+    if (!force && tool === "poly" && editSelectTool === "poly" && anchorPaused) {
+      setAnchorPaused(false);
+      return;
+    }
     if (!force && editSelectTool === tool) tool = "none";
     editSelectTool = tool;
-    if (!isAnchorSelectTool()) resetEditPoly();
+    if (!isAnchorSelectTool()) {
+      resetEditPoly();
+      editPolyRedo = [];
+      anchorPaused = false;
+    }
     if (!isMoveSelectTool()) {
       isMovingSelection = false;
       moveOffset = { dx: 0, dy: 0 };
     }
     isMovingMarquee = false;
+    selectAddArmed = isMarqueeSelectTool() && selectedCells.size === 0;
     if (editSelectTool !== "none") {
       setPipetteMode(false);
       if (editPaintTool !== "none") setPaintTool("none", { force: true });
@@ -6199,6 +6756,7 @@ function updateHistoryButtons() {
     if (ellipseBtn) ellipseBtn.classList.toggle("highlight", editSelectTool === "ellipse");
     if (polyBtn) polyBtn.classList.toggle("highlight", editSelectTool === "poly");
     if (moveCopyBtn) moveCopyBtn.classList.toggle("highlight", editSelectTool === "movecopy");
+    updateGlobalHistoryButtons();
     const inner = document.getElementById("mainCanvasInner");
     if (inner) {
       inner.classList.toggle("select-move-mode", isMoveSelectTool());
@@ -6206,8 +6764,10 @@ function updateHistoryButtons() {
     }
     renderInteractionLayer();
     updateSelectCount();
+    syncAnchorMiniBar();
+    syncSelectMiniBar();
   }
-  setEditSelectTool("rect", { force: true });
+  setEditSelectTool("none", { force: true });
 
   function pointInPolygon(px, py, points) {
     let inside = false;
@@ -6225,6 +6785,8 @@ function updateHistoryButtons() {
     editPolyHover = null;
     isPolyHandleDrag = false;
     polyHandleAnchorIndex = -1;
+    polyHandleKind = null;
+    editPolyRedo = [];
   }
 
   function cubicBezierPoint(p0, p1, p2, p3, t) {
@@ -6233,6 +6795,26 @@ function updateHistoryButtons() {
       x: uu * u * p0.x + 3 * uu * t * p1.x + 3 * u * tt * p2.x + tt * t * p3.x,
       y: uu * u * p0.y + 3 * uu * t * p1.y + 3 * u * tt * p2.y + tt * t * p3.y
     };
+  }
+
+  function tracePolyPath(ctx, points, closed, scale) {
+    if (!points.length) return;
+    const s = scale == null ? 1 : scale;
+    ctx.moveTo(points[0].x * s, points[0].y * s);
+    const n = points.length;
+    const segs = closed ? n : n - 1;
+    for (let i = 0; i < segs; i++) {
+      const a = points[i];
+      const b = points[(i + 1) % n];
+      if (a.hOut || b.hIn) {
+        const c1 = a.hOut || a;
+        const c2 = b.hIn || b;
+        ctx.bezierCurveTo(c1.x * s, c1.y * s, c2.x * s, c2.y * s, b.x * s, b.y * s);
+      } else {
+        ctx.lineTo(b.x * s, b.y * s);
+      }
+    }
+    if (closed) ctx.closePath();
   }
 
   function flattenEditPoly(points, closed) {
@@ -6259,6 +6841,38 @@ function updateHistoryButtons() {
     return out;
   }
 
+  function hitTestPolyHandle(points, x, y, tol) {
+    for (let i = 0; i < points.length; i++) {
+      const p = points[i];
+      if (p.hOut && Math.hypot(x - p.hOut.x, y - p.hOut.y) <= tol) return { i, kind: "out" };
+      if (p.hIn && Math.hypot(x - p.hIn.x, y - p.hIn.y) <= tol) return { i, kind: "in" };
+    }
+    return null;
+  }
+
+  function drawPolyHandleStems(ctx, points, scale) {
+    const s = scale == null ? 1 : scale;
+    points.forEach((p) => {
+      ["hIn", "hOut"].forEach((key) => {
+        const h = p[key];
+        if (!h) return;
+        ctx.beginPath();
+        ctx.moveTo(p.x * s, p.y * s);
+        ctx.lineTo(h.x * s, h.y * s);
+        ctx.strokeStyle = "rgba(255, 230, 0, 0.9)";
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(h.x * s, h.y * s, Math.max(3, s * 0.12), 0, Math.PI * 2);
+        ctx.fillStyle = "#ffe600";
+        ctx.fill();
+        ctx.strokeStyle = "#181825";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      });
+    });
+  }
+
   function closeEditPolygon() {
     if (editPolyPoints.length < 3) return;
     const outline = flattenEditPoly(editPolyPoints, true);
@@ -6272,6 +6886,8 @@ function updateHistoryButtons() {
     resetEditPoly();
     updateSelectCount();
     renderInteractionLayer();
+    updateGlobalHistoryButtons();
+    syncAnchorMiniBar();
   }
 
   function ovalBounds(c1, r1, c2, r2, asCircle) {
@@ -6402,6 +7018,15 @@ function updateHistoryButtons() {
     }
 
     if (isAnchorSelectTool()) {
+      if (anchorPaused) return;
+      const handle = hitTestPolyHandle(editPolyPoints, fx, fy, 0.38);
+      if (handle) {
+        isPolyHandleDrag = true;
+        polyHandleAnchorIndex = handle.i;
+        polyHandleKind = handle.kind;
+        renderInteractionLayer();
+        return;
+      }
       if (editPolyPoints.length >= 3) {
         const first = editPolyPoints[0];
         if (Math.hypot(fx - first.x, fy - first.y) < POLY_CLOSE_HIT) {
@@ -6410,9 +7035,11 @@ function updateHistoryButtons() {
         }
       }
       editPolyPoints.push({ x: fx, y: fy, hIn: null, hOut: null });
+      editPolyRedo.length = 0;
       editPolyHover = { x: fx, y: fy };
       isPolyHandleDrag = true;
       polyHandleAnchorIndex = editPolyPoints.length - 1;
+      polyHandleKind = "new";
       renderInteractionLayer();
       return;
     }
@@ -6429,17 +7056,19 @@ function updateHistoryButtons() {
       return;
     }
 
+    if (!isMarqueeSelectTool() || !selectAddArmed) return;
+
     isMouseDown = true; dragStartCell = { col, row };
     const key = `${col},${row}`;
     selectionSnapshot = new Set(selectedCells);
-    if (selectedCells.has(key)) { isDeselecting = true; selectedCells.delete(key); }
-    else { isDeselecting = false; selectedCells.add(key); }
+    isDeselecting = false; selectedCells.add(key);
     updateSelectCount(); renderInteractionLayer();
   }
 
   window.addEventListener("mouseup", handlePointerEnd);
   window.addEventListener("touchend", handlePointerEnd);
   function handlePointerEnd() {
+    const finishedMarquee = isMouseDown && isMarqueeSelectTool();
     if (isScalingSelection) {
       if (scalePreviewBounds) applySelectionScale(scalePreviewBounds);
       isScalingSelection = false;
@@ -6472,14 +7101,19 @@ function updateHistoryButtons() {
     paintStrokeDirty = false;
     isPolyHandleDrag = false;
     polyHandleAnchorIndex = -1;
+    polyHandleKind = null;
     isMouseDown = false;
     dragStartCell = null;
     selectionSnapshot.clear();
+    if (finishedMarquee) {
+      selectAddArmed = false;
+      syncSelectMiniBar();
+    }
   }
 
   interactionCanvas.addEventListener("mousemove", handlePointerMove);
   window.addEventListener("mousemove", (e) => {
-    if (isScalingSelection || isMovingSelection || isMovingMarquee) handlePointerMove(e);
+    if (isScalingSelection || isMovingSelection || isMovingMarquee || isPolyHandleDrag) handlePointerMove(e);
   });
   interactionCanvas.addEventListener("touchmove", (e) => {
     if (e.touches.length >= 2 || pinchZooming) { e.preventDefault(); return; }
@@ -6516,14 +7150,20 @@ function updateHistoryButtons() {
     if (!isBeadStage() && isEditMode && isPolyHandleDrag && polyHandleAnchorIndex >= 0) {
       const p = editPolyPoints[polyHandleAnchorIndex];
       if (p) {
-        const dx = fx - p.x, dy = fy - p.y;
-        if (Math.hypot(dx, dy) > 0.18) {
+        if (polyHandleKind === "out") {
           p.hOut = { x: fx, y: fy };
-          p.hIn = { x: p.x - dx, y: p.y - dy };
+        } else if (polyHandleKind === "in") {
+          p.hIn = { x: fx, y: fy };
+        } else {
+          const dx = fx - p.x, dy = fy - p.y;
+          if (Math.hypot(dx, dy) > 0.22) {
+            p.hOut = { x: fx, y: fy };
+            p.hIn = { x: p.x - dx, y: p.y - dy };
+          }
         }
       }
       renderInteractionLayer();
-    } else if (!isBeadStage() && isEditMode && isAnchorSelectTool() && editPolyPoints.length) {
+    } else if (!isBeadStage() && isEditMode && isAnchorSelectTool() && editPolyPoints.length && !anchorPaused) {
       editPolyHover = { x: fx, y: fy };
       renderInteractionLayer();
     }
@@ -6574,7 +7214,7 @@ function updateHistoryButtons() {
           ${!isPipetteMode && editPaintTool === "eraser" ? '<div style="color:#ff6b9d; margin-top:2px;">橡皮擦：拖曳清除</div>' : ''}
           ${!isPipetteMode && editSelectTool === "circle" ? '<div style="color:#ff6b9d; margin-top:2px;">圓形選取：拖曳圈選</div>' : ''}
           ${!isPipetteMode && editSelectTool === "ellipse" ? '<div style="color:#ff6b9d; margin-top:2px;">橢圓形選取：拖曳圈選</div>' : ''}
-          ${!isPipetteMode && editSelectTool === "poly" ? '<div style="color:#ff6b9d; margin-top:2px;">錨點：點一下直線，拖曳拉曲線，再點起點閉合</div>' : ''}
+          ${!isPipetteMode && editSelectTool === "poly" ? '<div style="color:#ff6b9d; margin-top:2px;">錨點：點一下直線，按住拖曳拉曲線，可再拖黃色控制點</div>' : ''}
           ${!isPipetteMode && editSelectTool === "movecopy" ? '<div style="color:#ff6b9d; margin-top:2px;">移動複製：拖曳複製選取的拼豆</div>' : ''}`;
       } else {
         tooltip.innerHTML = `<div class="tip-coord">📍 X: ${col + 1}, Y: ${row + 1}</div><div style="color:#a6adc8;">(空白透明)</div>`;
@@ -6704,6 +7344,8 @@ function updateHistoryButtons() {
     if (!isPatternStage()) syncFloatingZoomBar();
     if (uploadTool === 'poly' && (polyPoints.length > 0 || polyPolygons.length > 0)) {
       drawPolySelection();
+    } else {
+      syncAnchorMiniBar();
     }
   }
   function adjustOrigZoom(delta) { setOrigZoom(origZoom + delta); }
@@ -6843,7 +7485,8 @@ function updateHistoryButtons() {
     document.getElementById("totalBeads").textContent = total;
     const colorList = document.getElementById("colorList");
     colorList.innerHTML = "";
-    Object.keys(counts).sort((a, b) => counts[b] - counts[a]).forEach(code => {
+    const codes = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+    codes.forEach(code => {
       const bead = BEAD_PALETTE.find(b => b.code === code);
       if (!bead) return;
       const item = document.createElement("div");
@@ -6851,6 +7494,32 @@ function updateHistoryButtons() {
       item.innerHTML = `<div class="color-swatch" style="background: ${bead.hex}"></div><div><div><strong>${bead.code}</strong></div><div style="color: #a6adc8;">${counts[code]} 顆</div></div>`;
       colorList.appendChild(item);
     });
+    renderBeadUsagePanel(counts, total);
+  }
+
+  function renderBeadUsagePanel(counts, total) {
+    const summary = document.getElementById("beadUsageSummary");
+    const list = document.getElementById("beadUsageList");
+    if (!summary || !list) return;
+    const codes = Object.keys(counts || {}).sort((a, b) => counts[b] - counts[a]);
+    summary.textContent = `共 ${codes.length} 色 · 總計 ${total || 0} 顆`;
+    list.innerHTML = "";
+    codes.forEach((code) => {
+      const bead = BEAD_PALETTE.find((b) => b.code === code);
+      if (!bead) return;
+      const item = document.createElement("div");
+      item.className = "color-item";
+      item.innerHTML = `<div class="color-swatch" style="background: ${bead.hex}"></div><div><div><strong>${bead.code}</strong></div><div style="color: #a6adc8;">${counts[code]} 顆</div></div>`;
+      list.appendChild(item);
+    });
+  }
+
+  function toggleBeadUsagePanel() {
+    const panel = document.getElementById("beadUsagePanel");
+    const btn = document.getElementById("beadUsageBtn");
+    if (!panel) return;
+    panel.classList.toggle("is-open");
+    if (btn) btn.classList.toggle("highlight", panel.classList.contains("is-open"));
   }
 
   document.getElementById("beadWidth").addEventListener("input", (e) => {
@@ -6903,6 +7572,36 @@ function updateHistoryButtons() {
   document.getElementById("samplingMode").addEventListener("change", () => scheduleProcessImage("變更取樣模式"));
   document.getElementById("cleanNoise").addEventListener("change", () => scheduleProcessImage("噪點過濾"));
   document.getElementById("beadShowCodes")?.addEventListener("change", () => { renderBasePattern(); });
+  document.getElementById("beadUsageBtn")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleBeadUsagePanel();
+  });
+  document.getElementById("beadFsBtn")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleBeadFullscreen();
+  });
+  document.getElementById("beadFsExitBtn")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    exitBeadFullscreen();
+  });
+  function onBeadFullscreenChange() {
+    const el = beadFsElement();
+    const native = document.fullscreenElement || document.webkitFullscreenElement;
+    if (el && native !== el) {
+      el.classList.remove("is-bead-fs");
+      document.body.classList.remove("is-bead-fs");
+    }
+    syncBeadFullscreenUi();
+    refreshAfterBeadFullscreen();
+  }
+  document.addEventListener("fullscreenchange", onBeadFullscreenChange);
+  document.addEventListener("webkitfullscreenchange", onBeadFullscreenChange);
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && document.body.classList.contains("is-bead-fs")) {
+      e.preventDefault();
+      exitBeadFullscreen();
+    }
+  });
   document.getElementById("maxColors").addEventListener("input", (e) => {
     syncMaxColorsVal();
     if (currentImage) scheduleProcessImage("調整限色");
@@ -7017,11 +7716,11 @@ function updateHistoryButtons() {
   // ==========================================
   // 上傳區互動與裁切去背
   // ==========================================
-  let uploadTool = 'none';
   let cropOverlay = document.getElementById("cropOverlayCanvas");
   let ctxCrop = cropOverlay.getContext("2d");
-  let polyPolygons = [];
-  let polyPoints = [];
+  let isUploadPolyDrag = false;
+  let uploadPolyDragIndex = -1;
+  let uploadPolyDragKind = null;
   let rectStart = null, rectCurrent = null;
   let isDrawingRect = false;
   let isMovingRect = false;
@@ -7240,6 +7939,7 @@ function updateHistoryButtons() {
   }
 
   const origViewport = document.getElementById("origViewport");
+  origViewport.addEventListener("scroll", syncAnchorMiniBar, { passive: true });
   origViewport.addEventListener("dragover", (e) => { e.preventDefault(); origViewport.classList.add("drag-over"); });
   origViewport.addEventListener("dragleave", () => { origViewport.classList.remove("drag-over"); });
   origViewport.addEventListener("drop", (e) => {
@@ -7310,10 +8010,19 @@ function updateHistoryButtons() {
   function layoutImageToolboxFan() {}
 
   function setUploadTool(tool) {
+    if (tool === "poly" && uploadTool === "poly" && anchorPaused) {
+      setAnchorPaused(false);
+      return;
+    }
     uploadTool = (uploadTool === tool) ? 'none' : tool;
+    anchorPaused = false;
     
     polyPoints = [];
     polyPolygons = [];
+    polyPointRedo = [];
+    isUploadPolyDrag = false;
+    uploadPolyDragIndex = -1;
+    uploadPolyDragKind = null;
     rectStart = null;
     rectCurrent = null;
     isDrawingRect = false;
@@ -7325,7 +8034,8 @@ function updateHistoryButtons() {
     ctxCrop.clearRect(0, 0, cropOverlay.width, cropOverlay.height);
     
     cropOverlay.classList.toggle("active", uploadTool !== 'none');
-    cropOverlay.style.cursor = uploadTool === 'rect' ? "crosshair" : "";
+    cropOverlay.classList.toggle("is-paused", false);
+    cropOverlay.style.cursor = (uploadTool === 'rect' || uploadTool === 'poly') ? "crosshair" : "";
     
     document.getElementById("rectCropBtn").classList.toggle("highlight", uploadTool === 'rect');
     document.getElementById("wandBtn").classList.toggle("highlight", uploadTool === 'wand');
@@ -7334,7 +8044,9 @@ function updateHistoryButtons() {
     const isPolyActive = (uploadTool === 'poly');
     polyBtn.classList.toggle("highlight", isPolyActive);
     updateCropConfirmBar();
+    updateGlobalHistoryButtons();
     layoutImageToolboxFan();
+    syncAnchorMiniBar();
     if (uploadTool === "none") drawDetectedFaces();
   }
 
@@ -7460,6 +8172,8 @@ function updateHistoryButtons() {
     const showRect = uploadTool === "rect" && r && r.w >= 5 && r.h >= 5;
     const on = uploadTool === "poly" || showRect;
     if (toolsRow) toolsRow.classList.toggle("has-crop-actions", on);
+    const bar = document.getElementById("polyConfirmBar");
+    if (bar) bar.classList.toggle("has-crop-actions", on);
   }
 
   function cancelCropAction() {
@@ -7527,13 +8241,23 @@ function updateHistoryButtons() {
         updateCropConfirmBar();
       }
     } else if (uploadTool === 'poly') {
+      if (anchorPaused) return;
+      const handle = hitTestPolyHandle(polyPoints, x, y, clickTolerance);
+      if (handle) {
+        isUploadPolyDrag = true;
+        uploadPolyDragIndex = handle.i;
+        uploadPolyDragKind = handle.kind;
+        return;
+      }
       if (polyPoints.length > 0) {
         if (polyPoints.length >= 3) {
           const startP = polyPoints[0];
           if (Math.hypot(x - startP.x, y - startP.y) <= clickTolerance) {
-            polyPolygons.push([...polyPoints]);
+            polyPolygons.push(clonePolyPoints(polyPoints));
             polyPoints = [];
+            polyPointRedo = [];
             startMarchingAnts();
+            syncAnchorMiniBar();
             return;
           }
         }
@@ -7548,14 +8272,69 @@ function updateHistoryButtons() {
         }
       }
 
-      polyPoints.push({ x, y });
+      polyPoints.push({ x, y, hIn: null, hOut: null });
+      polyPointRedo.length = 0;
+      isUploadPolyDrag = true;
+      uploadPolyDragIndex = polyPoints.length - 1;
+      uploadPolyDragKind = "new";
       drawPolySelection();
     } else if (uploadTool === 'wand') {
-      magicWandRemove(x, y);
+      magicWandRemove(x, y, readWandTolerance());
     }
   });
 
+  function clonePolyPoints(pts) {
+    return (pts || []).map((p) => ({
+      x: p.x,
+      y: p.y,
+      hIn: p.hIn ? { x: p.hIn.x, y: p.hIn.y } : null,
+      hOut: p.hOut ? { x: p.hOut.x, y: p.hOut.y } : null
+    }));
+  }
+  function offsetPolyPoints(pts, dx, dy) {
+    return clonePolyPoints(pts).map((p) => {
+      p.x += dx;
+      p.y += dy;
+      if (p.hIn) { p.hIn.x += dx; p.hIn.y += dy; }
+      if (p.hOut) { p.hOut.x += dx; p.hOut.y += dy; }
+      return p;
+    });
+  }
+  function expandPolyBounds(polygon, acc) {
+    (polygon || []).forEach((p) => {
+      const pts = [p, p.hIn, p.hOut];
+      pts.forEach((pt) => {
+        if (!pt) return;
+        if (pt.x < acc.minX) acc.minX = pt.x;
+        if (pt.x > acc.maxX) acc.maxX = pt.x;
+        if (pt.y < acc.minY) acc.minY = pt.y;
+        if (pt.y > acc.maxY) acc.maxY = pt.y;
+      });
+    });
+  }
+  function updateUploadPolyDrag(x, y) {
+    const p = polyPoints[uploadPolyDragIndex];
+    if (!p) return;
+    if (uploadPolyDragKind === "out") {
+      p.hOut = { x, y };
+    } else if (uploadPolyDragKind === "in") {
+      p.hIn = { x, y };
+    } else {
+      const dx = x - p.x, dy = y - p.y;
+      if (Math.hypot(dx, dy) > 8 / (origZoom || 1)) {
+        p.hOut = { x, y };
+        p.hIn = { x: p.x - dx, y: p.y - dy };
+      }
+    }
+    drawPolySelection();
+  }
+
   cropOverlay.addEventListener("mousemove", (e) => {
+    if (uploadTool === "poly" && isUploadPolyDrag) {
+      const { x, y } = getCropPreciseCoords(e);
+      updateUploadPolyDrag(x, y);
+      return;
+    }
     if (uploadTool !== "rect") return;
     const { x, y } = getCropPreciseCoords(e);
     if (isScalingRect) {
@@ -7576,6 +8355,11 @@ function updateHistoryButtons() {
   });
 
   window.addEventListener("mousemove", (e) => {
+    if (uploadTool === "poly" && isUploadPolyDrag) {
+      const { x, y } = getCropPreciseCoords(e);
+      updateUploadPolyDrag(x, y);
+      return;
+    }
     if (uploadTool !== "rect") return;
     if (!isDrawingRect && !isMovingRect && !isScalingRect) return;
     const { x, y } = getCropPreciseCoords(e);
@@ -7588,6 +8372,12 @@ function updateHistoryButtons() {
   });
 
   window.addEventListener("mouseup", () => {
+    if (uploadTool === "poly") {
+      isUploadPolyDrag = false;
+      uploadPolyDragIndex = -1;
+      uploadPolyDragKind = null;
+      return;
+    }
     if (uploadTool !== "rect") return;
     if (isDrawingRect && rectStart && rectCurrent) {
       const r = getNormalizedRect();
@@ -7676,9 +8466,7 @@ function updateHistoryButtons() {
       polyPolygons.forEach(polygon => {
         if (polygon.length < 3) return;
         mCtx.beginPath();
-        mCtx.moveTo(polygon[0].x, polygon[0].y);
-        for (let i = 1; i < polygon.length; i++) mCtx.lineTo(polygon[i].x, polygon[i].y);
-        mCtx.closePath();
+        tracePolyPath(mCtx, polygon, true, 1);
         mCtx.fill("nonzero");
       });
 
@@ -7691,9 +8479,7 @@ function updateHistoryButtons() {
       polyPolygons.forEach(polygon => {
         if (polygon.length < 3) return;
         sCtx.beginPath();
-        sCtx.moveTo(polygon[0].x, polygon[0].y);
-        for (let i = 1; i < polygon.length; i++) sCtx.lineTo(polygon[i].x, polygon[i].y);
-        sCtx.closePath();
+        tracePolyPath(sCtx, polygon, true, 1);
         sCtx.fill("nonzero");
         sCtx.stroke();
       });
@@ -7711,9 +8497,7 @@ function updateHistoryButtons() {
       polyPolygons.forEach(polygon => {
         if (polygon.length < 3) return;
         aCtx.beginPath();
-        aCtx.moveTo(polygon[0].x, polygon[0].y);
-        for (let i = 1; i < polygon.length; i++) aCtx.lineTo(polygon[i].x, polygon[i].y);
-        aCtx.closePath();
+        tracePolyPath(aCtx, polygon, true, 1);
         aCtx.stroke();
       });
 
@@ -7739,12 +8523,12 @@ function updateHistoryButtons() {
       ctxCrop.globalCompositeOperation = "source-over";
       ctxCrop.globalAlpha = 1.0;
       ctxCrop.beginPath();
-      ctxCrop.moveTo(polyPoints[0].x, polyPoints[0].y);
-      for (let i = 1; i < polyPoints.length; i++) ctxCrop.lineTo(polyPoints[i].x, polyPoints[i].y);
+      tracePolyPath(ctxCrop, polyPoints, false, 1);
       ctxCrop.strokeStyle = "#ff3344";
       ctxCrop.lineWidth = lineWidthVal;
       ctxCrop.setLineDash(dashVal);
       ctxCrop.stroke();
+      drawPolyHandleStems(ctxCrop, polyPoints, 1);
 
       polyPoints.forEach((p, idx) => {
         const isStartNode = (idx === 0);
@@ -7768,6 +8552,7 @@ function updateHistoryButtons() {
       });
       ctxCrop.restore();
     }
+    syncAnchorMiniBar();
   }
 
   function goToEditWithCurrentImage() {
@@ -7799,19 +8584,17 @@ function updateHistoryButtons() {
       maxY = Math.max(rectStart.y, rectCurrent.y);
     } else if (uploadTool === 'poly') {
       if (polyPoints.length >= 3) {
-        polyPolygons.push([...polyPoints]);
+        polyPolygons.push(clonePolyPoints(polyPoints));
         polyPoints = [];
       }
       if (polyPolygons.length === 0) return false;
 
-      polyPolygons.forEach(polygon => {
-        polygon.forEach(p => {
-          if (p.x < minX) minX = p.x;
-          if (p.x > maxX) maxX = p.x;
-          if (p.y < minY) minY = p.y;
-          if (p.y > maxY) maxY = p.y;
-        });
-      });
+      const acc = { minX, minY, maxX, maxY };
+      polyPolygons.forEach((polygon) => expandPolyBounds(polygon, acc));
+      minX = acc.minX;
+      minY = acc.minY;
+      maxX = acc.maxX;
+      maxY = acc.maxY;
     } else return false;
 
     minX = Math.max(0, Math.floor(minX));
@@ -7839,11 +8622,7 @@ function updateHistoryButtons() {
       polyPolygons.forEach(polygon => {
         if (polygon.length < 3) return;
         maskCtx.beginPath();
-        maskCtx.moveTo(polygon[0].x - minX, polygon[0].y - minY);
-        for (let i = 1; i < polygon.length; i++) {
-          maskCtx.lineTo(polygon[i].x - minX, polygon[i].y - minY);
-        }
-        maskCtx.closePath();
+        tracePolyPath(maskCtx, offsetPolyPoints(polygon, -minX, -minY), true, 1);
         maskCtx.fill("nonzero");
       });
       ctx.drawImage(currentImage, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
@@ -7857,7 +8636,16 @@ function updateHistoryButtons() {
     return true;
   }
 
-  function magicWandRemove(startX, startY, tolerance = 28) {
+  function readWandTolerance() {
+    const n = parseInt(document.getElementById("wandTolerance")?.value, 10);
+    return Number.isFinite(n) ? Math.max(5, Math.min(80, n)) : 30;
+  }
+  document.getElementById("wandTolerance")?.addEventListener("input", (e) => {
+    const val = document.getElementById("wandToleranceVal");
+    if (val) val.textContent = `${e.target.value}%`;
+  });
+
+  function magicWandRemove(startX, startY, tolerance = 30) {
     const cvs = document.createElement("canvas");
     cvs.width = currentImage.width; cvs.height = currentImage.height;
     const ctx = cvs.getContext("2d");
@@ -8037,12 +8825,21 @@ function updateHistoryButtons() {
   let editingLibraryId = null;
   let appModalCallback = null;
   let appModalAltCallback = null;
-  let libraryCache = { folders: [], items: [] };
+  let libraryCache = { folders: [], items: [], inventory: {} };
   let libraryReady = false;
   let libraryDbPromise = null;
 
   function emptyLibraryData() {
-    return { folders: [], items: [] };
+    return { folders: [], items: [], inventory: {} };
+  }
+  function normalizeInventory(raw) {
+    const out = {};
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return out;
+    Object.keys(raw).forEach((code) => {
+      const n = parseInt(raw[code], 10);
+      if (Number.isFinite(n) && n > 0) out[code] = n;
+    });
+    return out;
   }
   function normalizeLibraryItem(it) {
     const savedAt = Number(it.savedAt) || Date.parse(it.date) || Date.now();
@@ -8222,11 +9019,13 @@ function updateHistoryButtons() {
   function saveLibraryData(data) {
     libraryCache = {
       folders: Array.isArray(data.folders) ? data.folders : [],
-      items: (data.items || []).map((it) => toPackedLibraryItem(normalizeLibraryItem(it)))
+      items: (data.items || []).map((it) => toPackedLibraryItem(normalizeLibraryItem(it))),
+      inventory: normalizeInventory(data.inventory != null ? data.inventory : libraryCache.inventory)
     };
     return idbPutLibrary({
       folders: libraryCache.folders,
-      items: libraryCache.items
+      items: libraryCache.items,
+      inventory: libraryCache.inventory || {}
     }).then(() => true).catch((e) => {
       console.error(e);
       alert("儲存失敗，瀏覽器空間可能不足。請刪除部分收藏後再試。");
@@ -8238,22 +9037,161 @@ function updateHistoryButtons() {
     data.items = items;
     return saveLibraryData(data);
   }
+
+  let beadStockFamily = "yellow";
+  let beadStockSaveTimer = 0;
+  function getBeadInventory() {
+    if (!libraryCache.inventory || typeof libraryCache.inventory !== "object") libraryCache.inventory = {};
+    return libraryCache.inventory;
+  }
+  function countLibraryColorUsage() {
+    const used = {};
+    getLibraryItems().forEach((item) => {
+      if (item.codes) {
+        String(item.codes).split(/[,\n]/).forEach((code) => {
+          if (code) used[code] = (used[code] || 0) + 1;
+        });
+        return;
+      }
+      inflateLibraryGrid(item).forEach((row) => {
+        (row || []).forEach((cell) => {
+          if (cell?.code) used[cell.code] = (used[cell.code] || 0) + 1;
+        });
+      });
+    });
+    return used;
+  }
+  function persistBeadInventory() {
+    return idbPutLibrary({
+      folders: libraryCache.folders || [],
+      items: libraryCache.items || [],
+      inventory: getBeadInventory()
+    }).catch((e) => console.error(e));
+  }
+  function schedulePersistBeadInventory() {
+    clearTimeout(beadStockSaveTimer);
+    beadStockSaveTimer = setTimeout(() => { persistBeadInventory(); }, 280);
+  }
+  function setBeadStockQty(code, raw) {
+    const digits = String(raw || "").replace(/\D/g, "");
+    const n = digits ? parseInt(digits, 10) : 0;
+    const inv = getBeadInventory();
+    if (n > 0) inv[code] = n;
+    else delete inv[code];
+    schedulePersistBeadInventory();
+    return n;
+  }
+  function updateBeadStockRow(row, stock, used) {
+    if (!row) return;
+    const left = stock - used;
+    const qty = row.querySelector(".bead-stock-qty");
+    const usedEl = row.querySelector(".bead-stock-used");
+    const leftEl = row.querySelector(".bead-stock-left");
+    if (qty && document.activeElement !== qty) qty.value = stock ? String(stock) : "";
+    if (usedEl) usedEl.textContent = String(used);
+    if (leftEl) {
+      leftEl.textContent = String(left);
+      leftEl.classList.toggle("is-short", left < 0);
+      leftEl.classList.toggle("is-ok", left >= 0);
+    }
+  }
+  function updateBeadStockSummary(usedMap) {
+    const el = document.getElementById("beadStockSummary");
+    if (!el) return;
+    const inv = getBeadInventory();
+    let stockTotal = 0, usedTotal = 0;
+    Object.values(inv).forEach((n) => { stockTotal += n; });
+    Object.values(usedMap).forEach((n) => { usedTotal += n; });
+    const leftTotal = stockTotal - usedTotal;
+    el.textContent = `已填庫存 ${stockTotal} 顆 · 收藏圖紙已用 ${usedTotal} 顆 · 剩餘 ${leftTotal} 顆`;
+  }
+  function renderBeadStockPanel() {
+    const panel = document.getElementById("beadStockPanel");
+    const tabs = document.getElementById("beadStockTabs");
+    const list = document.getElementById("beadStockList");
+    if (!panel || !tabs || !list || !panel.classList.contains("is-open")) return;
+    const usedMap = countLibraryColorUsage();
+    const inv = getBeadInventory();
+    const groups = new Map(PALETTE_FAMILIES.map((f) => [f.id, []]));
+    BEAD_PALETTE.forEach((bead) => {
+      groups.get(beadFamilyId(bead.code)).push(bead);
+    });
+    groups.forEach((beads) => beads.sort((a, b) => {
+      const la = beadLetterPrefix(a.code);
+      const lb = beadLetterPrefix(b.code);
+      return la.localeCompare(lb) || beadCodeNum(a.code) - beadCodeNum(b.code) || a.code.localeCompare(b.code);
+    }));
+    if (!groups.get(beadStockFamily)?.length) {
+      const first = PALETTE_FAMILIES.find((f) => groups.get(f.id).length);
+      if (first) beadStockFamily = first.id;
+    }
+    tabs.innerHTML = "";
+    PALETTE_FAMILIES.forEach((fam) => {
+      if (!groups.get(fam.id).length) return;
+      const tab = document.createElement("button");
+      tab.type = "button";
+      tab.className = "palette-family-tab" + (fam.id === beadStockFamily ? " is-on" : "");
+      tab.dataset.family = fam.id;
+      tab.title = fam.label;
+      tab.innerHTML = `<span class="palette-family-chip" style="background:${fam.swatch};"></span><span>${fam.label}</span>`;
+      tab.onclick = () => {
+        beadStockFamily = fam.id;
+        renderBeadStockPanel();
+      };
+      tabs.appendChild(tab);
+    });
+    list.innerHTML = "";
+    (groups.get(beadStockFamily) || []).forEach((bead) => {
+      const used = usedMap[bead.code] || 0;
+      const stock = inv[bead.code] || 0;
+      const row = document.createElement("div");
+      row.className = "bead-stock-row";
+      row.dataset.code = bead.code;
+      const left = stock - used;
+      row.innerHTML = `
+        <div class="bead-stock-code"><span class="bead-stock-swatch" style="background:${bead.hex};"></span><strong>${bead.code}</strong></div>
+        <input class="bead-stock-qty" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="7" autocomplete="off" spellcheck="false" value="${stock ? stock : ""}" aria-label="${bead.code} 庫存" />
+        <div class="bead-stock-used">${used}</div>
+        <div class="bead-stock-left ${left < 0 ? "is-short" : "is-ok"}">${left}</div>`;
+      const qty = row.querySelector(".bead-stock-qty");
+      qty.addEventListener("focus", () => { qty.select(); });
+      qty.addEventListener("input", () => {
+        const n = setBeadStockQty(bead.code, qty.value);
+        if (qty.value !== (n ? String(n) : "")) qty.value = n ? String(n) : "";
+        updateBeadStockRow(row, n, used);
+        updateBeadStockSummary(usedMap);
+      });
+      list.appendChild(row);
+    });
+    updateBeadStockSummary(usedMap);
+  }
+  function toggleBeadStockPanel() {
+    const panel = document.getElementById("beadStockPanel");
+    const btn = document.getElementById("beadStockBtn");
+    if (!panel) return;
+    panel.classList.toggle("is-open");
+    const on = panel.classList.contains("is-open");
+    if (btn) btn.classList.toggle("highlight", on);
+    if (on) renderBeadStockPanel();
+  }
   async function initLibraryStorage() {
     try {
       const dbData = await idbGetLibrary();
       if (dbData && Array.isArray(dbData.items)) {
         libraryCache = {
           folders: Array.isArray(dbData.folders) ? dbData.folders : [],
-          items: dbData.items.map(normalizeLibraryItem)
+          items: dbData.items.map(normalizeLibraryItem),
+          inventory: normalizeInventory(dbData.inventory)
         };
       } else {
         const ls = readLibraryFromLocalStorage();
         libraryCache = {
           folders: ls.folders,
-          items: ls.items.map((it) => toPackedLibraryItem(normalizeLibraryItem(it)))
+          items: ls.items.map((it) => toPackedLibraryItem(normalizeLibraryItem(it))),
+          inventory: {}
         };
         if (libraryCache.items.length || libraryCache.folders.length) {
-          await idbPutLibrary({ folders: libraryCache.folders, items: libraryCache.items });
+          await idbPutLibrary({ folders: libraryCache.folders, items: libraryCache.items, inventory: {} });
           try {
             localStorage.removeItem(LIBRARY_STORAGE_KEY);
             localStorage.removeItem(LIBRARY_LEGACY_KEY);
@@ -8265,7 +9203,8 @@ function updateHistoryButtons() {
       const ls = readLibraryFromLocalStorage();
       libraryCache = {
         folders: ls.folders,
-        items: ls.items.map((it) => toPackedLibraryItem(normalizeLibraryItem(it)))
+        items: ls.items.map((it) => toPackedLibraryItem(normalizeLibraryItem(it))),
+        inventory: {}
       };
     }
     libraryReady = true;
@@ -8628,6 +9567,7 @@ function updateHistoryButtons() {
     const items = visibleLibraryItems(data);
     renderLibraryFolders(data);
     if (badge) badge.textContent = `${data.items.length} 份`;
+    if (document.getElementById("beadStockPanel")?.classList.contains("is-open")) renderBeadStockPanel();
     grid.innerHTML = "";
 
     if (items.length === 0) {
@@ -8654,9 +9594,20 @@ function updateHistoryButtons() {
       if (!picking) img.onclick = () => loadPatternFromLibrary(item.id, "bead");
       const body = document.createElement("div");
       body.className = "library-card-body";
+      const titleRow = document.createElement("div");
+      titleRow.className = "library-card-title-row";
       const title = document.createElement("div");
       title.className = "library-card-title";
       title.textContent = item.title;
+      const renameBtn = document.createElement("button");
+      renameBtn.className = "zoom-btn library-card-rename";
+      renameBtn.type = "button";
+      renameBtn.textContent = "改名";
+      renameBtn.onclick = (e) => {
+        e.stopPropagation();
+        renameLibraryItem(item.id, item.title);
+      };
+      titleRow.append(title, renameBtn);
       const meta = document.createElement("div");
       meta.className = "library-card-meta";
       meta.textContent = `製作日期：${formatLibraryDate(item.savedAt)}`;
@@ -8672,13 +9623,8 @@ function updateHistoryButtons() {
       downloadBtn.type = "button";
       downloadBtn.textContent = "下載圖紙";
       downloadBtn.onclick = () => downloadLibraryItem(item);
-      const renameBtn = document.createElement("button");
-      renameBtn.className = "zoom-btn";
-      renameBtn.type = "button";
-      renameBtn.textContent = "改名";
-      renameBtn.onclick = () => renameLibraryItem(item.id, item.title);
-      actions.append(loadBtn, downloadBtn, renameBtn);
-      body.append(title, meta, actions);
+      actions.append(loadBtn, downloadBtn);
+      body.append(titleRow, meta, actions);
       card.append(check, img, body);
       if (picking) {
         card.addEventListener("click", () => toggleLibraryPick(item.id));
@@ -8755,6 +9701,7 @@ function updateHistoryButtons() {
       }
     });
   }
+  document.getElementById("beadStockBtn")?.addEventListener("click", toggleBeadStockPanel);
   document.getElementById("libraryNewFolderBtn")?.addEventListener("click", createLibraryFolder);
   document.getElementById("libraryMoveBtn")?.addEventListener("click", () => setLibraryPickMode("move"));
   document.getElementById("libraryDeleteBtn")?.addEventListener("click", () => setLibraryPickMode("delete"));
