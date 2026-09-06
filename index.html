@@ -573,6 +573,10 @@ body.stage-upload.has-upload-image .image-toolbox {
   width: 100%;
   accent-color: var(--title-red);
 }
+.wand-tolerance-menu .zoom-btn {
+  width: 100%;
+  justify-content: flex-start;
+}
 .image-toolbox-menu .global-history-bar {
   display: flex;
   align-items: center;
@@ -738,6 +742,14 @@ body.stage-upload.has-upload-image .image-toolbox {
       justify-content: center;
       white-space: nowrap;
     }
+    .library-move-folder-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 220px;
+      overflow: auto;
+    }
+    .library-move-folder-list[hidden] { display: none !important; }
     #panelLibrary .view-header { overflow: visible; }
     .library-folder-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 4px 0 8px; }
     .library-folder-chip {
@@ -1725,7 +1737,7 @@ body.stage-upload.has-upload-image .image-toolbox {
     .orig-viewport img {
       max-width: none;
       height: auto;
-      border-radius: 6px;
+      border-radius: 0;
       box-shadow: 0 4px 14px rgba(0,0,0,0.4);
       display: block;
     }
@@ -1767,6 +1779,7 @@ body.stage-upload.has-upload-image .image-toolbox {
       cursor: crosshair;
     }
     .crop-canvas-overlay.active.is-paused {
+      pointer-events: none;
       cursor: default;
     }
     .anchor-mini-bar {
@@ -1782,6 +1795,30 @@ body.stage-upload.has-upload-image .image-toolbox {
       border-radius: 8px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
       pointer-events: auto;
+      touch-action: none;
+      user-select: none;
+      cursor: grab;
+    }
+    .anchor-mini-bar.is-dragging,
+    .anchor-mini-bar.is-dragging .anchor-mini-bar-handle {
+      cursor: grabbing;
+    }
+    .anchor-mini-bar-handle {
+      width: 14px;
+      align-self: stretch;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6c7086;
+      cursor: grab;
+      flex: 0 0 14px;
+    }
+    .anchor-mini-bar-handle::before {
+      content: "⋮⋮";
+      font-size: 11px;
+      letter-spacing: -3px;
+      line-height: 1;
+      font-weight: 800;
     }
     .anchor-mini-bar[hidden] { display: none !important; }
     .anchor-mini-bar .zoom-btn {
@@ -1789,10 +1826,61 @@ body.stage-upload.has-upload-image .image-toolbox {
       font-size: 0.72rem;
       font-weight: 800;
       white-space: nowrap;
+      cursor: pointer;
     }
     .anchor-mini-bar .zoom-btn:disabled {
       opacity: 0.42;
       cursor: default;
+    }
+    #uploadSelectMiniBar {
+      position: absolute;
+      z-index: 32;
+    }
+    #uploadSelectConfirmBtn {
+      margin-left: auto;
+    }
+    .upload-sel-subwrap {
+      position: relative;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .upload-sel-subwrap[hidden] { display: none !important; }
+    .upload-sel-submenu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      min-width: 100%;
+      padding: 4px;
+      background: #1e1e2e;
+      border: 1.5px solid var(--border-dark);
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+      z-index: 40;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .upload-sel-submenu::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -8px;
+      height: 8px;
+    }
+    .upload-sel-subwrap:hover .upload-sel-submenu,
+    .upload-sel-subwrap:focus-within .upload-sel-submenu {
+      display: flex;
+    }
+    #uploadSelectMiniBar .upload-sel-submenu .zoom-btn,
+    #selectMiniBar .upload-sel-submenu .zoom-btn {
+      width: 100%;
+      justify-content: flex-start;
+    }
+    #selectMiniBar {
+      position: absolute;
+      z-index: 32;
     }
 
     .grid-frozen-container { position: relative; height: 520px; background: #181825; border-radius: 12px; border: 1px solid var(--border-dark); overflow: hidden; touch-action: pan-x pan-y; }
@@ -2024,7 +2112,7 @@ body.stage-upload.has-upload-image .image-toolbox {
         <rect x="5" y="3" width="1" height="1" fill="#FFFFFF"/>
       </svg>
       染上拼豆之路
-      <span class="app-version" id="appVersion" title="網站版本">v119</span>
+      <span class="app-version" id="appVersion" title="網站版本">v144</span>
     </h1>
   </div>
 </header>
@@ -2066,10 +2154,28 @@ body.stage-upload.has-upload-image .image-toolbox {
         <div class="image-toolbox" id="imageToolbox">
           <button type="button" class="image-toolbox-toggle" id="imageToolboxToggle">圖片裁剪工具</button>
           <div class="image-toolbox-menu" id="imageToolboxMenu">
-            <button class="zoom-btn" id="rectCropBtn" onclick="setUploadTool('rect')">
-              <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.2" y="2.2" width="11.6" height="11.6" fill="none" stroke="#ff6b9d" stroke-width="1.5" stroke-dasharray="2.4 1.8" rx="0.6"/></svg>
-              匡選
-            </button>
+            <div class="wand-tool-wrap" id="rectToolWrap">
+              <button class="zoom-btn" id="rectCropBtn" onclick="setUploadTool('rect')">
+                <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.2" y="2.2" width="11.6" height="11.6" fill="none" stroke="#ff6b9d" stroke-width="1.5" stroke-dasharray="2.4 1.8"/></svg>
+                匡選
+              </button>
+              <div class="wand-tolerance-menu" id="roundRectMenu" onclick="event.stopPropagation()">
+                <label>圓角 <span id="roundRectRadiusVal">0</span></label>
+                <input type="range" id="roundRectRadius" min="0" max="50" value="0" />
+              </div>
+            </div>
+            <div class="wand-tool-wrap" id="circleToolWrap">
+              <button class="zoom-btn" id="circleCropBtn" onclick="setUploadTool('circle')">
+                <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.4" fill="none" stroke="#ff6b9d" stroke-width="1.45" stroke-dasharray="2.2 1.7"/></svg>
+                圓形選取
+              </button>
+              <div class="wand-tolerance-menu" id="ellipseCropMenu" onclick="event.stopPropagation()">
+                <button class="zoom-btn" id="ellipseCropBtn" onclick="setUploadTool('ellipse')">
+                  <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="8" rx="6.3" ry="4" fill="none" stroke="#ff6b9d" stroke-width="1.45" stroke-dasharray="2.2 1.7"/></svg>
+                  橢圓形選取
+                </button>
+              </div>
+            </div>
             <button class="zoom-btn" id="polyCropBtn" onclick="setUploadTool('poly')">
               <svg class="tool-icon" id="polyCropBtnIcon" viewBox="0 0 16 16" aria-hidden="true"><path fill="#ff6b9d" d="M8 1.2A4.4 4.4 0 0 0 3.6 5.6c0 3.2 4.4 8.6 4.4 8.6s4.4-5.4 4.4-8.6A4.4 4.4 0 0 0 8 1.2zm0 6.2A1.8 1.8 0 1 1 8 3.8a1.8 1.8 0 0 1 0 3.6z"/></svg>
               <span id="polyCropBtnLabel">錨點選取</span>
@@ -2100,6 +2206,23 @@ body.stage-upload.has-upload-image .image-toolbox {
               <button type="button" class="poly-confirm-btn ok" id="applyCropBtn" title="確認" onclick="event.stopPropagation(); applyCurrentSelection();">✓</button>
               <button type="button" class="poly-confirm-btn cancel" id="cancelPolyBtn" title="取消" onclick="event.stopPropagation(); cancelCropAction();">✕</button>
             </div>
+          </div>
+          <div class="anchor-mini-bar" id="uploadSelectMiniBar" hidden>
+            <span class="anchor-mini-bar-handle" title="拖曳移動" aria-hidden="true"></span>
+            <div class="upload-sel-subwrap" id="uploadSelectAddWrap">
+              <button type="button" class="zoom-btn" id="uploadSelectAddBtn">增加選匡</button>
+              <div class="upload-sel-submenu" id="uploadSelectAddMenu">
+                <button type="button" class="zoom-btn" id="uploadSelectSubtractBtn">相減選匡</button>
+              </div>
+            </div>
+            <div class="upload-sel-subwrap" id="uploadSelectScaleWrap">
+              <button type="button" class="zoom-btn" id="uploadSelectScaleRatioBtn">等比放大</button>
+              <div class="upload-sel-submenu" id="uploadSelectScaleMenu">
+                <button type="button" class="zoom-btn" id="uploadSelectScaleFreeBtn">非等比放大</button>
+              </div>
+            </div>
+            <button type="button" class="zoom-btn" id="uploadSelectCancelBtn">取消選取</button>
+            <button type="button" class="zoom-btn highlight" id="uploadSelectConfirmBtn">確認選取</button>
           </div>
           <div class="orig-viewport" id="origViewport" onclick="triggerFileInput(event)">
           <div class="orig-zoom-frame" id="origZoomFrame">
@@ -2210,17 +2333,31 @@ body.stage-upload.has-upload-image .image-toolbox {
             <div class="pattern-size-toolbox" id="patternSizeToolbox">
               <button type="button" class="pattern-size-toggle" id="patternSizeToggle">選取工具</button>
               <div class="pattern-size-menu" id="patternSizeMenu">
-                <button class="zoom-btn" type="button" id="editRectSelectBtn" onclick="setEditSelectTool('rect')">
-                  <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.2" y="2.2" width="11.6" height="11.6" rx="1.1" fill="none" stroke="#ff6b9d" stroke-width="1.45" stroke-dasharray="2.4 1.8"/></svg>
-                  匡選
-                </button>
-                <button class="zoom-btn" type="button" id="editCircleSelectBtn" onclick="setEditSelectTool('circle')">
-                  <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.4" fill="none" stroke="#ff6b9d" stroke-width="1.45" stroke-dasharray="2.2 1.7"/></svg>
-                  圓形選取
-                </button>
-                <button class="zoom-btn" type="button" id="editEllipseSelectBtn" onclick="setEditSelectTool('ellipse')">
-                  <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="8" rx="6.3" ry="4" fill="none" stroke="#ff6b9d" stroke-width="1.45" stroke-dasharray="2.2 1.7"/></svg>
-                  橢圓形選取
+                <div class="wand-tool-wrap" id="editRectToolWrap">
+                  <button class="zoom-btn" type="button" id="editRectSelectBtn" onclick="setEditSelectTool('rect')">
+                    <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.2" y="2.2" width="11.6" height="11.6" rx="1.1" fill="none" stroke="#ff6b9d" stroke-width="1.45" stroke-dasharray="2.4 1.8"/></svg>
+                    匡選
+                  </button>
+                  <div class="wand-tolerance-menu" id="editRoundRectMenu" onclick="event.stopPropagation()">
+                    <label>圓角 <span id="editRoundRectRadiusVal">0</span></label>
+                    <input type="range" id="editRoundRectRadius" min="0" max="50" value="0" />
+                  </div>
+                </div>
+                <div class="wand-tool-wrap" id="editCircleToolWrap">
+                  <button class="zoom-btn" type="button" id="editCircleSelectBtn" onclick="setEditSelectTool('circle')">
+                    <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.4" fill="none" stroke="#ff6b9d" stroke-width="1.45" stroke-dasharray="2.2 1.7"/></svg>
+                    圓形選取
+                  </button>
+                  <div class="wand-tolerance-menu" id="editEllipseMenu" onclick="event.stopPropagation()">
+                    <button class="zoom-btn" type="button" id="editEllipseSelectBtn" onclick="setEditSelectTool('ellipse')">
+                      <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="8" rx="6.3" ry="4" fill="none" stroke="#ff6b9d" stroke-width="1.45" stroke-dasharray="2.2 1.7"/></svg>
+                      橢圓形選取
+                    </button>
+                  </div>
+                </div>
+                <button class="zoom-btn" type="button" id="editWandSelectBtn" onclick="setEditSelectTool('wand')">
+                  <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="#ff6b9d" stroke-width="1.7" stroke-linecap="round" d="M3.2 12.8 9.4 6.6"/><path fill="#ff6b9d" d="M10.2 2.1h1.2v2.6H10.2zM9.1 3.2h3.4v1.2H9.1zM12.4 5.1h1.1v1.8h-1.1zM13.6 4.3h1.6v1.1h-1.6z"/></svg>
+                  魔術棒選取
                 </button>
                 <button class="zoom-btn" type="button" id="editPolySelectBtn" onclick="setEditSelectTool('poly')">
                   <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="#ff6b9d" stroke-width="1.45" d="M3.2 12.2 5.4 3.8l5.4 2.4L13 12.4z"/><circle cx="3.2" cy="12.2" r="1.15" fill="#ff6b9d"/><circle cx="5.4" cy="3.8" r="1.15" fill="#ff6b9d"/><circle cx="10.8" cy="6.2" r="1.15" fill="#ff6b9d"/><circle cx="13" cy="12.4" r="1.15" fill="#ff6b9d"/></svg>
@@ -2310,6 +2447,21 @@ body.stage-upload.has-upload-image .image-toolbox {
           </div>
           <div class="axis-hover-badge" id="hoverColBadge"></div>
           <div class="axis-hover-badge" id="hoverRowBadge"></div>
+          <div class="anchor-mini-bar" id="selectMiniBar" hidden>
+            <span class="anchor-mini-bar-handle" title="拖曳移動" aria-hidden="true"></span>
+            <div class="upload-sel-subwrap" id="selectAddWrap">
+              <button type="button" class="zoom-btn" id="selectAddBoxBtn">增加選匡</button>
+              <div class="upload-sel-submenu" id="selectAddMenu">
+                <button type="button" class="zoom-btn" id="selectSubtractBoxBtn">相減選匡</button>
+              </div>
+            </div>
+            <div class="upload-sel-subwrap" id="selectScaleWrap">
+              <button type="button" class="zoom-btn" id="selectScaleRatioBtn">等比放大</button>
+              <div class="upload-sel-submenu" id="selectScaleMenu">
+                <button type="button" class="zoom-btn" id="selectScaleFreeBtn">非等比放大</button>
+              </div>
+            </div>
+          </div>
           <div class="frozen-main-scroll" id="mainScroll">
             <div class="canvas-flex-container">
               <div class="main-canvas-wrapper" id="mainCanvasInner">
@@ -2470,6 +2622,7 @@ body.stage-upload.has-upload-image .image-toolbox {
               <button type="button" class="zoom-btn reset-btn" id="libraryDeleteBtn">刪除</button>
             </div>
             <div class="library-pick-menu" id="libraryPickMenu" hidden>
+              <div class="library-move-folder-list" id="libraryMoveFolderList" hidden></div>
               <button type="button" class="zoom-btn highlight" id="libraryPickConfirmBtn">確認</button>
               <button type="button" class="zoom-btn" id="libraryPickCancelBtn">取消</button>
             </div>
@@ -2575,11 +2728,9 @@ body.stage-upload.has-upload-image .image-toolbox {
 </div>
 
 <div class="anchor-mini-bar" id="anchorMiniBar" hidden>
+  <span class="anchor-mini-bar-handle" title="拖曳移動" aria-hidden="true"></span>
   <button type="button" class="zoom-btn" id="anchorPauseBtn">暫停錨點選取</button>
   <button type="button" class="zoom-btn" id="anchorCornerBtn">銳角</button>
-</div>
-<div class="anchor-mini-bar" id="selectMiniBar" hidden>
-  <button type="button" class="zoom-btn" id="selectAddBoxBtn">增加選匡</button>
 </div>
 
 <script>
@@ -2757,8 +2908,7 @@ body.stage-upload.has-upload-image .image-toolbox {
     } else if (stage === "upload" && uploadSlot) {
       uploadSlot.appendChild(row);
       if (bar) bar.classList.remove("is-over-content");
-      const cropMenu = document.getElementById("imageToolboxMenu");
-      if (historyBar && cropMenu) cropMenu.appendChild(historyBar);
+      if (historyBar && row) row.appendChild(historyBar);
     } else if (stack) {
       stack.appendChild(row);
       if (historyBar) row.appendChild(historyBar);
@@ -2963,6 +3113,7 @@ body.stage-upload.has-upload-image .image-toolbox {
   }
   function handleGlobalUndo() {
   if (undoInProgressAnchor()) return;
+  if (typeof undoUploadMarquee === "function" && undoUploadMarquee()) return;
   const sess = currentAnchorSession();
   if (sess) sess.redo.length = 0;
   if (currentStage === "upload") {
@@ -2973,6 +3124,7 @@ body.stage-upload.has-upload-image .image-toolbox {
 }
   function handleGlobalRedo() {
   if (redoInProgressAnchor()) return;
+  if (typeof redoUploadMarquee === "function" && redoUploadMarquee()) return;
   if (currentStage === "upload") {
     redoUploadAction();
   } else if (isPatternStage()) {
@@ -3030,9 +3182,11 @@ function updateGlobalHistoryButtons() {
   const sess = currentAnchorSession();
   const canAnchorUndo = !!(sess && sess.points.length);
   const canAnchorRedo = !!(sess && sess.redo.length);
+  const canUploadSelUndo = typeof canUndoUploadMarquee === "function" && canUndoUploadMarquee();
+  const canUploadSelRedo = typeof canRedoUploadMarquee === "function" && canRedoUploadMarquee();
   if (currentStage === "upload") {
-    undoBtn.disabled = !canAnchorUndo && (uploadHistoryIndex <= 0);
-    redoBtn.disabled = !canAnchorRedo && (uploadHistoryIndex < 0 || uploadHistoryIndex >= uploadHistoryStack.length - 1);
+    undoBtn.disabled = !canAnchorUndo && !canUploadSelUndo && (uploadHistoryIndex <= 0);
+    redoBtn.disabled = !canAnchorRedo && !canUploadSelRedo && (uploadHistoryIndex < 0 || uploadHistoryIndex >= uploadHistoryStack.length - 1);
   } else if (isPatternStage()) {
     undoBtn.disabled = !canAnchorUndo && (historyIndex <= 0);
     redoBtn.disabled = !canAnchorRedo && (historyIndex < 0 || historyIndex >= historyStack.length - 1);
@@ -3173,10 +3327,16 @@ function updateGlobalHistoryButtons() {
   let isEditMode = true, isPipetteMode = false, isCompareMode = false;
   let highlightedColorCode = null;
   let selectedCells = new Set();
+  let editSelectParts = [];
+  let editScalePartIndex = -1;
   let isMouseDown = false, dragStartCell = null, isDeselecting = false;
+  let marqueeDragMoved = false;
   let selectionSnapshot = new Set();
   let editSelectTool = "none";
   let selectAddArmed = false;
+  let selectBoolMode = "add";
+  let selectMiniBarUserPos = null;
+  let selectMiniBarDrag = null;
   let editPaintTool = "none";
   let editBrushSize = 1;
   let isPainting = false;
@@ -3186,12 +3346,27 @@ function updateGlobalHistoryButtons() {
   let isPolyHandleDrag = false;
   let polyHandleAnchorIndex = -1;
   let polyHandleKind = null;
+  let polyHandleHover = null;
   let editPolyRedo = [];
   let uploadTool = "none";
   let polyPoints = [];
   let polyPolygons = [];
   let polyPointRedo = [];
   let anchorPaused = false;
+  let anchorNextCurve = false;
+  let uploadPolyHover = null;
+  let anchorMiniBarUserPos = null;
+  let anchorMiniBarDrag = null;
+  let uploadSelectMiniBarUserPos = null;
+  let uploadSelectMiniBarDrag = null;
+  let scaleKeepRatio = false;
+  let editRoundRadiusPct = 0;
+  let editLastRectBounds = null;
+  let uploadScaleKeepRatio = false;
+  let uploadRoundRadiusPct = 0;
+  let uploadHideMarqueeHandles = false;
+  let uploadBoolMode = "add";
+  let uploadLiveOp = "add";
   let isMovingSelection = false;
   let isMovingMarquee = false;
   let moveStartCell = null;
@@ -3480,7 +3655,8 @@ function updateGlobalHistoryButtons() {
       cols: currentCols,
       rows: currentRows,
       sliders: getSliderState(),
-      selection: Array.from(selectedCells)
+      selection: Array.from(selectedCells),
+      selectionParts: editSelectParts.map((p) => Array.from(p))
     };
 
     historyStack.push(state);
@@ -3589,6 +3765,18 @@ function updateHistoryButtons() {
         selectedCells.add(`${x},${y}`);
       }
     });
+    if (state.selectionParts && state.selectionParts.length) {
+      editSelectParts = state.selectionParts.map((arr) => {
+        const part = new Set();
+        (arr || []).forEach((key) => {
+          if (selectedCells.has(key)) part.add(key);
+        });
+        return part;
+      }).filter((p) => p.size);
+      if (!editSelectParts.length && selectedCells.size) rebuildPartsFromCells();
+    } else {
+      rebuildPartsFromCells();
+    }
     resetEditPoly();
     isMovingSelection = false;
     isMovingMarquee = false;
@@ -3597,6 +3785,7 @@ function updateHistoryButtons() {
     scaleHandleId = null;
     scaleStartBounds = null;
     scalePreviewBounds = null;
+    editScalePartIndex = -1;
     updateSelectCount();
     recalculateStats();
     resizeCanvases();
@@ -5294,6 +5483,7 @@ function updateHistoryButtons() {
         }
       }
     }
+    rebuildPartsFromCells();
     updateSelectCount();
     recalculateStats();
     renderBasePattern();
@@ -5675,14 +5865,16 @@ function updateHistoryButtons() {
     });
   })();
 
-  function getVisibleSelectionBounds() {
-    if (!selectedCells.size) return null;
+  function boundsOfCells(cells) {
+    if (!cells || !cells.size) return null;
+    const dx = (isMovingSelection || isMovingMarquee) ? moveOffset.dx : 0;
+    const dy = (isMovingSelection || isMovingMarquee) ? moveOffset.dy : 0;
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     let visible = 0;
-    selectedCells.forEach(key => {
+    cells.forEach((key) => {
       const [x, y] = key.split(",").map(Number);
-      const px = x + ((isMovingSelection || isMovingMarquee) ? moveOffset.dx : 0);
-      const py = y + ((isMovingSelection || isMovingMarquee) ? moveOffset.dy : 0);
+      const px = x + dx;
+      const py = y + dy;
       if (px < 0 || py < 0 || px >= currentCols || py >= currentRows) return;
       visible++;
       if (px < minX) minX = px;
@@ -5693,6 +5885,105 @@ function updateHistoryButtons() {
     if (!visible) return null;
     const filled = visible === (maxX - minX + 1) * (maxY - minY + 1);
     return { minX, minY, maxX, maxY, filled };
+  }
+
+  function getVisibleSelectionBounds() {
+    return boundsOfCells(selectedCells);
+  }
+
+  function syncSelectedFromParts() {
+    const next = new Set();
+    editSelectParts.forEach((p) => p.forEach((k) => next.add(k)));
+    selectedCells = next;
+  }
+
+  function rebuildPartsFromCells() {
+    editSelectParts = [];
+    const remain = new Set(selectedCells);
+    while (remain.size) {
+      const start = remain.values().next().value;
+      const part = new Set();
+      const stack = [start];
+      remain.delete(start);
+      while (stack.length) {
+        const key = stack.pop();
+        part.add(key);
+        const [x, y] = key.split(",").map(Number);
+        [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dx, dy]) => {
+          const n = `${x + dx},${y + dy}`;
+          if (remain.has(n)) {
+            remain.delete(n);
+            stack.push(n);
+          }
+        });
+      }
+      editSelectParts.push(part);
+    }
+  }
+
+  function ensureEditSelectParts() {
+    if (!editSelectParts.length && selectedCells.size) rebuildPartsFromCells();
+  }
+
+  function liveEditSelectParts() {
+    if (isMouseDown && isMarqueeSelectTool() && dragStartCell) {
+      const snap = selectionSnapshot;
+      if (isDeselecting) {
+        return editSelectParts.map((p) => {
+          const n = new Set();
+          p.forEach((k) => { if (selectedCells.has(k)) n.add(k); });
+          return n;
+        }).filter((p) => p.size);
+      }
+      const added = new Set();
+      selectedCells.forEach((k) => { if (!snap.has(k)) added.add(k); });
+      const parts = editSelectParts.map((p) => new Set(p));
+      if (added.size) parts.push(added);
+      else if (!parts.length && selectedCells.size) parts.push(new Set(selectedCells));
+      return parts;
+    }
+    ensureEditSelectParts();
+    return editSelectParts.length ? editSelectParts : (selectedCells.size ? [selectedCells] : []);
+  }
+
+  function commitMarqueeParts(snap, deselecting) {
+    if (deselecting) {
+      editSelectParts = editSelectParts.map((p) => {
+        const n = new Set();
+        p.forEach((k) => { if (selectedCells.has(k)) n.add(k); });
+        return n;
+      }).filter((p) => p.size);
+    } else {
+      const added = new Set();
+      selectedCells.forEach((k) => { if (!snap.has(k)) added.add(k); });
+      if (added.size) editSelectParts.push(added);
+      else if (!editSelectParts.length && selectedCells.size) {
+        editSelectParts = [new Set(selectedCells)];
+      }
+    }
+    syncSelectedFromParts();
+  }
+
+  function strokeSelectionPerimeter(ctx, cells, cell) {
+    if (!cells || !cells.size) return;
+    const dx = (isMovingSelection || isMovingMarquee) ? moveOffset.dx : 0;
+    const dy = (isMovingSelection || isMovingMarquee) ? moveOffset.dy : 0;
+    ctx.beginPath();
+    cells.forEach((key) => {
+      const [x, y] = key.split(",").map(Number);
+      const px = x + dx;
+      const py = y + dy;
+      if (px < 0 || py < 0 || px >= currentCols || py >= currentRows) return;
+      const x0 = Math.round(px * cell);
+      const y0 = Math.round(py * cell);
+      const x1 = Math.round((px + 1) * cell);
+      const y1 = Math.round((py + 1) * cell);
+      if (!cells.has(`${x},${y - 1}`)) { ctx.moveTo(x0 + 1, y0 + 1); ctx.lineTo(x1 - 1, y0 + 1); }
+      if (!cells.has(`${x + 1},${y}`)) { ctx.moveTo(x1 - 1, y0 + 1); ctx.lineTo(x1 - 1, y1 - 1); }
+      if (!cells.has(`${x},${y + 1}`)) { ctx.moveTo(x1 - 1, y1 - 1); ctx.lineTo(x0 + 1, y1 - 1); }
+      if (!cells.has(`${x - 1},${y}`)) { ctx.moveTo(x0 + 1, y1 - 1); ctx.lineTo(x0 + 1, y0 + 1); }
+    });
+    ctx.stroke();
   }
 
   const POLY_CLOSE_HIT = 0.7;
@@ -5760,13 +6051,24 @@ function updateHistoryButtons() {
           });
         }
       }
-      const boxX = Math.round(selBounds.minX * cell);
-      const boxY = Math.round(selBounds.minY * cell);
-      const boxW = Math.round((selBounds.maxX + 1) * cell) - boxX;
-      const boxH = Math.round((selBounds.maxY + 1) * cell) - boxY;
       ctxInteract.strokeStyle = "#ff3344";
       ctxInteract.lineWidth = Math.max(2, Math.floor(cell * 0.12));
-      ctxInteract.strokeRect(boxX + 1, boxY + 1, boxW - 2, boxH - 2);
+      const parts = liveEditSelectParts();
+      parts.forEach((part, i) => {
+        const box = (isScalingSelection && i === editScalePartIndex && scalePreviewBounds)
+          ? scalePreviewBounds
+          : boundsOfCells(part);
+        if (!box) return;
+        if (box.filled) {
+          const boxX = Math.round(box.minX * cell);
+          const boxY = Math.round(box.minY * cell);
+          const boxW = Math.round((box.maxX + 1) * cell) - boxX;
+          const boxH = Math.round((box.maxY + 1) * cell) - boxY;
+          ctxInteract.strokeRect(boxX + 1, boxY + 1, boxW - 2, boxH - 2);
+        } else {
+          strokeSelectionPerimeter(ctxInteract, part, cell);
+        }
+      });
       const handleBox = isScalingSelection && scalePreviewBounds ? scalePreviewBounds : selBounds;
       if (isScalingSelection && scalePreviewBounds) {
         const pX = Math.round(scalePreviewBounds.minX * cell);
@@ -5780,17 +6082,24 @@ function updateHistoryButtons() {
         ctxInteract.strokeRect(pX + 1, pY + 1, pW - 2, pH - 2);
         ctxInteract.restore();
       }
-      if (canScaleSelection() && !isMovingSelection && !isMovingMarquee && !(isMouseDown && dragStartCell && !isScalingSelection)) {
-        const hs = selectionHandleDrawSize(cell);
-        selectionHandlePoints(handleBox, cell).forEach((h) => {
-          ctxInteract.fillStyle = "#ffffff";
-          ctxInteract.strokeStyle = "#ff3344";
-          ctxInteract.lineWidth = 1.5;
-          ctxInteract.fillRect(h.x - hs, h.y - hs, hs * 2, hs * 2);
-          ctxInteract.strokeRect(h.x - hs, h.y - hs, hs * 2, hs * 2);
+      const drawingMarquee = isMouseDown && isMarqueeSelectTool() && !isScalingSelection && !isMovingMarquee;
+      if (canScaleSelection() && !isMovingSelection && !isMovingMarquee && !drawingMarquee) {
+        parts.forEach((part, i) => {
+          const box = (isScalingSelection && i === editScalePartIndex && scalePreviewBounds)
+            ? scalePreviewBounds
+            : boundsOfCells(part);
+          if (!box) return;
+          const hs = selectionHandleDrawSize(cell, box);
+          selectionHandlePoints(box, cell).forEach((h) => {
+            ctxInteract.fillStyle = "#ffffff";
+            ctxInteract.strokeStyle = "#ff3344";
+            ctxInteract.lineWidth = 1.5;
+            ctxInteract.fillRect(h.x - hs, h.y - hs, hs * 2, hs * 2);
+            ctxInteract.strokeRect(h.x - hs, h.y - hs, hs * 2, hs * 2);
+          });
         });
       }
-      if (canMoveMarquee() && !isMovingSelection && !(isMouseDown && dragStartCell && !isMovingMarquee)) {
+      if (canMoveMarquee() && !isMovingSelection && !drawingMarquee) {
         drawMarqueeMoveHandle(ctxInteract, handleBox, cell);
       }
     }
@@ -5803,8 +6112,9 @@ function updateHistoryButtons() {
       ctxInteract.beginPath();
       tracePolyPath(ctxInteract, editPolyPoints, false, cell);
       if (hoverPt && !isPolyHandleDrag && !anchorPaused) {
-        if (last.hOut) {
-          ctxInteract.bezierCurveTo(last.hOut.x * cell, last.hOut.y * cell, hoverPt.x * cell, hoverPt.y * cell, hoverPt.x * cell, hoverPt.y * cell);
+        if (anchorNextCurve) {
+          const h = pendingCurveHandle(last, hoverPt, 0.75);
+          ctxInteract.bezierCurveTo(h.x * cell, h.y * cell, hoverPt.x * cell, hoverPt.y * cell, hoverPt.x * cell, hoverPt.y * cell);
         } else {
           ctxInteract.lineTo(hoverPt.x * cell, hoverPt.y * cell);
         }
@@ -5814,10 +6124,10 @@ function updateHistoryButtons() {
       ctxInteract.setLineDash([6, 4]);
       ctxInteract.stroke();
       ctxInteract.setLineDash([]);
-      drawPolyHandleStems(ctxInteract, editPolyPoints, cell);
+      drawPolyHandleStems(ctxInteract, editPolyPoints, cell, currentPolyHandleHot(), Math.max(2, cell * 0.08));
       editPolyPoints.forEach((p, i) => {
         const isCloseTarget = i === 0 && closeHover;
-        const r = isCloseTarget ? Math.max(6, cell * 0.32) : (i === 0 ? Math.max(4, cell * 0.22) : Math.max(3, cell * 0.16));
+        const r = isCloseTarget ? Math.max(3.5, cell * 0.18) : (i === 0 ? Math.max(2.2, cell * 0.11) : Math.max(1.8, cell * 0.085));
         ctxInteract.beginPath();
         ctxInteract.arc(p.x * cell, p.y * cell, r, 0, Math.PI * 2);
         ctxInteract.fillStyle = isCloseTarget ? "#00ff88" : (i === 0 ? "#ffe600" : "#ff6b9d");
@@ -6064,6 +6374,7 @@ function updateHistoryButtons() {
     if (editSelectTool === "rect") return "editRectSelectBtn";
     if (editSelectTool === "circle") return "editCircleSelectBtn";
     if (editSelectTool === "ellipse") return "editEllipseSelectBtn";
+    if (editSelectTool === "wand") return "editWandSelectBtn";
     if (editSelectTool === "poly") return "editPolySelectBtn";
     if (editSelectTool === "movecopy") return "editMoveCopySelectBtn";
     return "";
@@ -6085,19 +6396,21 @@ function updateHistoryButtons() {
       else setToggleCaption(editToggle, "編輯工具", "");
       editToggle.classList.toggle("is-hot", editPaintTool === "pencil" || editPaintTool === "eraser");
     }
-    if (!isHistoryNavigating && historyIndex >= 0 && historyStack[historyIndex]) {
-      historyStack[historyIndex].selection = Array.from(selectedCells);
-    }
   }
   function clearSelection() {
     selectedCells.clear();
+    editSelectParts = [];
+    editScalePartIndex = -1;
     resetEditPoly();
     isMovingSelection = false;
     isMovingMarquee = false;
     moveOffset = { dx: 0, dy: 0 };
     updateSelectCount();
     renderInteractionLayer();
-    if (isMarqueeSelectTool()) selectAddArmed = true;
+    if (isMarqueeSelectTool() || editSelectTool === "wand") selectAddArmed = true;
+    selectBoolMode = "add";
+    selectMiniBarUserPos = null;
+    editLastRectBounds = null;
     syncSelectMiniBar();
   }
   const patternSizeToggleBtn = document.getElementById("patternSizeToggle");
@@ -6106,6 +6419,7 @@ function updateHistoryButtons() {
       if (!isEditMode) { setEditMode(true); return; }
       if (!selectedCells.size) return;
       clearSelection();
+      commitSelectionHistory("取消選取");
     });
   }
   const editToolsToggleBtn = document.getElementById("editToolsToggle");
@@ -6116,6 +6430,7 @@ function updateHistoryButtons() {
   }
   function selectAllBeads() {
     for (let y = 0; y < currentRows; y++) for (let x = 0; x < currentCols; x++) selectedCells.add(`${x},${y}`);
+    editSelectParts = selectedCells.size ? [new Set(selectedCells)] : [];
     updateSelectCount(); renderInteractionLayer();
   }
 
@@ -6177,6 +6492,7 @@ function updateHistoryButtons() {
     });
     if (!next.size) { alert("貼上位置超出圖紙範圍！"); return; }
     selectedCells = next;
+    editSelectParts = [new Set(next)];
     pushHistoryState("貼上");
     updateSelectCount();
     recalculateStats();
@@ -6203,6 +6519,18 @@ function updateHistoryButtons() {
       next.add(`${nx},${ny}`);
     });
     selectedCells = next;
+    editSelectParts = editSelectParts.map((p) => {
+      const n = new Set();
+      p.forEach((key) => {
+        const [x, y] = key.split(",").map(Number);
+        const nx = axis === "h" ? b.minX + b.maxX - x : x;
+        const ny = axis === "v" ? b.minY + b.maxY - y : y;
+        const k = `${nx},${ny}`;
+        if (next.has(k)) n.add(k);
+      });
+      return n;
+    }).filter((p) => p.size);
+    if (!editSelectParts.length) editSelectParts = [new Set(next)];
     pushHistoryState(axis === "v" ? "垂直鏡像" : "水平鏡像");
     updateSelectCount();
     recalculateStats();
@@ -6216,7 +6544,7 @@ function updateHistoryButtons() {
   }
 
   function canScaleSelection() {
-    return isEditMode && hasMultiCellSelection() && editPaintTool === "none" && !isPipetteMode && !(isAnchorSelectTool() && editPolyPoints.length);
+    return isEditMode && !!getVisibleSelectionBounds() && editPaintTool === "none" && !isPipetteMode && !(isAnchorSelectTool() && editPolyPoints.length);
   }
 
   function canMoveMarquee() {
@@ -6235,7 +6563,11 @@ function updateHistoryButtons() {
 
   function drawMarqueeMoveHandle(ctx, bounds, cell) {
     const h = selectionMoveHandlePoint(bounds, cell);
-    const r = Math.max(10, Math.min(16, cell * 0.42), selectionHandleDrawSize(cell) * 1.7);
+    const minSide = Math.min((bounds.maxX - bounds.minX + 1) * cell, (bounds.maxY - bounds.minY + 1) * cell);
+    const r = Math.min(
+      Math.max(5, minSide * 0.32),
+      Math.max(8, Math.min(16, cell * 0.42), selectionHandleDrawSize(cell, bounds) * 1.7)
+    );
     ctx.save();
     ctx.fillStyle = "#ffffff";
     ctx.strokeStyle = "#ff3344";
@@ -6284,7 +6616,8 @@ function updateHistoryButtons() {
     const cssX = clientX - rect.left, cssY = clientY - rect.top;
     const cellCss = rect.width > 0 ? rect.width / currentCols : 1;
     const h = selectionMoveHandlePoint(bounds, cellCss);
-    const hitR = Math.max(16, cellCss * 0.55);
+    const minSide = Math.min(bounds.maxX - bounds.minX + 1, bounds.maxY - bounds.minY + 1) * cellCss;
+    const hitR = Math.min(Math.max(16, cellCss * 0.55), Math.max(8, minSide * 0.5));
     if (Math.hypot(cssX - h.x, cssY - h.y) <= hitR) return h;
     return null;
   }
@@ -6300,14 +6633,35 @@ function updateHistoryButtons() {
     });
     if (!next.size) return;
     selectedCells = next;
+    editSelectParts = editSelectParts.map((p) => {
+      const n = new Set();
+      p.forEach((key) => {
+        const [x, y] = key.split(",").map(Number);
+        const nx = x + dx, ny = y + dy;
+        const k = `${nx},${ny}`;
+        if (next.has(k)) n.add(k);
+      });
+      return n;
+    }).filter((p) => p.size);
+    if (!editSelectParts.length) rebuildPartsFromCells();
     updateSelectCount();
     renderInteractionLayer();
   }
 
-  function selectionHandleDrawSize(cell) {
+  function selectionHandleDrawSize(cell, bounds) {
     const rect = interactionCanvas.getBoundingClientRect();
     const cssToCanvas = rect.width > 0 ? interactionCanvas.width / rect.width : 1;
-    return Math.max(5, 6 * cssToCanvas, cell * 0.22);
+    const base = Math.max(3, 6 * cssToCanvas, cell * 0.22);
+    if (!bounds) return base;
+    const minSide = Math.min((bounds.maxX - bounds.minX + 1) * cell, (bounds.maxY - bounds.minY + 1) * cell);
+    return Math.min(base, Math.max(2, minSide * 0.22));
+  }
+
+  function selectionHandleHitSize(cellCss, bounds) {
+    const base = Math.max(12, cellCss * 0.45);
+    if (!bounds) return base;
+    const minSide = Math.min(bounds.maxX - bounds.minX + 1, bounds.maxY - bounds.minY + 1) * cellCss;
+    return Math.min(base, Math.max(5, minSide * 0.38));
   }
 
   function selectionHandlePoints(bounds, cell) {
@@ -6328,36 +6682,73 @@ function updateHistoryButtons() {
 
   function hitTestSelectionHandle(e) {
     if (!canScaleSelection()) return null;
-    const bounds = getVisibleSelectionBounds();
-    if (!bounds) return null;
+    ensureEditSelectParts();
+    const parts = liveEditSelectParts();
+    if (!parts.length) return null;
     const rect = interactionCanvas.getBoundingClientRect();
     let clientX = e.clientX, clientY = e.clientY;
     if (e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
     const cssX = clientX - rect.left, cssY = clientY - rect.top;
     const cellCss = rect.width > 0 ? rect.width / currentCols : 1;
-    const hitR = Math.max(12, cellCss * 0.45);
-    const handles = selectionHandlePoints(bounds, cellCss);
-    for (let i = 0; i < handles.length; i++) {
-      if (Math.abs(cssX - handles[i].x) <= hitR && Math.abs(cssY - handles[i].y) <= hitR) return handles[i];
+    for (let pi = parts.length - 1; pi >= 0; pi--) {
+      const bounds = boundsOfCells(parts[pi]);
+      if (!bounds) continue;
+      const hitR = selectionHandleHitSize(cellCss, bounds);
+      const handles = selectionHandlePoints(bounds, cellCss);
+      for (let i = 0; i < handles.length; i++) {
+        if (Math.abs(cssX - handles[i].x) <= hitR && Math.abs(cssY - handles[i].y) <= hitR) {
+          return { ...handles[i], partIndex: pi };
+        }
+      }
     }
     return null;
   }
 
   function boundsFromScaleHandle(id, col, row, start) {
-    let minX = start.minX, minY = start.minY, maxX = start.maxX, maxY = start.maxY;
     col = Math.max(0, Math.min(currentCols - 1, col));
     row = Math.max(0, Math.min(currentRows - 1, row));
-    if (id.indexOf("w") !== -1) minX = col;
-    if (id.indexOf("e") !== -1) maxX = col;
-    if (id.indexOf("n") !== -1) minY = row;
-    if (id.indexOf("s") !== -1) maxY = row;
+    const srcW = start.maxX - start.minX + 1;
+    const srcH = start.maxY - start.minY + 1;
+    const centerX = (start.minX + start.maxX) / 2;
+    const centerY = (start.minY + start.maxY) / 2;
+    let newW = srcW;
+    let newH = srcH;
+    const affectX = id.indexOf("e") !== -1 || id.indexOf("w") !== -1;
+    const affectY = id.indexOf("n") !== -1 || id.indexOf("s") !== -1;
+    if (affectX) newW = Math.max(1, Math.round(Math.abs(col - centerX) * 2 + 1));
+    if (affectY) newH = Math.max(1, Math.round(Math.abs(row - centerY) * 2 + 1));
+    if (scaleKeepRatio) {
+      const ratio = srcW / Math.max(1, srcH);
+      if (affectX && !affectY) newH = Math.max(1, Math.round(newW / ratio));
+      else if (affectY && !affectX) newW = Math.max(1, Math.round(newH * ratio));
+      else {
+        const sx = newW / srcW, sy = newH / srcH;
+        const s = Math.abs(sx - 1) >= Math.abs(sy - 1) ? sx : sy;
+        newW = Math.max(1, Math.round(srcW * s));
+        newH = Math.max(1, Math.round(srcH * s));
+      }
+    }
+    let minX = Math.round(centerX - (newW - 1) / 2);
+    let minY = Math.round(centerY - (newH - 1) / 2);
+    let maxX = minX + newW - 1;
+    let maxY = minY + newH - 1;
+    if (minX < 0) { maxX -= minX; minX = 0; }
+    if (minY < 0) { maxY -= minY; minY = 0; }
+    if (maxX >= currentCols) { minX -= (maxX - currentCols + 1); maxX = currentCols - 1; }
+    if (maxY >= currentRows) { minY -= (maxY - currentRows + 1); maxY = currentRows - 1; }
+    minX = Math.max(0, minX);
+    minY = Math.max(0, minY);
+    maxX = Math.min(currentCols - 1, maxX);
+    maxY = Math.min(currentRows - 1, maxY);
     if (minX > maxX) { const t = minX; minX = maxX; maxX = t; }
     if (minY > maxY) { const t = minY; minY = maxY; maxY = t; }
     return { minX, minY, maxX, maxY, filled: start.filled };
   }
 
-  function applySelectionScale(dest) {
-    const srcBox = getVisibleSelectionBounds();
+  function applySelectionScale(dest, partIndex) {
+    ensureEditSelectParts();
+    const srcPart = (partIndex >= 0 && editSelectParts[partIndex]) ? editSelectParts[partIndex] : selectedCells;
+    const srcBox = boundsOfCells(srcPart);
     if (!srcBox || !dest) return;
     if (srcBox.minX === dest.minX && srcBox.minY === dest.minY && srcBox.maxX === dest.maxX && srcBox.maxY === dest.maxY) return;
     const srcW = srcBox.maxX - srcBox.minX + 1;
@@ -6366,13 +6757,13 @@ function updateHistoryButtons() {
     const dstH = dest.maxY - dest.minY + 1;
     if (dstW < 1 || dstH < 1) return;
     const src = Array.from({ length: srcH }, () => Array(srcW).fill(undefined));
-    selectedCells.forEach(key => {
+    srcPart.forEach((key) => {
       const [x, y] = key.split(",").map(Number);
       const lx = x - srcBox.minX, ly = y - srcBox.minY;
       if (lx < 0 || ly < 0 || lx >= srcW || ly >= srcH) return;
       src[ly][lx] = patternGridData[y][x];
     });
-    selectedCells.forEach(key => {
+    srcPart.forEach((key) => {
       const [x, y] = key.split(",").map(Number);
       patternGridData[y][x] = null;
     });
@@ -6388,7 +6779,18 @@ function updateHistoryButtons() {
         next.add(`${x},${y}`);
       }
     }
-    selectedCells = next;
+    if (partIndex >= 0 && editSelectParts[partIndex]) {
+      editSelectParts.forEach((p, i) => {
+        if (i === partIndex) return;
+        next.forEach((k) => p.delete(k));
+      });
+      editSelectParts[partIndex] = next;
+      editSelectParts = editSelectParts.filter((p) => p.size);
+      syncSelectedFromParts();
+    } else {
+      selectedCells = next;
+      rebuildPartsFromCells();
+    }
     pushHistoryState("縮放選取");
     updateSelectCount();
     recalculateStats();
@@ -6482,21 +6884,6 @@ function updateHistoryButtons() {
     return null;
   }
 
-  function isLatestAnchorCurve() {
-    const seg = latestAnchorSegment();
-    return !!(seg && (seg.prev.hOut || seg.last.hIn));
-  }
-
-  function latestAnchorSegment() {
-    const sess = currentAnchorSession();
-    if (!sess || sess.points.length < 2) return null;
-    return {
-      sess,
-      prev: sess.points[sess.points.length - 2],
-      last: sess.points[sess.points.length - 1]
-    };
-  }
-
   function snapshotAnchor(p) {
     return {
       x: p.x,
@@ -6506,13 +6893,23 @@ function updateHistoryButtons() {
     };
   }
 
-  function curveLatestSegment(prev, last, unit) {
-    const dx = last.x - prev.x, dy = last.y - prev.y;
+  function pendingCurveHandle(from, to, unit) {
+    const dx = to.x - from.x, dy = to.y - from.y;
     const len = Math.hypot(dx, dy) || 1;
     const s = Math.min(unit * 1.2, Math.max(unit * 0.45, len * 0.32));
-    const ux = dx / len, uy = dy / len;
-    prev.hOut = { x: prev.x + ux * s, y: prev.y + uy * s };
-    last.hIn = { x: last.x - ux * s, y: last.y - uy * s };
+    return { x: from.x + (dx / len) * s, y: from.y + (dy / len) * s };
+  }
+
+  function curvePendingSegment(prev, next, unit) {
+    const hOut = pendingCurveHandle(prev, next, unit);
+    const hIn = pendingCurveHandle(next, prev, unit);
+    prev.hOut = hOut;
+    next.hIn = hIn;
+  }
+
+  function applyPendingCurve(points, next, unit) {
+    if (!anchorNextCurve || !points.length || !next) return;
+    curvePendingSegment(points[points.length - 1], next, unit);
   }
 
   function afterAnchorPointChange() {
@@ -6563,6 +6960,7 @@ function updateHistoryButtons() {
       isUploadPolyDrag = false;
       uploadPolyDragIndex = -1;
       uploadPolyDragKind = null;
+      uploadPolyHover = null;
     }
     afterAnchorPointChange();
     return true;
@@ -6576,6 +6974,7 @@ function updateHistoryButtons() {
     isUploadPolyDrag = false;
     uploadPolyDragIndex = -1;
     uploadPolyDragKind = null;
+    polyHandleHover = null;
     const overlayEl = document.getElementById("cropOverlayCanvas");
     if (overlayEl) {
       overlayEl.classList.toggle("is-paused", currentStage === "upload" && uploadTool === "poly" && anchorPaused);
@@ -6588,15 +6987,66 @@ function updateHistoryButtons() {
   }
 
   function toggleLatestAnchorCurve() {
-    const seg = latestAnchorSegment();
-    if (!seg) return;
-    if (seg.prev.hOut || seg.last.hIn) {
-      seg.prev.hOut = null;
-      seg.last.hIn = null;
-    } else {
-      curveLatestSegment(seg.prev, seg.last, seg.sess.mode === "upload" ? 28 : 0.75);
-    }
+    const sess = currentAnchorSession();
+    if (!sess || !sess.points.length) return;
+    anchorNextCurve = !anchorNextCurve;
     afterAnchorPointChange();
+  }
+
+  function segsIntersect(ax, ay, bx, by, cx, cy, dx, dy) {
+    const o1 = (bx - ax) * (cy - ay) - (by - ay) * (cx - ax);
+    const o2 = (bx - ax) * (dy - ay) - (by - ay) * (dx - ax);
+    const o3 = (dx - cx) * (ay - cy) - (dy - cy) * (ax - cx);
+    const o4 = (dx - cx) * (by - cy) - (dy - cy) * (bx - cx);
+    return o1 * o2 < 0 && o3 * o4 < 0;
+  }
+
+  function lineHitsBar(sx, sy, ex, ey, left, top, w, h) {
+    const pad = 6;
+    const L = left - pad, T = top - pad, R = left + w + pad, B = top + h + pad;
+    const len = Math.hypot(ex - sx, ey - sy) || 1;
+    const t = Math.min(0.35, 16 / len);
+    const ax = sx + (ex - sx) * t;
+    const ay = sy + (ey - sy) * t;
+    if (ax >= L && ax <= R && ay >= T && ay <= B) return true;
+    if (ex >= L && ex <= R && ey >= T && ey <= B) return true;
+    return (
+      segsIntersect(ax, ay, ex, ey, L, T, R, T) ||
+      segsIntersect(ax, ay, ex, ey, R, T, R, B) ||
+      segsIntersect(ax, ay, ex, ey, R, B, L, B) ||
+      segsIntersect(ax, ay, ex, ey, L, B, L, T)
+    );
+  }
+
+  function placeMiniBarOffSegments(bar, sx, sy, segs) {
+    const barW = bar.offsetWidth || 168;
+    const barH = bar.offsetHeight || 36;
+    const gap = 16;
+    const raw = [
+      { left: sx + gap, top: sy - gap - barH },
+      { left: sx - gap - barW, top: sy - gap - barH },
+      { left: sx + gap, top: sy - barH / 2 },
+      { left: sx - gap - barW, top: sy - barH / 2 },
+      { left: sx + gap, top: sy + gap },
+      { left: sx - gap - barW, top: sy + gap },
+      { left: sx - barW / 2, top: sy - gap - barH },
+      { left: sx - barW / 2, top: sy + gap }
+    ];
+    let best = raw[0], bestScore = -Infinity;
+    raw.forEach((c, i) => {
+      const left = Math.max(8, Math.min(c.left, window.innerWidth - barW - 8));
+      const top = Math.max(8, Math.min(c.top, window.innerHeight - barH - 8));
+      let score = -i;
+      const hit = (segs || []).some((p) => lineHitsBar(sx, sy, p.x, p.y, left, top, barW, barH));
+      if (!hit) score += 160;
+      score -= Math.hypot(left + barW / 2 - sx, top + barH / 2 - sy) * 0.04;
+      if (score > bestScore) {
+        bestScore = score;
+        best = { left, top };
+      }
+    });
+    bar.style.left = `${Math.round(best.left)}px`;
+    bar.style.top = `${Math.round(best.top)}px`;
   }
 
   function placeMiniBarAbove(bar, sx, sy, extraGap) {
@@ -6612,6 +7062,52 @@ function updateHistoryButtons() {
     bar.style.top = `${Math.round(top)}px`;
   }
 
+  function getSelectMiniBarHost() {
+    return document.getElementById("gridFrozenContainer");
+  }
+
+  function applySelectMiniBarPos(bar, clientLeft, clientTop) {
+    const host = getSelectMiniBarHost();
+    if (!bar || !host) return null;
+    const hr = host.getBoundingClientRect();
+    const barW = bar.offsetWidth || 220;
+    const barH = bar.offsetHeight || 36;
+    let left = clientLeft - hr.left;
+    let top = clientTop - hr.top;
+    left = Math.max(6, Math.min(left, Math.max(6, hr.width - barW - 6)));
+    top = Math.max(6, Math.min(top, Math.max(6, hr.height - barH - 6)));
+    bar.style.left = `${Math.round(left)}px`;
+    bar.style.top = `${Math.round(top)}px`;
+    return { left, top };
+  }
+
+  function placeSelectMiniBar(bar, sx, sy, extraGap) {
+    const host = getSelectMiniBarHost();
+    if (!host) {
+      placeMiniBarAbove(bar, sx, sy, extraGap);
+      return;
+    }
+    if (selectMiniBarUserPos) {
+      applySelectMiniBarPos(
+        bar,
+        host.getBoundingClientRect().left + selectMiniBarUserPos.left,
+        host.getBoundingClientRect().top + selectMiniBarUserPos.top
+      );
+      return;
+    }
+    const gap = extraGap == null ? 8 : extraGap;
+    const barW = bar.offsetWidth || 220;
+    const barH = bar.offsetHeight || 36;
+    const hr = host.getBoundingClientRect();
+    let left = sx - hr.left - barW / 2;
+    let top = sy - hr.top - gap - barH;
+    if (top < 6) top = sy - hr.top + gap;
+    left = Math.max(6, Math.min(left, Math.max(6, hr.width - barW - 6)));
+    top = Math.max(6, Math.min(top, Math.max(6, hr.height - barH - 6)));
+    bar.style.left = `${Math.round(left)}px`;
+    bar.style.top = `${Math.round(top)}px`;
+  }
+
   function syncAnchorMiniBar() {
     const bar = document.getElementById("anchorMiniBar");
     const pauseBtn = document.getElementById("anchorPauseBtn");
@@ -6620,34 +7116,94 @@ function updateHistoryButtons() {
     const sess = currentAnchorSession();
     if (!sess || !sess.points.length) {
       bar.hidden = true;
+      anchorMiniBarUserPos = null;
+      bar.classList.remove("is-dragging");
       return;
     }
     bar.hidden = false;
     if (pauseBtn) pauseBtn.textContent = anchorPaused ? "回到錨點選取" : "暫停錨點選取";
     if (cornerBtn) {
-      const hasSeg = sess.points.length >= 2;
-      const curve = isLatestAnchorCurve();
-      cornerBtn.disabled = !hasSeg;
-      cornerBtn.textContent = curve ? "銳角" : "曲線";
-      cornerBtn.title = !hasSeg ? "至少兩個錨點才能切換線段" : (curve ? "將最新線段改為銳角" : "將最新線段改為曲線");
+      cornerBtn.disabled = false;
+      cornerBtn.textContent = anchorNextCurve ? "銳角" : "曲線";
+      cornerBtn.title = anchorNextCurve ? "將下一段改為銳角" : "將下一段改為曲線";
     }
     const last = sess.points[sess.points.length - 1];
     const overlayEl = document.getElementById("cropOverlayCanvas");
     const canvasEl = sess.mode === "upload" ? overlayEl : interactionCanvas;
     if (!canvasEl || !last) return;
     const rect = canvasEl.getBoundingClientRect();
-    let sx, sy;
-    if (sess.mode === "upload") {
-      const scaleX = rect.width / (overlayEl.width || 1);
-      const scaleY = rect.height / (overlayEl.height || 1);
-      sx = rect.left + last.x * scaleX;
-      sy = rect.top + last.y * scaleY;
-    } else {
+    const toScreen = (p) => {
+      if (!p) return null;
+      if (sess.mode === "upload") {
+        const scaleX = rect.width / (overlayEl.width || 1);
+        const scaleY = rect.height / (overlayEl.height || 1);
+        return { x: rect.left + p.x * scaleX, y: rect.top + p.y * scaleY };
+      }
       const cell = rect.width / (currentCols || 1);
-      sx = rect.left + last.x * cell;
-      sy = rect.top + last.y * cell;
+      return { x: rect.left + p.x * cell, y: rect.top + p.y * cell };
+    };
+    if (anchorMiniBarUserPos) {
+      applyAnchorMiniBarPos(bar, anchorMiniBarUserPos.left, anchorMiniBarUserPos.top);
+      return;
     }
-    placeMiniBarAbove(bar, sx, sy, 10);
+    const lastScreen = toScreen(last);
+    if (!lastScreen) return;
+    const segs = [];
+    if (sess.points.length >= 2) segs.push(toScreen(sess.points[sess.points.length - 2]));
+    placeMiniBarOffSegments(bar, lastScreen.x, lastScreen.y, segs.filter(Boolean));
+  }
+
+  function applyAnchorMiniBarPos(bar, left, top) {
+    const barW = bar.offsetWidth || 168;
+    const barH = bar.offsetHeight || 36;
+    left = Math.max(8, Math.min(left, window.innerWidth - barW - 8));
+    top = Math.max(8, Math.min(top, window.innerHeight - barH - 8));
+    bar.style.left = `${Math.round(left)}px`;
+    bar.style.top = `${Math.round(top)}px`;
+    return { left, top };
+  }
+
+  function getUploadSelectBarHost() {
+    return document.querySelector(".orig-viewport-wrap") || document.getElementById("origViewport");
+  }
+
+  function applyUploadSelectMiniBarPos(bar, clientLeft, clientTop) {
+    const host = getUploadSelectBarHost();
+    if (!bar || !host) return null;
+    const hr = host.getBoundingClientRect();
+    const barW = bar.offsetWidth || 220;
+    const barH = bar.offsetHeight || 36;
+    let left = clientLeft - hr.left;
+    let top = clientTop - hr.top;
+    left = Math.max(6, Math.min(left, Math.max(6, hr.width - barW - 6)));
+    top = Math.max(6, Math.min(top, Math.max(6, hr.height - barH - 6)));
+    bar.style.left = `${Math.round(left)}px`;
+    bar.style.top = `${Math.round(top)}px`;
+    return { left, top };
+  }
+
+  function placeUploadSelectMiniBar(bar, sx, sy, extraGap) {
+    const host = getUploadSelectBarHost();
+    if (!bar || !host) return;
+    if (uploadSelectMiniBarUserPos) {
+      applyUploadSelectMiniBarPos(
+        bar,
+        host.getBoundingClientRect().left + uploadSelectMiniBarUserPos.left,
+        host.getBoundingClientRect().top + uploadSelectMiniBarUserPos.top
+      );
+      return;
+    }
+    const gap = extraGap == null ? 8 : extraGap;
+    const barW = bar.offsetWidth || 220;
+    const barH = bar.offsetHeight || 36;
+    const hr = host.getBoundingClientRect();
+    let left = sx - hr.left - barW / 2;
+    let top = sy - hr.top - gap - barH;
+    if (top < 6) top = sy - hr.top + gap;
+    left = Math.max(6, Math.min(left, Math.max(6, hr.width - barW - 6)));
+    top = Math.max(6, Math.min(top, Math.max(6, hr.height - barH - 6)));
+    bar.style.left = `${Math.round(left)}px`;
+    bar.style.top = `${Math.round(top)}px`;
   }
 
   function isMarqueeSelectTool() {
@@ -6657,17 +7213,45 @@ function updateHistoryButtons() {
   function syncSelectMiniBar() {
     const bar = document.getElementById("selectMiniBar");
     const addBtn = document.getElementById("selectAddBoxBtn");
+    const scaleWrap = document.getElementById("selectScaleWrap");
+    const ratioBtn = document.getElementById("selectScaleRatioBtn");
+    const freeBtn = document.getElementById("selectScaleFreeBtn");
     if (!bar) return;
-    const show = isPatternStage() && !isBeadStage() && isMarqueeSelectTool() && selectedCells.size > 0;
-    if (!show) {
+    const onEdit = isPatternStage() && !isBeadStage();
+    const showAdd = onEdit && (isMarqueeSelectTool() || editSelectTool === "wand") && selectedCells.size > 0;
+    const showScale = onEdit && canScaleSelection();
+    if (!showAdd && !showScale) {
       bar.hidden = true;
+      selectMiniBarUserPos = null;
+      bar.classList.remove("is-dragging");
       return;
     }
     bar.hidden = false;
+    const addWrap = document.getElementById("selectAddWrap");
+    if (addWrap) addWrap.hidden = !showAdd;
     if (addBtn) {
-      addBtn.classList.toggle("highlight", selectAddArmed);
+      addBtn.hidden = !showAdd;
+      addBtn.classList.toggle("highlight", selectAddArmed && selectBoolMode !== "subtract");
       addBtn.textContent = "增加選匡";
-      addBtn.title = selectAddArmed ? "再拖曳畫布新增一塊選匡" : "點此後再拖曳，可新增選匡";
+      addBtn.title = selectAddArmed && selectBoolMode !== "subtract"
+        ? "再拖曳畫布新增一塊選匡"
+        : "點此後再拖曳，可新增選匡";
+    }
+    const subtractBtn = document.getElementById("selectSubtractBoxBtn");
+    if (subtractBtn) {
+      subtractBtn.hidden = !showAdd;
+      subtractBtn.classList.toggle("highlight", selectAddArmed && selectBoolMode === "subtract");
+      subtractBtn.title = "點此後再拖曳，可減去一塊選匡";
+    }
+    if (scaleWrap) scaleWrap.hidden = !showScale;
+    if (ratioBtn) {
+      ratioBtn.hidden = !showScale;
+      ratioBtn.classList.toggle("highlight", showScale && scaleKeepRatio);
+      ratioBtn.title = scaleKeepRatio ? "等比放大" : "點此改回等比放大";
+    }
+    if (freeBtn) {
+      freeBtn.hidden = !showScale;
+      freeBtn.classList.toggle("highlight", showScale && !scaleKeepRatio);
     }
     const bounds = (isScalingSelection && scalePreviewBounds) ? scalePreviewBounds : getVisibleSelectionBounds();
     if (!bounds || !interactionCanvas) return;
@@ -6676,7 +7260,7 @@ function updateHistoryButtons() {
     const cellH = rect.height / (currentRows || 1);
     const sx = rect.left + ((bounds.minX + bounds.maxX + 1) / 2) * cellW;
     const sy = rect.top + bounds.minY * cellH;
-    placeMiniBarAbove(bar, sx, sy, 40);
+    placeSelectMiniBar(bar, sx, sy, 16);
   }
 
   (function bindAnchorMiniBar() {
@@ -6686,11 +7270,73 @@ function updateHistoryButtons() {
     const selectBar = document.getElementById("selectMiniBar");
     const addBtn = document.getElementById("selectAddBoxBtn");
     if (bar) {
-      bar.addEventListener("pointerdown", (e) => e.stopPropagation());
+      bar.addEventListener("pointerdown", (e) => {
+        e.stopPropagation();
+        if (e.target.closest("button")) return;
+        const rect = bar.getBoundingClientRect();
+        anchorMiniBarDrag = {
+          ox: e.clientX - rect.left,
+          oy: e.clientY - rect.top,
+          startX: e.clientX,
+          startY: e.clientY,
+          moved: false
+        };
+        try { bar.setPointerCapture(e.pointerId); } catch (_) {}
+      });
+      bar.addEventListener("pointermove", (e) => {
+        if (!anchorMiniBarDrag) return;
+        const dist = Math.hypot(e.clientX - anchorMiniBarDrag.startX, e.clientY - anchorMiniBarDrag.startY);
+        if (!anchorMiniBarDrag.moved && dist < 5) return;
+        anchorMiniBarDrag.moved = true;
+        bar.classList.add("is-dragging");
+        anchorMiniBarUserPos = applyAnchorMiniBarPos(
+          bar,
+          e.clientX - anchorMiniBarDrag.ox,
+          e.clientY - anchorMiniBarDrag.oy
+        );
+      });
+      const endDrag = () => {
+        bar.classList.remove("is-dragging");
+        anchorMiniBarDrag = null;
+      };
+      bar.addEventListener("pointerup", endDrag);
+      bar.addEventListener("pointercancel", endDrag);
+      bar.addEventListener("mousedown", (e) => e.stopPropagation());
       bar.addEventListener("click", (e) => e.stopPropagation());
     }
     if (selectBar) {
-      selectBar.addEventListener("pointerdown", (e) => e.stopPropagation());
+      selectBar.addEventListener("pointerdown", (e) => {
+        e.stopPropagation();
+        if (e.target.closest("button") || e.target.closest(".upload-sel-submenu")) return;
+        const rect = selectBar.getBoundingClientRect();
+        selectMiniBarDrag = {
+          ox: e.clientX - rect.left,
+          oy: e.clientY - rect.top,
+          startX: e.clientX,
+          startY: e.clientY,
+          moved: false
+        };
+        try { selectBar.setPointerCapture(e.pointerId); } catch (_) {}
+      });
+      selectBar.addEventListener("pointermove", (e) => {
+        if (!selectMiniBarDrag) return;
+        const dist = Math.hypot(e.clientX - selectMiniBarDrag.startX, e.clientY - selectMiniBarDrag.startY);
+        if (!selectMiniBarDrag.moved && dist < 5) return;
+        selectMiniBarDrag.moved = true;
+        selectBar.classList.add("is-dragging");
+        selectMiniBarUserPos = applySelectMiniBarPos(
+          selectBar,
+          e.clientX - selectMiniBarDrag.ox,
+          e.clientY - selectMiniBarDrag.oy
+        );
+      });
+      const endSelectDrag = () => {
+        selectBar.classList.remove("is-dragging");
+        selectMiniBarDrag = null;
+      };
+      selectBar.addEventListener("pointerup", endSelectDrag);
+      selectBar.addEventListener("pointercancel", endSelectDrag);
+      selectBar.addEventListener("mousedown", (e) => e.stopPropagation());
       selectBar.addEventListener("click", (e) => e.stopPropagation());
     }
     if (pauseBtn) {
@@ -6705,17 +7351,157 @@ function updateHistoryButtons() {
         toggleLatestAnchorCurve();
       });
     }
+    function armEditAddSelection(mode) {
+      const nextMode = mode === "subtract" ? "subtract" : "add";
+      if ((!isMarqueeSelectTool() && editSelectTool !== "wand") || !selectedCells.size) return;
+      if (nextMode === "subtract") {
+        selectAddArmed = true;
+        selectBoolMode = "subtract";
+      } else if (selectAddArmed && selectBoolMode === "add") {
+        selectAddArmed = false;
+        selectBoolMode = "add";
+      } else {
+        selectAddArmed = true;
+        selectBoolMode = "add";
+      }
+      syncSelectMiniBar();
+    }
     if (addBtn) {
       addBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        selectAddArmed = !selectAddArmed;
+        armEditAddSelection("add");
+      });
+    }
+    const subtractBtn = document.getElementById("selectSubtractBoxBtn");
+    if (subtractBtn) {
+      subtractBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        armEditAddSelection("subtract");
+      });
+    }
+    const ratioBtn = document.getElementById("selectScaleRatioBtn");
+    const freeBtn = document.getElementById("selectScaleFreeBtn");
+    if (ratioBtn) {
+      ratioBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        scaleKeepRatio = true;
+        syncSelectMiniBar();
+      });
+    }
+    if (freeBtn) {
+      freeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        scaleKeepRatio = false;
         syncSelectMiniBar();
       });
     }
     window.addEventListener("resize", () => {
       syncAnchorMiniBar();
       syncSelectMiniBar();
+      if (typeof syncUploadSelectMiniBar === "function") syncUploadSelectMiniBar();
     });
+    const uploadSelBar = document.getElementById("uploadSelectMiniBar");
+    const uploadAddBtn = document.getElementById("uploadSelectAddBtn");
+    const uploadSubtractBtn = document.getElementById("uploadSelectSubtractBtn");
+    const uploadRatioBtn = document.getElementById("uploadSelectScaleRatioBtn");
+    const uploadFreeBtn = document.getElementById("uploadSelectScaleFreeBtn");
+    const uploadCancelBtn = document.getElementById("uploadSelectCancelBtn");
+    const uploadConfirmBtn = document.getElementById("uploadSelectConfirmBtn");
+    if (uploadSelBar) {
+      uploadSelBar.addEventListener("pointerdown", (e) => {
+        e.stopPropagation();
+        if (e.target.closest("button") || e.target.closest(".upload-sel-submenu")) return;
+        const rect = uploadSelBar.getBoundingClientRect();
+        uploadSelectMiniBarDrag = {
+          ox: e.clientX - rect.left,
+          oy: e.clientY - rect.top,
+          startX: e.clientX,
+          startY: e.clientY,
+          moved: false
+        };
+        try { uploadSelBar.setPointerCapture(e.pointerId); } catch (_) {}
+      });
+      uploadSelBar.addEventListener("pointermove", (e) => {
+        if (!uploadSelectMiniBarDrag) return;
+        const dist = Math.hypot(e.clientX - uploadSelectMiniBarDrag.startX, e.clientY - uploadSelectMiniBarDrag.startY);
+        if (!uploadSelectMiniBarDrag.moved && dist < 5) return;
+        uploadSelectMiniBarDrag.moved = true;
+        uploadSelBar.classList.add("is-dragging");
+        if (typeof applyUploadSelectMiniBarPos === "function") {
+          uploadSelectMiniBarUserPos = applyUploadSelectMiniBarPos(
+            uploadSelBar,
+            e.clientX - uploadSelectMiniBarDrag.ox,
+            e.clientY - uploadSelectMiniBarDrag.oy
+          );
+        }
+      });
+      const endUploadDrag = () => {
+        uploadSelBar.classList.remove("is-dragging");
+        uploadSelectMiniBarDrag = null;
+      };
+      uploadSelBar.addEventListener("pointerup", endUploadDrag);
+      uploadSelBar.addEventListener("pointercancel", endUploadDrag);
+      uploadSelBar.addEventListener("mousedown", (e) => e.stopPropagation());
+      uploadSelBar.addEventListener("click", (e) => e.stopPropagation());
+    }
+    if (uploadAddBtn) {
+      uploadAddBtn.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (typeof armUploadAddSelection === "function") armUploadAddSelection();
+      });
+      uploadAddBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    }
+    if (uploadSubtractBtn) {
+      uploadSubtractBtn.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (typeof setUploadBoolMode === "function") setUploadBoolMode("subtract");
+      });
+      uploadSubtractBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    }
+    if (uploadRatioBtn) {
+      uploadRatioBtn.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadScaleKeepRatio = true;
+        if (typeof syncUploadSelectMiniBar === "function") syncUploadSelectMiniBar();
+      });
+      uploadRatioBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    }
+    if (uploadFreeBtn) {
+      uploadFreeBtn.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadScaleKeepRatio = false;
+        if (typeof syncUploadSelectMiniBar === "function") syncUploadSelectMiniBar();
+      });
+      uploadFreeBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    }
+    if (uploadCancelBtn) {
+      uploadCancelBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        cancelCropAction();
+      });
+    }
+    if (uploadConfirmBtn) {
+      uploadConfirmBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        applyCurrentSelection();
+      });
+    }
   })();
 
   function isMoveSelectTool() {
@@ -6734,13 +7520,15 @@ function updateHistoryButtons() {
       resetEditPoly();
       editPolyRedo = [];
       anchorPaused = false;
+      anchorNextCurve = false;
     }
     if (!isMoveSelectTool()) {
       isMovingSelection = false;
       moveOffset = { dx: 0, dy: 0 };
     }
     isMovingMarquee = false;
-    selectAddArmed = isMarqueeSelectTool() && selectedCells.size === 0;
+    selectAddArmed = (isMarqueeSelectTool() || editSelectTool === "wand") && selectedCells.size === 0;
+    selectBoolMode = "add";
     if (editSelectTool !== "none") {
       setPipetteMode(false);
       if (editPaintTool !== "none") setPaintTool("none", { force: true });
@@ -6749,11 +7537,13 @@ function updateHistoryButtons() {
     const rectBtn = document.getElementById("editRectSelectBtn");
     const circleBtn = document.getElementById("editCircleSelectBtn");
     const ellipseBtn = document.getElementById("editEllipseSelectBtn");
+    const wandBtn = document.getElementById("editWandSelectBtn");
     const polyBtn = document.getElementById("editPolySelectBtn");
     const moveCopyBtn = document.getElementById("editMoveCopySelectBtn");
     if (rectBtn) rectBtn.classList.toggle("highlight", editSelectTool === "rect");
-    if (circleBtn) circleBtn.classList.toggle("highlight", editSelectTool === "circle");
+    if (circleBtn) circleBtn.classList.toggle("highlight", editSelectTool === "circle" || editSelectTool === "ellipse");
     if (ellipseBtn) ellipseBtn.classList.toggle("highlight", editSelectTool === "ellipse");
+    if (wandBtn) wandBtn.classList.toggle("highlight", editSelectTool === "wand");
     if (polyBtn) polyBtn.classList.toggle("highlight", editSelectTool === "poly");
     if (moveCopyBtn) moveCopyBtn.classList.toggle("highlight", editSelectTool === "movecopy");
     updateGlobalHistoryButtons();
@@ -6786,6 +7576,7 @@ function updateHistoryButtons() {
     isPolyHandleDrag = false;
     polyHandleAnchorIndex = -1;
     polyHandleKind = null;
+    polyHandleHover = null;
     editPolyRedo = [];
   }
 
@@ -6841,32 +7632,58 @@ function updateHistoryButtons() {
     return out;
   }
 
-  function hitTestPolyHandle(points, x, y, tol) {
+  function distToSegment(px, py, ax, ay, bx, by) {
+    const dx = bx - ax, dy = by - ay;
+    const len2 = dx * dx + dy * dy || 1;
+    let t = ((px - ax) * dx + (py - ay) * dy) / len2;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+  }
+
+  function hitTestPolyHandle(points, x, y, tol, stemTol) {
+    const st = stemTol == null ? tol * 0.45 : stemTol;
     for (let i = 0; i < points.length; i++) {
       const p = points[i];
       if (p.hOut && Math.hypot(x - p.hOut.x, y - p.hOut.y) <= tol) return { i, kind: "out" };
       if (p.hIn && Math.hypot(x - p.hIn.x, y - p.hIn.y) <= tol) return { i, kind: "in" };
     }
+    for (let i = 0; i < points.length; i++) {
+      const p = points[i];
+      if (p.hOut && distToSegment(x, y, p.x, p.y, p.hOut.x, p.hOut.y) <= st) return { i, kind: "out" };
+      if (p.hIn && distToSegment(x, y, p.x, p.y, p.hIn.x, p.hIn.y) <= st) return { i, kind: "in" };
+    }
     return null;
   }
 
-  function drawPolyHandleStems(ctx, points, scale) {
+  function currentPolyHandleHot() {
+    if (isPolyHandleDrag && polyHandleAnchorIndex >= 0 && (polyHandleKind === "in" || polyHandleKind === "out")) {
+      return { i: polyHandleAnchorIndex, kind: polyHandleKind };
+    }
+    if (isUploadPolyDrag && uploadPolyDragIndex >= 0 && (uploadPolyDragKind === "in" || uploadPolyDragKind === "out")) {
+      return { i: uploadPolyDragIndex, kind: uploadPolyDragKind };
+    }
+    return polyHandleHover;
+  }
+
+  function drawPolyHandleStems(ctx, points, scale, active, knobPx) {
     const s = scale == null ? 1 : scale;
-    points.forEach((p) => {
+    const knobR = knobPx != null ? knobPx : Math.max(2, s * 0.08);
+    points.forEach((p, i) => {
       ["hIn", "hOut"].forEach((key) => {
         const h = p[key];
         if (!h) return;
+        const on = !!(active && active.i === i && ((key === "hOut" && active.kind === "out") || (key === "hIn" && active.kind === "in")));
         ctx.beginPath();
         ctx.moveTo(p.x * s, p.y * s);
         ctx.lineTo(h.x * s, h.y * s);
-        ctx.strokeStyle = "rgba(255, 230, 0, 0.9)";
-        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = on ? "#41ccff" : "rgba(255, 230, 0, 0.9)";
+        ctx.lineWidth = on ? 2.4 : 1.2;
         ctx.stroke();
         ctx.beginPath();
-        ctx.arc(h.x * s, h.y * s, Math.max(3, s * 0.12), 0, Math.PI * 2);
-        ctx.fillStyle = "#ffe600";
+        ctx.arc(h.x * s, h.y * s, on ? knobR + 1.2 : knobR, 0, Math.PI * 2);
+        ctx.fillStyle = on ? "#41ccff" : "#ffe600";
         ctx.fill();
-        ctx.strokeStyle = "#181825";
+        ctx.strokeStyle = on ? "#ffffff" : "#181825";
         ctx.lineWidth = 1;
         ctx.stroke();
       });
@@ -6875,6 +7692,7 @@ function updateHistoryButtons() {
 
   function closeEditPolygon() {
     if (editPolyPoints.length < 3) return;
+    applyPendingCurve(editPolyPoints, editPolyPoints[0], 0.75);
     const outline = flattenEditPoly(editPolyPoints, true);
     const next = new Set();
     for (let y = 0; y < currentRows; y++) {
@@ -6883,24 +7701,42 @@ function updateHistoryButtons() {
       }
     }
     selectedCells = next;
+    editSelectParts = next.size ? [new Set(next)] : [];
     resetEditPoly();
     updateSelectCount();
+    commitSelectionHistory("錨點選取");
     renderInteractionLayer();
     updateGlobalHistoryButtons();
     syncAnchorMiniBar();
   }
 
+  function selectionMatchesHistory() {
+    const cur = historyStack[historyIndex];
+    const prev = cur && cur.selection ? cur.selection : [];
+    if (prev.length !== selectedCells.size) return false;
+    for (let i = 0; i < prev.length; i++) {
+      if (!selectedCells.has(prev[i])) return false;
+    }
+    return true;
+  }
+
+  function commitSelectionHistory(title) {
+    if (selectionMatchesHistory()) return;
+    pushHistoryState(title || "選取");
+  }
+
   function ovalBounds(c1, r1, c2, r2, asCircle) {
-    const minX = Math.min(c1, c2), maxX = Math.max(c1, c2);
-    const minY = Math.min(r1, r2), maxY = Math.max(r1, r2);
-    const cx = (minX + maxX) / 2 + 0.5;
-    const cy = (minY + maxY) / 2 + 0.5;
-    let rx = (maxX - minX) / 2 + 0.5;
-    let ry = (maxY - minY) / 2 + 0.5;
+    const cx = c1 + 0.5;
+    const cy = r1 + 0.5;
+    let rx;
+    let ry;
     if (asCircle) {
-      const r = Math.max(rx, ry);
+      const r = Math.max(0.5, Math.hypot(c2 - c1, r2 - r1));
       rx = r;
       ry = r;
+    } else {
+      rx = Math.max(0.5, Math.abs(c2 - c1));
+      ry = Math.max(0.5, Math.abs(r2 - r1));
     }
     return { cx, cy, rx, ry };
   }
@@ -6925,6 +7761,52 @@ function updateHistoryButtons() {
     return next;
   }
 
+  function selectCellsInRoundRect(c1, r1, c2, r2, snapshot, deselecting, radiusPct) {
+    const minX = Math.min(c1, c2);
+    const maxX = Math.max(c1, c2);
+    const minY = Math.min(r1, r2);
+    const maxY = Math.max(r1, r2);
+    const w = maxX - minX + 1;
+    const h = maxY - minY + 1;
+    const rad = Math.min(w, h) * 0.5 * (Math.max(0, Math.min(50, radiusPct == null ? editRoundRadiusPct : radiusPct)) / 50);
+    const next = new Set(snapshot);
+    const box = { x: 0, y: 0, w, h };
+    for (let y = minY; y <= maxY; y++) {
+      for (let x = minX; x <= maxX; x++) {
+        if (rad > 0.5 && typeof pointInRoundRect === "function" && !pointInRoundRect(x - minX + 0.5, y - minY + 0.5, box, rad)) continue;
+        const key = `${x},${y}`;
+        if (deselecting) next.delete(key); else next.add(key);
+      }
+    }
+    return next;
+  }
+
+  function applyEditRoundRadiusToLastRect() {
+    if (editSelectTool !== "rect") return;
+    let b = editLastRectBounds;
+    if (!b) {
+      const vis = getVisibleSelectionBounds();
+      if (!vis) return;
+      b = { minX: vis.minX, minY: vis.minY, maxX: vis.maxX, maxY: vis.maxY };
+      editLastRectBounds = b;
+    }
+    const base = new Set(selectedCells);
+    for (let y = b.minY; y <= b.maxY; y++) {
+      for (let x = b.minX; x <= b.maxX; x++) base.delete(`${x},${y}`);
+    }
+    selectedCells = selectCellsInRoundRect(b.minX, b.minY, b.maxX, b.maxY, base, false, editRoundRadiusPct);
+    const other = new Set();
+    editSelectParts.slice(0, -1).forEach((p) => p.forEach((k) => other.add(k)));
+    const last = new Set();
+    selectedCells.forEach((k) => { if (!other.has(k)) last.add(k); });
+    if (editSelectParts.length) editSelectParts[editSelectParts.length - 1] = last;
+    else if (last.size) editSelectParts = [last];
+    editSelectParts = editSelectParts.filter((p) => p.size);
+    updateSelectCount();
+    renderInteractionLayer();
+    syncSelectMiniBar();
+  }
+
   function clampMoveOffset(dx, dy) {
     if (!selectedCells.size) return { dx: 0, dy: 0 };
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
@@ -6939,6 +7821,58 @@ function updateHistoryButtons() {
       dx: Math.max(-minX, Math.min(currentCols - 1 - maxX, dx)),
       dy: Math.max(-minY, Math.min(currentRows - 1 - maxY, dy))
     };
+  }
+
+  function collectSameColorRegion(col, row) {
+    const keys = [];
+    if (col < 0 || row < 0 || col >= currentCols || row >= currentRows) return keys;
+    const startBead = patternGridData[row]?.[col];
+    const startCode = startBead ? startBead.code : null;
+    const seen = new Uint8Array(currentCols * currentRows);
+    const stack = [col, row];
+    while (stack.length) {
+      const y = stack.pop();
+      const x = stack.pop();
+      if (x < 0 || y < 0 || x >= currentCols || y >= currentRows) continue;
+      const idx = y * currentCols + x;
+      if (seen[idx]) continue;
+      const bead = patternGridData[y]?.[x];
+      const code = bead ? bead.code : null;
+      if (code !== startCode) continue;
+      seen[idx] = 1;
+      keys.push(`${x},${y}`);
+      stack.push(x + 1, y, x - 1, y, x, y + 1, x, y - 1);
+    }
+    return keys;
+  }
+
+  function applyEditWandSelection(col, row) {
+    const region = collectSameColorRegion(col, row);
+    if (!region.length) return;
+    if (!selectAddArmed && selectedCells.size) return;
+    if (selectAddArmed && selectBoolMode === "subtract") {
+      ensureEditSelectParts();
+      const remove = new Set(region);
+      editSelectParts = editSelectParts.map((p) => {
+        const n = new Set();
+        p.forEach((k) => { if (!remove.has(k)) n.add(k); });
+        return n;
+      }).filter((p) => p.size);
+      syncSelectedFromParts();
+    } else if (selectAddArmed && selectedCells.size > 0) {
+      ensureEditSelectParts();
+      editSelectParts.push(new Set(region));
+      syncSelectedFromParts();
+    } else {
+      editSelectParts = [new Set(region)];
+      selectedCells = new Set(region);
+    }
+    selectAddArmed = false;
+    selectBoolMode = "add";
+    commitSelectionHistory("魔術棒選取");
+    updateSelectCount();
+    renderInteractionLayer();
+    syncSelectMiniBar();
   }
 
   function applySelectionMove(dx, dy) {
@@ -6957,6 +7891,16 @@ function updateHistoryButtons() {
     });
     if (!next.size) return;
     selectedCells = next;
+    editSelectParts = editSelectParts.map((p) => {
+      const n = new Set();
+      p.forEach((key) => {
+        const [x, y] = key.split(",").map(Number);
+        const k = `${x + dx},${y + dy}`;
+        if (next.has(k)) n.add(k);
+      });
+      return n;
+    }).filter((p) => p.size);
+    if (!editSelectParts.length) rebuildPartsFromCells();
     pushHistoryState("複製移動");
     updateSelectCount();
     recalculateStats();
@@ -6978,7 +7922,7 @@ function updateHistoryButtons() {
     if (isBeadStage() || !isEditMode || patternGridData.length === 0) return;
     const { col, row, fx, fy } = getCanvasCoordsFromEvent(e);
 
-    const marqueeHandle = hitTestMarqueeHandle(e);
+    const marqueeHandle = !selectAddArmed && hitTestMarqueeHandle(e);
     if (marqueeHandle) {
       isMovingMarquee = true;
       moveStartCell = {
@@ -6992,11 +7936,14 @@ function updateHistoryButtons() {
       return;
     }
 
-    const scaleHandle = hitTestSelectionHandle(e);
+    const scaleHandle = !selectAddArmed && hitTestSelectionHandle(e);
     if (scaleHandle) {
       isScalingSelection = true;
       scaleHandleId = scaleHandle.id;
-      scaleStartBounds = getVisibleSelectionBounds();
+      editScalePartIndex = scaleHandle.partIndex != null ? scaleHandle.partIndex : 0;
+      ensureEditSelectParts();
+      const part = editSelectParts[editScalePartIndex];
+      scaleStartBounds = part ? boundsOfCells(part) : getVisibleSelectionBounds();
       scalePreviewBounds = scaleStartBounds ? { ...scaleStartBounds } : null;
       renderInteractionLayer();
       return;
@@ -7034,13 +7981,20 @@ function updateHistoryButtons() {
           return;
         }
       }
-      editPolyPoints.push({ x: fx, y: fy, hIn: null, hOut: null });
+      const nextPt = { x: fx, y: fy, hIn: null, hOut: null };
+      applyPendingCurve(editPolyPoints, nextPt, 0.75);
+      editPolyPoints.push(nextPt);
       editPolyRedo.length = 0;
       editPolyHover = { x: fx, y: fy };
       isPolyHandleDrag = true;
       polyHandleAnchorIndex = editPolyPoints.length - 1;
       polyHandleKind = "new";
       renderInteractionLayer();
+      return;
+    }
+
+    if (editSelectTool === "wand") {
+      applyEditWandSelection(col, row);
       return;
     }
 
@@ -7059,9 +8013,11 @@ function updateHistoryButtons() {
     if (!isMarqueeSelectTool() || !selectAddArmed) return;
 
     isMouseDown = true; dragStartCell = { col, row };
+    marqueeDragMoved = false;
     const key = `${col},${row}`;
     selectionSnapshot = new Set(selectedCells);
-    isDeselecting = false; selectedCells.add(key);
+    isDeselecting = selectBoolMode === "subtract";
+    if (isDeselecting) selectedCells.delete(key); else selectedCells.add(key);
     updateSelectCount(); renderInteractionLayer();
   }
 
@@ -7069,12 +8025,16 @@ function updateHistoryButtons() {
   window.addEventListener("touchend", handlePointerEnd);
   function handlePointerEnd() {
     const finishedMarquee = isMouseDown && isMarqueeSelectTool();
+    const snapAtEnd = new Set(selectionSnapshot);
+    const dragMoved = marqueeDragMoved;
+    const wasDeselecting = isDeselecting;
     if (isScalingSelection) {
-      if (scalePreviewBounds) applySelectionScale(scalePreviewBounds);
+      if (scalePreviewBounds) applySelectionScale(scalePreviewBounds, editScalePartIndex);
       isScalingSelection = false;
       scaleHandleId = null;
       scaleStartBounds = null;
       scalePreviewBounds = null;
+      editScalePartIndex = -1;
       renderInteractionLayer();
     }
     if (isMovingMarquee) {
@@ -7084,6 +8044,7 @@ function updateHistoryButtons() {
       moveOffset = { dx: 0, dy: 0 };
       const inner = document.getElementById("mainCanvasInner");
       if (inner) inner.classList.remove("is-grabbing");
+      commitSelectionHistory("移動選匡");
     }
     if (isMovingSelection) {
       applySelectionMove(moveOffset.dx, moveOffset.dy);
@@ -7105,8 +8066,20 @@ function updateHistoryButtons() {
     isMouseDown = false;
     dragStartCell = null;
     selectionSnapshot.clear();
-    if (finishedMarquee) {
+    marqueeDragMoved = false;
+    if (finishedMarquee && !dragMoved) {
+      selectedCells = snapAtEnd;
+      updateSelectCount();
+      renderInteractionLayer();
+      syncSelectMiniBar();
+    } else if (finishedMarquee) {
+      commitMarqueeParts(snapAtEnd, wasDeselecting);
       selectAddArmed = false;
+      selectBoolMode = "add";
+      isDeselecting = false;
+      const title = editSelectTool === "circle" ? "圓形選取" : editSelectTool === "ellipse" ? "橢圓選取" : "匡選";
+      commitSelectionHistory(title);
+      renderInteractionLayer();
       syncSelectMiniBar();
     }
   }
@@ -7165,6 +8138,8 @@ function updateHistoryButtons() {
       renderInteractionLayer();
     } else if (!isBeadStage() && isEditMode && isAnchorSelectTool() && editPolyPoints.length && !anchorPaused) {
       editPolyHover = { x: fx, y: fy };
+      polyHandleHover = hitTestPolyHandle(editPolyPoints, fx, fy, 0.32, 0.14);
+      if (interactionCanvas) interactionCanvas.style.cursor = polyHandleHover ? "pointer" : "";
       renderInteractionLayer();
     }
 
@@ -7177,11 +8152,19 @@ function updateHistoryButtons() {
 
     if (col >= 0 && col < currentCols && row >= 0 && row < currentRows) {
       if (!isBeadStage() && isEditMode && isMouseDown && dragStartCell && !isPipetteMode && editPaintTool === "none" && !isAnchorSelectTool() && !isMoveSelectTool() && !isScalingSelection && !isMovingMarquee) {
+        if (col !== dragStartCell.col || row !== dragStartCell.row) marqueeDragMoved = true;
         selectedCells = new Set(selectionSnapshot);
         if (editSelectTool === "ellipse" || editSelectTool === "circle") {
           selectedCells = selectCellsInEllipse(
             dragStartCell.col, dragStartCell.row, col, row, selectionSnapshot, isDeselecting,
             editSelectTool === "circle"
+          );
+        } else if (editSelectTool === "rect") {
+          const minX = Math.min(dragStartCell.col, col), maxX = Math.max(dragStartCell.col, col);
+          const minY = Math.min(dragStartCell.row, row), maxY = Math.max(dragStartCell.row, row);
+          editLastRectBounds = { minX, minY, maxX, maxY };
+          selectedCells = selectCellsInRoundRect(
+            dragStartCell.col, dragStartCell.row, col, row, selectionSnapshot, isDeselecting, editRoundRadiusPct
           );
         } else {
           const minX = Math.min(dragStartCell.col, col), maxX = Math.max(dragStartCell.col, col);
@@ -7194,7 +8177,7 @@ function updateHistoryButtons() {
           }
         }
         updateSelectCount();
-        if (editSelectTool === "ellipse" || editSelectTool === "circle") renderInteractionLayer();
+        renderInteractionLayer();
       }
 
       if (!hoveredCell || hoveredCell.col !== col || hoveredCell.row !== row) {
@@ -7212,8 +8195,9 @@ function updateHistoryButtons() {
           ${isPipetteMode ? '<div style="color:#0088ff; margin-top:2px;">💧 點擊吸取此色</div>' : ''}
           ${!isPipetteMode && editPaintTool === "pencil" ? '<div style="color:#ff6b9d; margin-top:2px;">畫筆：拖曳上色</div>' : ''}
           ${!isPipetteMode && editPaintTool === "eraser" ? '<div style="color:#ff6b9d; margin-top:2px;">橡皮擦：拖曳清除</div>' : ''}
-          ${!isPipetteMode && editSelectTool === "circle" ? '<div style="color:#ff6b9d; margin-top:2px;">圓形選取：拖曳圈選</div>' : ''}
-          ${!isPipetteMode && editSelectTool === "ellipse" ? '<div style="color:#ff6b9d; margin-top:2px;">橢圓形選取：拖曳圈選</div>' : ''}
+          ${!isPipetteMode && editSelectTool === "circle" ? '<div style="color:#ff6b9d; margin-top:2px;">圓形選取：從圓心拖曳</div>' : ''}
+          ${!isPipetteMode && editSelectTool === "ellipse" ? '<div style="color:#ff6b9d; margin-top:2px;">橢圓形選取：從圓心拖曳</div>' : ''}
+          ${!isPipetteMode && editSelectTool === "wand" ? '<div style="color:#ff6b9d; margin-top:2px;">魔術棒：點選同一顏色的連續色塊</div>' : ''}
           ${!isPipetteMode && editSelectTool === "poly" ? '<div style="color:#ff6b9d; margin-top:2px;">錨點：點一下直線，按住拖曳拉曲線，可再拖黃色控制點</div>' : ''}
           ${!isPipetteMode && editSelectTool === "movecopy" ? '<div style="color:#ff6b9d; margin-top:2px;">移動複製：拖曳複製選取的拼豆</div>' : ''}`;
       } else {
@@ -7226,7 +8210,11 @@ function updateHistoryButtons() {
 
   interactionCanvas.addEventListener("mouseleave", clearHover);
   function clearHover() {
-    if (hoveredCell !== null) { hoveredCell = null; renderInteractionLayer(); renderHeaders(); }
+    let dirty = hoveredCell !== null;
+    if (hoveredCell !== null) hoveredCell = null;
+    if (editPolyHover) { editPolyHover = null; dirty = true; }
+    if (polyHandleHover) { polyHandleHover = null; dirty = true; }
+    if (dirty) { renderInteractionLayer(); renderHeaders(); }
     document.getElementById("beadTooltip").style.display = "none";
   }
 
@@ -7342,8 +8330,10 @@ function updateHistoryButtons() {
       frame.style.height = `${Math.max(1, Math.round(img.naturalHeight * origZoom))}px`;
     }
     if (!isPatternStage()) syncFloatingZoomBar();
-    if (uploadTool === 'poly' && (polyPoints.length > 0 || polyPolygons.length > 0)) {
+    if (uploadTool === 'poly' || polyPoints.length > 0 || polyPolygons.length > 0) {
       drawPolySelection();
+    } else if (typeof hasCompletedUploadMarquee === "function" && hasCompletedUploadMarquee()) {
+      drawUploadMarquee();
     } else {
       syncAnchorMiniBar();
     }
@@ -7635,12 +8625,48 @@ function updateHistoryButtons() {
     if (currentImage) processImageCore(false, "關閉AI美化");
   }
 
+  function collectGridColorUsage(grid, cols, rows) {
+    const map = new Map();
+    let total = 0;
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const bead = grid[y]?.[x];
+        if (!bead || !bead.code) continue;
+        const prev = map.get(bead.code);
+        if (prev) prev.count += 1;
+        else map.set(bead.code, { code: bead.code, hex: bead.hex || "#888888", count: 1 });
+        total += 1;
+      }
+    }
+    const items = [...map.values()].sort((a, b) => {
+      const la = beadLetterPrefix(a.code);
+      const lb = beadLetterPrefix(b.code);
+      return la.localeCompare(lb, "en") || beadCodeNum(a.code) - beadCodeNum(b.code) || a.code.localeCompare(b.code, "en");
+    });
+    return { items, total };
+  }
+
   function exportBeadPatternPng(grid, cols, rows, opts) {
     if (!grid || !cols || !rows) return;
     const cell = Math.max(12, Math.min(48, parseInt(opts.cell, 10) || 24));
     const showCodes = !!opts.showCodes;
     const headerSize = Math.max(28, Math.floor(cell * 1.1));
-    const fullW = headerSize + cols * cell, fullH = headerSize + rows * cell;
+    const usage = collectGridColorUsage(grid, cols, rows);
+    const usagePad = 22;
+    const usageTitleH = 64;
+    const usageSwatch = 32;
+    const usageItemW = 230;
+    const usageItemH = 42;
+    const usageGapX = 16;
+    const usageGapY = 10;
+    const gridW = headerSize + cols * cell;
+    const gridH = headerSize + rows * cell;
+    const usageInnerW = Math.max(gridW - usagePad * 2, usageItemW);
+    const usagePerRow = Math.max(1, Math.floor((usageInnerW + usageGapX) / (usageItemW + usageGapX)));
+    const usageRows = Math.max(1, Math.ceil((usage.items.length || 1) / usagePerRow));
+    const usageH = usagePad * 2 + usageTitleH + usageRows * usageItemH + Math.max(0, usageRows - 1) * usageGapY;
+    const fullW = gridW;
+    const fullH = gridH + usageH;
     const expCanvas = document.createElement("canvas");
     expCanvas.width = fullW; expCanvas.height = fullH;
     const expCtx = expCanvas.getContext("2d", { alpha: false });
@@ -7664,10 +8690,10 @@ function updateHistoryButtons() {
 
     expCtx.beginPath();
     for (let x = 0; x <= cols; x++) {
-      const pX = headerSize + x * cell; expCtx.moveTo(pX, headerSize); expCtx.lineTo(pX, fullH);
+      const pX = headerSize + x * cell; expCtx.moveTo(pX, headerSize); expCtx.lineTo(pX, gridH);
     }
     for (let y = 0; y <= rows; y++) {
-      const pY = headerSize + y * cell; expCtx.moveTo(headerSize, pY); expCtx.lineTo(fullW, pY);
+      const pY = headerSize + y * cell; expCtx.moveTo(headerSize, pY); expCtx.lineTo(gridW, pY);
     }
     expCtx.strokeStyle = "rgba(0,0,0,0.12)"; expCtx.lineWidth = 0.8; expCtx.stroke();
 
@@ -7676,12 +8702,12 @@ function updateHistoryButtons() {
       const stepY = readGridGuideStep("gridGuideY");
       expCtx.beginPath();
       for (let x = stepX; x < cols; x += stepX) {
-        const pX = headerSize + x * cell; expCtx.moveTo(pX, headerSize); expCtx.lineTo(pX, fullH);
+        const pX = headerSize + x * cell; expCtx.moveTo(pX, headerSize); expCtx.lineTo(pX, gridH);
       }
       expCtx.strokeStyle = "#ff3344"; expCtx.lineWidth = 1.2; expCtx.stroke();
       expCtx.beginPath(); expCtx.setLineDash([4, 3]);
       for (let y = stepY; y < rows; y += stepY) {
-        const pY = headerSize + y * cell; expCtx.moveTo(headerSize, pY); expCtx.lineTo(fullW, pY);
+        const pY = headerSize + y * cell; expCtx.moveTo(headerSize, pY); expCtx.lineTo(gridW, pY);
       }
       expCtx.stroke(); expCtx.setLineDash([]);
     }
@@ -7706,6 +8732,40 @@ function updateHistoryButtons() {
       expCtx.fillStyle = "#a6adc8"; expCtx.fillText((y + 1).toString(), headerSize / 2, sY + cell / 2);
     }
 
+    const ly = gridH;
+    expCtx.fillStyle = "#f4f4f8";
+    expCtx.fillRect(0, ly, fullW, usageH);
+    expCtx.fillStyle = "#1e1e2e";
+    expCtx.font = "bold 22px sans-serif";
+    expCtx.textAlign = "left";
+    expCtx.textBaseline = "top";
+    expCtx.fillText("顏色數量", usagePad, ly + usagePad);
+    expCtx.font = "18px sans-serif";
+    expCtx.fillStyle = "#585b70";
+    expCtx.fillText(`共 ${usage.items.length} 色 · 總計 ${usage.total} 顆`, usagePad, ly + usagePad + 30);
+    usage.items.forEach((it, i) => {
+      const col = i % usagePerRow;
+      const row = Math.floor(i / usagePerRow);
+      const x = usagePad + col * (usageItemW + usageGapX);
+      const y = ly + usagePad + usageTitleH + row * (usageItemH + usageGapY);
+      const swY = y + Math.round((usageItemH - usageSwatch) / 2);
+      expCtx.fillStyle = it.hex;
+      expCtx.fillRect(x, swY, usageSwatch, usageSwatch);
+      expCtx.strokeStyle = "rgba(0,0,0,0.22)";
+      expCtx.lineWidth = 1.5;
+      expCtx.strokeRect(x + 0.5, swY + 0.5, usageSwatch - 1, usageSwatch - 1);
+      const midY = y + usageItemH / 2;
+      expCtx.fillStyle = "#1e1e2e";
+      expCtx.font = "bold 18px monospace";
+      expCtx.textAlign = "left";
+      expCtx.textBaseline = "middle";
+      expCtx.fillText(it.code, x + usageSwatch + 12, midY);
+      expCtx.fillStyle = "#6c6f85";
+      expCtx.font = "18px sans-serif";
+      expCtx.textAlign = "right";
+      expCtx.fillText(`${it.count} 顆`, x + usageItemW - 4, midY);
+    });
+
     const link = document.createElement("a");
     const rawName = opts.filename || `bead-pattern-${Date.now()}`;
     link.download = String(rawName).replace(/[\\/:*?"<>|]+/g, "_") + (/\.png$/i.test(rawName) ? "" : ".png");
@@ -7728,6 +8788,12 @@ function updateHistoryButtons() {
   let rectScaleHandle = null;
   let rectScaleOrigin = null;
   let rectMoveOffset = { x: 0, y: 0 };
+  let uploadSelUndo = [];
+  let uploadSelRedo = [];
+  let uploadSelBeforeDraw = null;
+  let uploadMarquees = [];
+  let uploadSelAddArmed = false;
+  let uploadEditExtraIndex = -1;
   let marchingAntsOffset = 0;
   let antsAnimId = null;
   let detectedFaces = [];
@@ -7939,7 +9005,10 @@ function updateHistoryButtons() {
   }
 
   const origViewport = document.getElementById("origViewport");
-  origViewport.addEventListener("scroll", syncAnchorMiniBar, { passive: true });
+  origViewport.addEventListener("scroll", () => {
+    syncAnchorMiniBar();
+    if (typeof syncUploadSelectMiniBar === "function") syncUploadSelectMiniBar();
+  }, { passive: true });
   origViewport.addEventListener("dragover", (e) => { e.preventDefault(); origViewport.classList.add("drag-over"); });
   origViewport.addEventListener("dragleave", () => { origViewport.classList.remove("drag-over"); });
   origViewport.addEventListener("drop", (e) => {
@@ -8009,13 +9078,877 @@ function updateHistoryButtons() {
 
   function layoutImageToolboxFan() {}
 
+  function isUploadMarqueeTool() {
+    return uploadTool === "rect" || uploadTool === "roundrect" || uploadTool === "circle" || uploadTool === "ellipse";
+  }
+
+  function isUploadBoxTool(tool) {
+    const t = tool || uploadTool;
+    return t === "rect" || t === "roundrect";
+  }
+
+  function cloneUploadShape(s) {
+    if (!s) return null;
+    return {
+      tool: s.tool,
+      start: s.start ? { x: s.start.x, y: s.start.y } : null,
+      current: s.current ? { x: s.current.x, y: s.current.y } : null,
+      radiusPct: s.radiusPct != null ? s.radiusPct : 0,
+      op: s.op === "subtract" ? "subtract" : "add"
+    };
+  }
+
+  function liveUploadShape() {
+    if (!isUploadMarqueeTool() || !rectStart || !rectCurrent) return null;
+    return {
+      tool: uploadTool,
+      start: rectStart,
+      current: rectCurrent,
+      radiusPct: isUploadBoxTool() ? uploadRoundRadiusPct : 0,
+      op: uploadLiveOp === "subtract" ? "subtract" : "add"
+    };
+  }
+
+  function getShapeRect(shape) {
+    if (!shape || !shape.start || !shape.current) return null;
+    const x = Math.min(shape.start.x, shape.current.x);
+    const y = Math.min(shape.start.y, shape.current.y);
+    const w = Math.abs(shape.start.x - shape.current.x);
+    const h = Math.abs(shape.start.y - shape.current.y);
+    return { x, y, w, h };
+  }
+
+  function getShapeOval(shape) {
+    if (!shape || !shape.start || !shape.current) return null;
+    if (shape.tool !== "circle" && shape.tool !== "ellipse") return null;
+    const cx = shape.start.x, cy = shape.start.y;
+    return {
+      cx, cy,
+      rx: Math.max(1, Math.abs(shape.current.x - cx)),
+      ry: Math.max(1, Math.abs(shape.current.y - cy))
+    };
+  }
+
+  function shapeCornerRadius(shape) {
+    if (!shape || !isUploadBoxTool(shape.tool)) return 0;
+    const r = getShapeRect(shape);
+    if (!r) return 0;
+    const pct = shape.radiusPct != null ? shape.radiusPct : uploadRoundRadiusPct;
+    return Math.min(r.w, r.h) * 0.5 * (Math.max(0, Math.min(50, pct)) / 50);
+  }
+
+  function addRoundRectPath(ctx, x, y, w, h, rad) {
+    rad = Math.max(0, Math.min(rad, Math.min(w, h) / 2));
+    if (rad <= 0.5) {
+      ctx.rect(x, y, w, h);
+      return;
+    }
+    if (typeof ctx.roundRect === "function") {
+      ctx.roundRect(x, y, w, h, rad);
+      return;
+    }
+    ctx.moveTo(x + rad, y);
+    ctx.arcTo(x + w, y, x + w, y + h, rad);
+    ctx.arcTo(x + w, y + h, x, y + h, rad);
+    ctx.arcTo(x, y + h, x, y, rad);
+    ctx.arcTo(x, y, x + w, y, rad);
+    ctx.closePath();
+  }
+
+  function getShapeBounds(shape) {
+    if (!shape) return null;
+    if (shape.tool === "poly") {
+      const acc = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
+      expandPolyBounds(shape.polygon, acc);
+      if (!Number.isFinite(acc.minX)) return null;
+      return { x: acc.minX, y: acc.minY, w: acc.maxX - acc.minX, h: acc.maxY - acc.minY };
+    }
+    if (isUploadBoxTool(shape.tool)) return getShapeRect(shape);
+    const o = getShapeOval(shape);
+    if (!o) return null;
+    return { x: o.cx - o.rx, y: o.cy - o.ry, w: o.rx * 2, h: o.ry * 2 };
+  }
+
+  function isShapeComplete(shape) {
+    if (!shape) return false;
+    if (isUploadBoxTool(shape.tool)) {
+      const r = getShapeRect(shape);
+      return !!(r && r.w >= 5 && r.h >= 5);
+    }
+    const o = getShapeOval(shape);
+    return !!(o && o.rx >= 3 && o.ry >= 3);
+  }
+
+  function pointInRoundRect(x, y, r, rad) {
+    if (!pointInRect(x, y, r)) return false;
+    if (rad <= 0.5) return true;
+    const x1 = r.x + rad, x2 = r.x + r.w - rad;
+    const y1 = r.y + rad, y2 = r.y + r.h - rad;
+    if (x >= x1 && x <= x2) return true;
+    if (y >= y1 && y <= y2) return true;
+    const px = x < x1 ? x1 : x2;
+    const py = y < y1 ? y1 : y2;
+    return (x - px) * (x - px) + (y - py) * (y - py) <= rad * rad;
+  }
+
+  function pointInShape(shape, x, y) {
+    if (!isShapeComplete(shape)) return false;
+    if (isUploadBoxTool(shape.tool)) {
+      const r = getShapeRect(shape);
+      const rad = shapeCornerRadius(shape);
+      if (rad > 0.5) return pointInRoundRect(x, y, r, rad);
+      return pointInRect(x, y, r);
+    }
+    const o = getShapeOval(shape);
+    if (!o) return false;
+    const dx = (x - o.cx) / o.rx;
+    const dy = (y - o.cy) / o.ry;
+    return dx * dx + dy * dy <= 1;
+  }
+
+  function getAllUploadShapes() {
+    const list = (uploadMarquees || []).map(cloneUploadShape).filter(Boolean);
+    if (isShapeComplete(liveUploadShape())) list.push(cloneUploadShape(liveUploadShape()));
+    return list;
+  }
+
+  function getUploadOval() {
+    return getShapeOval(liveUploadShape());
+  }
+
+  function getUploadMarqueeBounds() {
+    return getShapeBounds(liveUploadShape());
+  }
+
+  function getUploadUnionBounds() {
+    const shapes = collectUploadShapes();
+    let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
+    shapes.forEach((s) => {
+      const b = getShapeBounds(s);
+      if (!b) return;
+      x1 = Math.min(x1, b.x);
+      y1 = Math.min(y1, b.y);
+      x2 = Math.max(x2, b.x + b.w);
+      y2 = Math.max(y2, b.y + b.h);
+    });
+    if (!Number.isFinite(x1)) return null;
+    return { x: x1, y: y1, w: x2 - x1, h: y2 - y1 };
+  }
+
+  function hasLiveUploadMarquee() {
+    return isShapeComplete(liveUploadShape());
+  }
+
+  function hasCompletedUploadMarquee() {
+    return (uploadMarquees || []).some(isShapeComplete) || hasLiveUploadMarquee();
+  }
+
+  function pointInUploadMarquee(x, y) {
+    return pointInShape(liveUploadShape(), x, y);
+  }
+
+  function hitTestHandleOnBounds(x, y, bounds) {
+    if (!bounds || bounds.w < 5 || bounds.h < 5) return null;
+    const hs = rectHandleHitSize();
+    const handles = getRectScaleHandles(bounds);
+    for (let i = 0; i < handles.length; i++) {
+      const h = handles[i];
+      if (Math.abs(x - h.x) <= hs && Math.abs(y - h.y) <= hs) return h;
+    }
+    return null;
+  }
+
+  function hitTestAnyUploadHandle(x, y) {
+    const liveHit = hitTestHandleOnBounds(x, y, getUploadMarqueeBounds());
+    if (liveHit) return { extra: -1, handle: liveHit };
+    for (let i = (uploadMarquees || []).length - 1; i >= 0; i--) {
+      const h = hitTestHandleOnBounds(x, y, getShapeBounds(uploadMarquees[i]));
+      if (h) return { extra: i, handle: h };
+    }
+    return null;
+  }
+
+  function hitTestAnyUploadShape(x, y) {
+    if (pointInUploadMarquee(x, y)) return { extra: -1 };
+    for (let i = (uploadMarquees || []).length - 1; i >= 0; i--) {
+      if (pointInShape(uploadMarquees[i], x, y)) return { extra: i };
+    }
+    return null;
+  }
+
+  function snapshotUploadMarquee() {
+    return {
+      tool: uploadTool,
+      rectStart: rectStart ? { x: rectStart.x, y: rectStart.y } : null,
+      rectCurrent: rectCurrent ? { x: rectCurrent.x, y: rectCurrent.y } : null,
+      extras: (uploadMarquees || []).map(cloneUploadShape),
+      addArmed: !!uploadSelAddArmed,
+      boolMode: uploadBoolMode === "subtract" ? "subtract" : "add",
+      liveOp: uploadLiveOp === "subtract" ? "subtract" : "add"
+    };
+  }
+
+  function clearUploadMarquee(keepTool) {
+    rectStart = null;
+    rectCurrent = null;
+    uploadMarquees = [];
+    uploadSelAddArmed = false;
+    uploadBoolMode = "add";
+    uploadLiveOp = "add";
+    uploadHideMarqueeHandles = false;
+    uploadEditExtraIndex = -1;
+    uploadSelectMiniBarUserPos = null;
+    isDrawingRect = false;
+    isMovingRect = false;
+    isScalingRect = false;
+    rectScaleHandle = null;
+    rectScaleOrigin = null;
+    if (ctxCrop) ctxCrop.clearRect(0, 0, cropOverlay.width, cropOverlay.height);
+    if (cropOverlay && keepTool !== false) cropOverlay.style.cursor = "crosshair";
+    updateCropConfirmBar();
+    updateGlobalHistoryButtons();
+    syncUploadSelectMiniBar();
+  }
+
+  function restoreUploadMarquee(snap) {
+    if (!snap) {
+      clearUploadMarquee();
+      return;
+    }
+    rectStart = snap.rectStart ? { x: snap.rectStart.x, y: snap.rectStart.y } : null;
+    rectCurrent = snap.rectCurrent ? { x: snap.rectCurrent.x, y: snap.rectCurrent.y } : null;
+    uploadMarquees = (snap.extras || []).map(cloneUploadShape);
+    uploadSelAddArmed = !!snap.addArmed;
+    uploadBoolMode = snap.boolMode === "subtract" ? "subtract" : "add";
+    uploadLiveOp = snap.liveOp === "subtract" ? "subtract" : "add";
+    uploadEditExtraIndex = -1;
+    drawUploadMarquee();
+    updateCropConfirmBar();
+    updateGlobalHistoryButtons();
+    syncUploadSelectMiniBar();
+  }
+
+  function canUndoUploadMarquee() {
+    return currentStage === "upload" && isUploadMarqueeTool() && (hasCompletedUploadMarquee() || uploadSelUndo.length > 0);
+  }
+
+  function canRedoUploadMarquee() {
+    return currentStage === "upload" && isUploadMarqueeTool() && uploadSelRedo.length > 0;
+  }
+
+  function undoUploadMarquee() {
+    if (currentStage !== "upload" || !isUploadMarqueeTool()) return false;
+    if (uploadSelUndo.length) {
+      uploadSelRedo.push(snapshotUploadMarquee());
+      restoreUploadMarquee(uploadSelUndo.pop());
+      return true;
+    }
+    if (!hasCompletedUploadMarquee()) return false;
+    uploadSelRedo.push(snapshotUploadMarquee());
+    clearUploadMarquee();
+    return true;
+  }
+
+  function redoUploadMarquee() {
+    if (currentStage !== "upload" || !isUploadMarqueeTool() || !uploadSelRedo.length) return false;
+    uploadSelUndo.push(snapshotUploadMarquee());
+    restoreUploadMarquee(uploadSelRedo.pop());
+    return true;
+  }
+
+  function commitUploadMarqueeHistory() {
+    if (!uploadSelBeforeDraw) return;
+    const prev = uploadSelBeforeDraw;
+    uploadSelBeforeDraw = null;
+    const now = snapshotUploadMarquee();
+    const same = JSON.stringify({
+      t: prev.tool, a: prev.rectStart, b: prev.rectCurrent, e: prev.extras || []
+    }) === JSON.stringify({
+      t: now.tool, a: now.rectStart, b: now.rectCurrent, e: now.extras || []
+    });
+    if (same || !hasCompletedUploadMarquee()) return;
+    uploadSelUndo.push(prev);
+    uploadSelRedo = [];
+    updateGlobalHistoryButtons();
+  }
+
+  function punchUploadShape(ctx, shape) {
+    ctx.beginPath();
+    if (isUploadBoxTool(shape.tool)) {
+      const r = getShapeRect(shape);
+      if (!r) return;
+      addRoundRectPath(ctx, r.x, r.y, r.w, r.h, shapeCornerRadius(shape));
+      ctx.fill();
+      return;
+    }
+    const o = getShapeOval(shape);
+    if (!o) return;
+    ctx.ellipse(o.cx, o.cy, o.rx, o.ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function pathUploadShape(ctx, shape, ox, oy) {
+    ox = ox || 0;
+    oy = oy || 0;
+    ctx.beginPath();
+    if (shape.tool === "poly") {
+      const pts = shape.polygon || [];
+      if (pts.length < 3) return;
+      tracePolyPath(ctx, (ox || oy) ? offsetPolyPoints(pts, -ox, -oy) : pts, true, 1);
+      return;
+    }
+    if (isUploadBoxTool(shape.tool)) {
+      const r = getShapeRect(shape);
+      if (r) addRoundRectPath(ctx, r.x - ox, r.y - oy, r.w, r.h, shapeCornerRadius(shape));
+      return;
+    }
+    const o = getShapeOval(shape);
+    if (o) ctx.ellipse(o.cx - ox, o.cy - oy, o.rx, o.ry, 0, 0, Math.PI * 2);
+  }
+
+  function isUploadShapeFilled(shape) {
+    if (!shape) return false;
+    if (shape.tool === "poly") return !!(shape.polygon && shape.polygon.length >= 3);
+    return isShapeComplete(shape);
+  }
+
+  function strokeUploadShape(ctx, shape, viewScale) {
+    ctx.save();
+    ctx.strokeStyle = shape.op === "subtract" ? "#41ccff" : "#ff3344";
+    ctx.lineWidth = Math.max(1.8, 3 * viewScale);
+    ctx.lineJoin = shape.tool === "poly" ? "round" : "miter";
+    ctx.lineCap = "butt";
+    ctx.miterLimit = 3;
+    ctx.setLineDash([Math.round(6 * viewScale), Math.round(6 * viewScale)]);
+    ctx.lineDashOffset = -marchingAntsOffset * viewScale;
+    pathUploadShape(ctx, shape);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawUploadShapeHandles(ctx, shape, viewScale) {
+    const b = getShapeBounds(shape);
+    if (!b || b.w < 5 || b.h < 5) return;
+    const hs = Math.max(4, 5 * viewScale);
+    getRectScaleHandles(b).forEach((h) => {
+      ctx.fillStyle = "#ffffff";
+      ctx.strokeStyle = "#ff3344";
+      ctx.lineWidth = Math.max(1, 1.4 * viewScale);
+      ctx.fillRect(h.x - hs, h.y - hs, hs * 2, hs * 2);
+      ctx.strokeRect(h.x - hs, h.y - hs, hs * 2, hs * 2);
+    });
+  }
+
+  function collectUploadShapes() {
+    const shapes = [...(uploadMarquees || [])];
+    const live = liveUploadShape();
+    if (live) shapes.push(live);
+    (polyPolygons || []).forEach((p) => {
+      if (p && p.length >= 3) {
+        shapes.push({
+          tool: "poly",
+          polygon: p,
+          op: p.op === "subtract" ? "subtract" : "add"
+        });
+      }
+    });
+    return shapes;
+  }
+
+  function drawUploadSelectionMask(ctx, shapes, ox, oy) {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    shapes.forEach((s) => {
+      if (!isUploadShapeFilled(s)) return;
+      ctx.save();
+      ctx.globalCompositeOperation = s.op === "subtract" ? "destination-out" : "source-over";
+      ctx.fillStyle = "#ffffff";
+      pathUploadShape(ctx, s, ox, oy);
+      ctx.fill(s.tool === "poly" ? "nonzero" : "nonzero");
+      ctx.restore();
+    });
+  }
+
+  function drawUploadIntersectionTint(dest, shapes) {
+    const adds = (shapes || []).filter((s) => s.op !== "subtract" && isUploadShapeFilled(s));
+    if (adds.length < 2) return;
+    const W = dest.canvas.width;
+    const H = dest.canvas.height;
+    if (offscreenMask.width !== W || offscreenMask.height !== H) {
+      offscreenMask.width = W;
+      offscreenMask.height = H;
+    }
+    mCtx.clearRect(0, 0, W, H);
+    mCtx.save();
+    mCtx.fillStyle = "rgba(255, 196, 0, 0.5)";
+    for (let i = 0; i < adds.length; i++) {
+      for (let j = i + 1; j < adds.length; j++) {
+        mCtx.save();
+        pathUploadShape(mCtx, adds[i]);
+        mCtx.clip();
+        pathUploadShape(mCtx, adds[j]);
+        mCtx.fill(adds[j].tool === "poly" ? "nonzero" : "nonzero");
+        mCtx.restore();
+      }
+    }
+    const subs = (shapes || []).filter((s) => s.op === "subtract" && isUploadShapeFilled(s));
+    if (subs.length) {
+      mCtx.globalCompositeOperation = "destination-out";
+      mCtx.fillStyle = "#000000";
+      subs.forEach((s) => {
+        pathUploadShape(mCtx, s);
+        mCtx.fill(s.tool === "poly" ? "nonzero" : "nonzero");
+      });
+    }
+    mCtx.restore();
+    dest.drawImage(offscreenMask, 0, 0);
+  }
+
+  let uploadHatchPatternCache = { key: "", canvas: null };
+
+  function getUploadHatchPattern(ctx, color, viewScale) {
+    const step = Math.max(7, Math.round(9 * viewScale));
+    const lw = Math.max(1.1, 1.35 * viewScale);
+    const key = `${color}|${step}|${lw.toFixed(2)}`;
+    if (uploadHatchPatternCache.key !== key) {
+      const tile = document.createElement("canvas");
+      tile.width = step;
+      tile.height = step;
+      const h = tile.getContext("2d");
+      h.strokeStyle = color;
+      h.lineWidth = lw;
+      h.lineCap = "square";
+      h.beginPath();
+      h.moveTo(-2, step - 2);
+      h.lineTo(2, step + 2);
+      h.moveTo(0, step);
+      h.lineTo(step, 0);
+      h.moveTo(step - 2, -2);
+      h.lineTo(step + 2, 2);
+      h.stroke();
+      uploadHatchPatternCache = { key, canvas: tile };
+    }
+    return ctx.createPattern(uploadHatchPatternCache.canvas, "repeat");
+  }
+
+  function fillUploadShapesHatch(ctx, list, color, viewScale) {
+    if (!list || !list.length) return;
+    const pat = getUploadHatchPattern(ctx, color, viewScale);
+    if (!pat) return;
+    ctx.save();
+    ctx.fillStyle = pat;
+    list.forEach((s) => {
+      pathUploadShape(ctx, s);
+      ctx.fill(s.tool === "poly" ? "nonzero" : "nonzero");
+    });
+    ctx.restore();
+  }
+
+  function drawUploadBoolHatch(dest, shapes, viewScale) {
+    const filled = (shapes || []).filter(isUploadShapeFilled);
+    const adds = filled.filter((s) => s.op !== "subtract");
+    const subs = filled.filter((s) => s.op === "subtract");
+    if (adds.length < 2 && !subs.length) return;
+    if (adds.length >= 2) {
+      fillUploadShapesHatch(dest, adds.slice(1), "rgba(255, 210, 48, 0.92)", viewScale);
+    }
+    if (subs.length) {
+      fillUploadShapesHatch(dest, subs, "rgba(65, 204, 255, 0.95)", viewScale);
+    }
+  }
+
+  function drawUploadMarquee() {
+    ctxCrop.clearRect(0, 0, cropOverlay.width, cropOverlay.height);
+    const shapes = collectUploadShapes();
+    if (!shapes.length) {
+      syncUploadSelectMiniBar();
+      return;
+    }
+    const viewScale = 1 / (origZoom || 1);
+    ctxCrop.fillStyle = "rgba(0, 0, 0, 0.55)";
+    ctxCrop.fillRect(0, 0, cropOverlay.width, cropOverlay.height);
+    const mask = document.createElement("canvas");
+    mask.width = cropOverlay.width;
+    mask.height = cropOverlay.height;
+    drawUploadSelectionMask(mask.getContext("2d"), shapes, 0, 0);
+    ctxCrop.save();
+    ctxCrop.globalCompositeOperation = "destination-out";
+    ctxCrop.drawImage(mask, 0, 0);
+    ctxCrop.restore();
+    drawUploadIntersectionTint(ctxCrop, shapes);
+    drawUploadBoolHatch(ctxCrop, shapes, viewScale);
+    shapes.forEach((s) => strokeUploadShape(ctxCrop, s, viewScale));
+    if (!uploadHideMarqueeHandles && isUploadMarqueeTool() && !isDrawingRect) {
+      shapes.forEach((s) => {
+        if (s.tool === "poly") return;
+        drawUploadShapeHandles(ctxCrop, s, viewScale);
+      });
+    }
+    syncUploadSelectMiniBar();
+  }
+
+  function drawOvalSelection() {
+    drawUploadMarquee();
+  }
+
+  function applyOvalDrag(x, y) {
+    const rx = Math.abs(rectCurrent.x - rectStart.x);
+    const ry = Math.abs(rectCurrent.y - rectStart.y);
+    let nx = x - rectMoveOffset.x;
+    let ny = y - rectMoveOffset.y;
+    nx = Math.max(rx, Math.min(cropOverlay.width - rx, nx));
+    ny = Math.max(ry, Math.min(cropOverlay.height - ry, ny));
+    rectStart = { x: nx, y: ny };
+    rectCurrent = { x: nx + rx, y: ny + ry };
+    drawUploadMarquee();
+  }
+
+  function scaleUploadRectBox(x, y, id, origin, keepRatio) {
+    let x1 = origin.x, y1 = origin.y, x2 = origin.x + origin.w, y2 = origin.y + origin.h;
+    const minSize = 5;
+    const W = cropOverlay.width, H = cropOverlay.height;
+    const affectN = id.indexOf("n") >= 0;
+    const affectS = id.indexOf("s") >= 0;
+    const affectW = id.indexOf("w") >= 0;
+    const affectE = id.indexOf("e") >= 0;
+    if (affectN) y1 = Math.max(0, Math.min(y2 - minSize, y));
+    if (affectS) y2 = Math.min(H, Math.max(y1 + minSize, y));
+    if (affectW) x1 = Math.max(0, Math.min(x2 - minSize, x));
+    if (affectE) x2 = Math.min(W, Math.max(x1 + minSize, x));
+    if (keepRatio && origin.h > 0) {
+      const cx = origin.x + origin.w / 2;
+      const cy = origin.y + origin.h / 2;
+      const ratio = origin.w / origin.h;
+      let newW = origin.w;
+      let newH = origin.h;
+      if (affectE || affectW) newW = Math.max(minSize, Math.abs(x - cx) * 2);
+      if (affectN || affectS) newH = Math.max(minSize, Math.abs(y - cy) * 2);
+      if ((affectE || affectW) && !(affectN || affectS)) newH = Math.max(minSize, newW / ratio);
+      else if ((affectN || affectS) && !(affectE || affectW)) newW = Math.max(minSize, newH * ratio);
+      else {
+        const sx = newW / Math.max(1, origin.w);
+        const sy = newH / Math.max(1, origin.h);
+        const s = Math.max(sx, sy);
+        newW = Math.max(minSize, origin.w * s);
+        newH = Math.max(minSize, origin.h * s);
+      }
+      const maxW = Math.max(minSize, Math.min(cx, W - cx) * 2);
+      const maxH = Math.max(minSize, Math.min(cy, H - cy) * 2);
+      const fit = Math.min(1, maxW / newW, maxH / newH);
+      newW *= fit;
+      newH *= fit;
+      return {
+        start: { x: cx - newW / 2, y: cy - newH / 2 },
+        current: { x: cx + newW / 2, y: cy + newH / 2 }
+      };
+    }
+    return { start: { x: x1, y: y1 }, current: { x: x2, y: y2 } };
+  }
+
+  function scaleUploadOvalBox(shape, x, y, id, origin, keepRatio, forceCircle) {
+    const cx = shape.start.x, cy = shape.start.y;
+    let rx = Math.max(3, origin ? origin.w / 2 : Math.abs(shape.current.x - cx));
+    let ry = Math.max(3, origin ? origin.h / 2 : Math.abs(shape.current.y - cy));
+    if (id.indexOf("e") >= 0 || id.indexOf("w") >= 0) rx = Math.max(3, Math.abs(x - cx));
+    if (id.indexOf("n") >= 0 || id.indexOf("s") >= 0) ry = Math.max(3, Math.abs(y - cy));
+    if (forceCircle) {
+      const r = Math.max(3, Math.hypot(x - cx, y - cy));
+      rx = r;
+      ry = r;
+    } else if (keepRatio && origin && origin.h > 0) {
+      const ox = origin.w / 2, oy = origin.h / 2;
+      const ratio = origin.w / origin.h;
+      const affectX = id.indexOf("e") >= 0 || id.indexOf("w") >= 0;
+      const affectY = id.indexOf("n") >= 0 || id.indexOf("s") >= 0;
+      if (affectX && !affectY) {
+        rx = Math.max(3, Math.abs(x - cx));
+        ry = rx / ratio;
+      } else if (affectY && !affectX) {
+        ry = Math.max(3, Math.abs(y - cy));
+        rx = ry * ratio;
+      } else {
+        const s = Math.max(Math.abs(x - cx) / Math.max(1, ox), Math.abs(y - cy) / Math.max(1, oy));
+        rx = Math.max(3, ox * s);
+        ry = Math.max(3, oy * s);
+      }
+    }
+    const maxRx = Math.max(3, Math.min(cx, cropOverlay.width - cx));
+    const maxRy = Math.max(3, Math.min(cy, cropOverlay.height - cy));
+    if (keepRatio || forceCircle) {
+      const fit = Math.min(1, maxRx / rx, maxRy / ry);
+      rx *= fit;
+      ry *= fit;
+    } else {
+      rx = Math.min(rx, maxRx);
+      ry = Math.min(ry, maxRy);
+    }
+    return { rx, ry };
+  }
+
+  function applyOvalScale(x, y) {
+    if (!rectStart || !rectScaleHandle) return;
+    const origin = rectScaleOrigin || getUploadMarqueeBounds();
+    const next = scaleUploadOvalBox(
+      { start: rectStart, current: rectCurrent },
+      x, y, rectScaleHandle, origin,
+      uploadScaleKeepRatio,
+      uploadTool === "circle" && uploadScaleKeepRatio
+    );
+    rectCurrent = { x: rectStart.x + next.rx, y: rectStart.y + next.ry };
+    if (!uploadScaleKeepRatio && uploadTool === "circle" && Math.abs(next.rx - next.ry) > 0.5) {
+      uploadTool = "ellipse";
+      const ellipseBtn = document.getElementById("ellipseCropBtn");
+      const circleBtn = document.getElementById("circleCropBtn");
+      if (circleBtn) circleBtn.classList.toggle("highlight", true);
+      if (ellipseBtn) ellipseBtn.classList.toggle("highlight", true);
+    }
+    drawUploadMarquee();
+  }
+
+  function applyShapeDrag(shape, x, y, offset) {
+    if (!shape || !shape.start || !shape.current) return;
+    if (isUploadBoxTool(shape.tool)) {
+      const r = getShapeRect(shape);
+      if (!r) return;
+      let nx = x - offset.x;
+      let ny = y - offset.y;
+      nx = Math.max(0, Math.min(cropOverlay.width - r.w, nx));
+      ny = Math.max(0, Math.min(cropOverlay.height - r.h, ny));
+      shape.start = { x: nx, y: ny };
+      shape.current = { x: nx + r.w, y: ny + r.h };
+      return;
+    }
+    const rx = Math.abs(shape.current.x - shape.start.x);
+    const ry = Math.abs(shape.current.y - shape.start.y);
+    let nx = x - offset.x;
+    let ny = y - offset.y;
+    nx = Math.max(rx, Math.min(cropOverlay.width - rx, nx));
+    ny = Math.max(ry, Math.min(cropOverlay.height - ry, ny));
+    shape.start = { x: nx, y: ny };
+    shape.current = { x: nx + rx, y: ny + ry };
+  }
+
+  function applyShapeScale(shape, x, y, handleId, origin) {
+    if (!shape || !handleId) return;
+    if (isUploadBoxTool(shape.tool)) {
+      if (!origin) return;
+      const next = scaleUploadRectBox(x, y, handleId, origin, uploadScaleKeepRatio);
+      shape.start = next.start;
+      shape.current = next.current;
+      return;
+    }
+    if (!shape.start) return;
+    const next = scaleUploadOvalBox(shape, x, y, handleId, origin, uploadScaleKeepRatio, shape.tool === "circle" && uploadScaleKeepRatio);
+    shape.current = { x: shape.start.x + next.rx, y: shape.start.y + next.ry };
+    if (!uploadScaleKeepRatio && shape.tool === "circle" && Math.abs(next.rx - next.ry) > 0.5) {
+      shape.tool = "ellipse";
+    }
+  }
+
+  function armUploadAddSelection(mode) {
+    const nextMode = mode === "subtract" ? "subtract" : "add";
+    if (uploadTool === "poly") {
+      if (nextMode === "add" && polyPoints.length >= 3) {
+        applyPendingCurve(polyPoints, polyPoints[0], 28);
+        commitClosedPolygon(polyPoints);
+        polyPoints = [];
+        polyPointRedo = [];
+        uploadPolyHover = null;
+        startMarchingAnts();
+        syncAnchorMiniBar();
+        updateGlobalHistoryButtons();
+        updateCropConfirmBar();
+      }
+      uploadSelAddArmed = true;
+      uploadBoolMode = nextMode;
+      syncUploadSelectMiniBar();
+      return;
+    }
+    if (!isUploadMarqueeTool()) return;
+    if (!hasCompletedUploadMarquee() && !(polyPolygons && polyPolygons.length)) return;
+    commitLiveUploadMarquee();
+    if (nextMode === "subtract") {
+      uploadSelAddArmed = true;
+      uploadBoolMode = "subtract";
+    } else if (uploadSelAddArmed && uploadBoolMode === "add") {
+      uploadSelAddArmed = false;
+      uploadBoolMode = "add";
+    } else {
+      uploadSelAddArmed = true;
+      uploadBoolMode = "add";
+    }
+    syncUploadSelectMiniBar();
+    drawUploadMarquee();
+  }
+
+  function setUploadBoolMode(mode) {
+    armUploadAddSelection(mode === "subtract" ? "subtract" : "add");
+  }
+
+  function syncUploadSelectMiniBar() {
+    const bar = document.getElementById("uploadSelectMiniBar");
+    if (!bar) return;
+    const showPoly = currentStage === "upload" && (
+      (polyPolygons && polyPolygons.length > 0) ||
+      (uploadTool === "poly" && polyPoints.length >= 3)
+    );
+    const showMarquee = currentStage === "upload" && hasCompletedUploadMarquee();
+    if (!showPoly && !showMarquee) {
+      bar.hidden = true;
+      uploadSelectMiniBarUserPos = null;
+      bar.classList.remove("is-dragging");
+      return;
+    }
+    bar.hidden = false;
+    const overlayEl = document.getElementById("cropOverlayCanvas");
+    if (!overlayEl) return;
+    const rect = overlayEl.getBoundingClientRect();
+    const scaleX = rect.width / (overlayEl.width || 1);
+    const scaleY = rect.height / (overlayEl.height || 1);
+    let sx = rect.left + rect.width / 2;
+    let sy = rect.top + 24;
+    const addWrap = document.getElementById("uploadSelectAddWrap");
+    const addBtn = document.getElementById("uploadSelectAddBtn");
+    const scaleWrap = document.getElementById("uploadSelectScaleWrap");
+    const ratioBtn = document.getElementById("uploadSelectScaleRatioBtn");
+    const freeBtn = document.getElementById("uploadSelectScaleFreeBtn");
+    const showAdd = showMarquee || showPoly;
+    if (addWrap) addWrap.hidden = !showAdd;
+    if (addBtn) {
+      addBtn.hidden = !showAdd;
+      addBtn.classList.toggle("highlight", uploadSelAddArmed && uploadBoolMode !== "subtract");
+      addBtn.textContent = "增加選匡";
+      addBtn.title = uploadSelAddArmed && uploadBoolMode !== "subtract"
+        ? "再拖曳圖片新增一塊選匡"
+        : "點此後再拖曳，可新增選匡";
+    }
+    const subtractBtn = document.getElementById("uploadSelectSubtractBtn");
+    if (subtractBtn) {
+      subtractBtn.hidden = !showAdd;
+      subtractBtn.classList.toggle("highlight", uploadSelAddArmed && uploadBoolMode === "subtract");
+      subtractBtn.title = "點此後再拖曳，可新增一塊相減選匡";
+    }
+    if (scaleWrap) scaleWrap.hidden = !showMarquee;
+    if (ratioBtn) {
+      ratioBtn.hidden = !showMarquee;
+      ratioBtn.classList.toggle("highlight", showMarquee && uploadScaleKeepRatio);
+      ratioBtn.title = uploadScaleKeepRatio ? "等比放大" : "點此改回等比放大";
+    }
+    if (freeBtn) {
+      freeBtn.hidden = !showMarquee;
+      freeBtn.classList.toggle("highlight", showMarquee && !uploadScaleKeepRatio);
+    }
+    if (showMarquee) {
+      const b = getUploadUnionBounds() || getUploadMarqueeBounds();
+      if (b) {
+        sx = rect.left + (b.x + b.w / 2) * scaleX;
+        sy = rect.top + b.y * scaleY;
+      }
+    } else if (polyPoints.length) {
+      const last = polyPoints[polyPoints.length - 1];
+      sx = rect.left + last.x * scaleX;
+      sy = rect.top + last.y * scaleY;
+    }
+    placeUploadSelectMiniBar(bar, sx, sy, 16);
+  }
+
+  function syncUploadToolHighlights() {
+    const rectBtn = document.getElementById("rectCropBtn");
+    const circleBtn = document.getElementById("circleCropBtn");
+    const ellipseBtn = document.getElementById("ellipseCropBtn");
+    if (rectBtn) rectBtn.classList.toggle("highlight", isUploadBoxTool());
+    if (circleBtn) circleBtn.classList.toggle("highlight", uploadTool === "circle" || uploadTool === "ellipse");
+    if (ellipseBtn) ellipseBtn.classList.toggle("highlight", uploadTool === "ellipse");
+    document.getElementById("wandBtn")?.classList.toggle("highlight", uploadTool === "wand");
+    const polyBtn = document.getElementById("polyCropBtn");
+    if (polyBtn) polyBtn.classList.toggle("highlight", uploadTool === "poly");
+  }
+
+  function isUploadMarqueeName(tool) {
+    return tool === "rect" || tool === "roundrect" || tool === "circle" || tool === "ellipse";
+  }
+
+  function isUploadCombineTool(tool) {
+    const t = tool || uploadTool;
+    return isUploadMarqueeName(t) || t === "poly";
+  }
+
+  function hasAnyUploadSelection() {
+    return hasCompletedUploadMarquee()
+      || (polyPolygons && polyPolygons.some((p) => p && p.length >= 3))
+      || (polyPoints && polyPoints.length >= 3);
+  }
+
+  function countUploadSelections() {
+    let n = (uploadMarquees || []).filter(isShapeComplete).length;
+    if (hasLiveUploadMarquee()) n++;
+    n += (polyPolygons || []).filter((p) => p && p.length >= 3).length;
+    return n;
+  }
+
+  function commitLiveUploadMarquee() {
+    if (!hasLiveUploadMarquee()) return;
+    const s = cloneUploadShape(liveUploadShape());
+    if (s) uploadMarquees.push(s);
+    rectStart = null;
+    rectCurrent = null;
+  }
+
+  function switchUploadMarqueeTool(nextTool) {
+    uploadSelBeforeDraw = snapshotUploadMarquee();
+    commitLiveUploadMarquee();
+    uploadTool = nextTool;
+    uploadSelAddArmed = true;
+    uploadEditExtraIndex = -1;
+    isDrawingRect = false;
+    isMovingRect = false;
+    isScalingRect = false;
+    rectScaleHandle = null;
+    rectScaleOrigin = null;
+    commitUploadMarqueeHistory();
+    cropOverlay.classList.toggle("active", true);
+    cropOverlay.classList.toggle("is-paused", false);
+    cropOverlay.style.cursor = nextTool === "poly" && anchorPaused ? "default" : "crosshair";
+    syncUploadToolHighlights();
+    if (polyPolygons.length > 0) startMarchingAnts();
+    if (nextTool === "poly") drawPolySelection();
+    else drawUploadMarquee();
+    updateCropConfirmBar();
+    updateGlobalHistoryButtons();
+    syncAnchorMiniBar();
+  }
+
+  function convertUploadBoxTool(nextTool) {
+    uploadTool = nextTool;
+    if (hasLiveUploadMarquee()) {
+      // live shape follows uploadTool via liveUploadShape()
+    } else {
+      for (let i = (uploadMarquees || []).length - 1; i >= 0; i--) {
+        if (isUploadBoxTool(uploadMarquees[i].tool)) {
+          uploadMarquees[i].tool = nextTool;
+          uploadMarquees[i].radiusPct = nextTool === "roundrect" ? uploadRoundRadiusPct : 0;
+          break;
+        }
+      }
+    }
+    syncUploadToolHighlights();
+    drawUploadMarquee();
+    updateCropConfirmBar();
+  }
+
   function setUploadTool(tool) {
     if (tool === "poly" && uploadTool === "poly" && anchorPaused) {
       setAnchorPaused(false);
       return;
     }
+    if (isUploadCombineTool(uploadTool) && isUploadCombineTool(tool) && tool !== uploadTool && hasAnyUploadSelection()) {
+      switchUploadMarqueeTool(tool);
+      return;
+    }
     uploadTool = (uploadTool === tool) ? 'none' : tool;
     anchorPaused = false;
+    anchorNextCurve = false;
+    uploadPolyHover = null;
+    polyHandleHover = null;
     
     polyPoints = [];
     polyPolygons = [];
@@ -8030,23 +9963,29 @@ function updateHistoryButtons() {
     isScalingRect = false;
     rectScaleHandle = null;
     rectScaleOrigin = null;
+    uploadSelUndo = [];
+    uploadSelRedo = [];
+    uploadSelBeforeDraw = null;
+    uploadMarquees = [];
+    uploadSelAddArmed = false;
+    uploadBoolMode = "add";
+    uploadLiveOp = "add";
+    uploadHideMarqueeHandles = false;
+    uploadEditExtraIndex = -1;
+    uploadSelectMiniBarUserPos = null;
     stopMarchingAnts();
     ctxCrop.clearRect(0, 0, cropOverlay.width, cropOverlay.height);
     
     cropOverlay.classList.toggle("active", uploadTool !== 'none');
     cropOverlay.classList.toggle("is-paused", false);
-    cropOverlay.style.cursor = (uploadTool === 'rect' || uploadTool === 'poly') ? "crosshair" : "";
+    cropOverlay.style.cursor = (isUploadMarqueeTool() || uploadTool === 'poly') ? "crosshair" : "";
     
-    document.getElementById("rectCropBtn").classList.toggle("highlight", uploadTool === 'rect');
-    document.getElementById("wandBtn").classList.toggle("highlight", uploadTool === 'wand');
-    
-    const polyBtn = document.getElementById("polyCropBtn");
-    const isPolyActive = (uploadTool === 'poly');
-    polyBtn.classList.toggle("highlight", isPolyActive);
+    syncUploadToolHighlights();
     updateCropConfirmBar();
     updateGlobalHistoryButtons();
     layoutImageToolboxFan();
     syncAnchorMiniBar();
+    syncUploadSelectMiniBar();
     if (uploadTool === "none") drawDetectedFaces();
   }
 
@@ -8054,7 +9993,8 @@ function updateHistoryButtons() {
     if (antsAnimId) return;
     function animate() {
       marchingAntsOffset = (marchingAntsOffset + 0.5) % 12;
-      drawPolySelection();
+      if (uploadTool === "poly" || polyPoints.length > 0) drawPolySelection();
+      else drawUploadMarquee();
       antsAnimId = requestAnimationFrame(animate);
     }
     antsAnimId = requestAnimationFrame(animate);
@@ -8140,54 +10080,37 @@ function updateHistoryButtons() {
     ];
   }
   function hitTestRectScaleHandle(x, y) {
-    const r = getNormalizedRect();
-    if (!r || r.w < 5 || r.h < 5) return null;
-    const hs = rectHandleHitSize();
-    const handles = getRectScaleHandles(r);
-    for (let i = 0; i < handles.length; i++) {
-      const h = handles[i];
-      if (Math.abs(x - h.x) <= hs && Math.abs(y - h.y) <= hs) return h;
-    }
-    return null;
+    return hitTestHandleOnBounds(x, y, getUploadMarqueeBounds());
   }
   function applyRectScale(x, y) {
     if (!rectScaleOrigin || !rectScaleHandle) return;
-    const o = rectScaleOrigin;
-    let x1 = o.x, y1 = o.y, x2 = o.x + o.w, y2 = o.y + o.h;
-    const id = rectScaleHandle;
-    const minSize = 5;
-    const W = cropOverlay.width, H = cropOverlay.height;
-    if (id.indexOf("n") >= 0) y1 = Math.max(0, Math.min(y2 - minSize, y));
-    if (id.indexOf("s") >= 0) y2 = Math.min(H, Math.max(y1 + minSize, y));
-    if (id.indexOf("w") >= 0) x1 = Math.max(0, Math.min(x2 - minSize, x));
-    if (id.indexOf("e") >= 0) x2 = Math.min(W, Math.max(x1 + minSize, x));
-    rectStart = { x: x1, y: y1 };
-    rectCurrent = { x: x2, y: y2 };
+    const next = scaleUploadRectBox(x, y, rectScaleHandle, rectScaleOrigin, uploadScaleKeepRatio);
+    rectStart = next.start;
+    rectCurrent = next.current;
     drawRectSelection();
   }
 
   function updateCropConfirmBar() {
     const toolsRow = document.getElementById("uploadToolsRow");
-    const r = getNormalizedRect();
-    const showRect = uploadTool === "rect" && r && r.w >= 5 && r.h >= 5;
-    const on = uploadTool === "poly" || showRect;
+    const on = uploadTool === "poly" || hasCompletedUploadMarquee() || (polyPolygons && polyPolygons.length > 0);
     if (toolsRow) toolsRow.classList.toggle("has-crop-actions", on);
     const bar = document.getElementById("polyConfirmBar");
-    if (bar) bar.classList.toggle("has-crop-actions", on);
+    if (bar) bar.classList.remove("has-crop-actions");
+    syncUploadSelectMiniBar();
   }
 
   function cancelCropAction() {
-    if (uploadTool === "rect") {
-      rectStart = null;
-      rectCurrent = null;
-      isDrawingRect = false;
-      isMovingRect = false;
-      isScalingRect = false;
-      rectScaleHandle = null;
-      rectScaleOrigin = null;
-      ctxCrop.clearRect(0, 0, cropOverlay.width, cropOverlay.height);
-      cropOverlay.style.cursor = "crosshair";
-      updateCropConfirmBar();
+    if (isUploadMarqueeTool() || uploadTool === "poly" || hasCompletedUploadMarquee() || (polyPolygons && polyPolygons.length)) {
+      if (hasCompletedUploadMarquee()) {
+        uploadSelUndo.push(snapshotUploadMarquee());
+        uploadSelRedo = [];
+      }
+      polyPoints = [];
+      polyPolygons = [];
+      polyPointRedo = [];
+      stopMarchingAnts();
+      clearUploadMarquee();
+      if (uploadTool === "poly") drawPolySelection();
       return;
     }
     setUploadTool("none");
@@ -8211,33 +10134,61 @@ function updateHistoryButtons() {
     const strokeScale = 1 / (origZoom || 1);
     const clickTolerance = Math.max(8, 10 * strokeScale);
 
-    if (uploadTool === 'rect') {
-      const handle = hitTestRectScaleHandle(x, y);
-      if (handle) {
-        const r = getNormalizedRect();
+    if (isUploadMarqueeTool()) {
+      const handleHit = !uploadSelAddArmed && hitTestAnyUploadHandle(x, y);
+      if (handleHit) {
+        const extra = handleHit.extra;
+        const handle = handleHit.handle;
+        const r = extra >= 0 ? getShapeBounds(uploadMarquees[extra]) : getUploadMarqueeBounds();
+        uploadSelBeforeDraw = snapshotUploadMarquee();
+        uploadEditExtraIndex = extra;
         isScalingRect = true;
         isMovingRect = false;
         isDrawingRect = false;
         rectScaleHandle = handle.id;
-        rectScaleOrigin = { x: r.x, y: r.y, w: r.w, h: r.h };
+        rectScaleOrigin = r ? { x: r.x, y: r.y, w: r.w, h: r.h } : null;
         cropOverlay.style.cursor = handle.cursor;
         return;
       }
-      const r = getNormalizedRect();
-      if (r && r.w >= 5 && r.h >= 5 && pointInRect(x, y, r)) {
+      const shapeHit = !uploadSelAddArmed && hitTestAnyUploadShape(x, y);
+      if (shapeHit) {
+        uploadSelBeforeDraw = snapshotUploadMarquee();
+        uploadEditExtraIndex = shapeHit.extra;
         isMovingRect = true;
         isDrawingRect = false;
         isScalingRect = false;
-        rectStart = { x: r.x, y: r.y };
-        rectCurrent = { x: r.x + r.w, y: r.y + r.h };
-        rectMoveOffset = { x: x - r.x, y: y - r.y };
+        if (shapeHit.extra >= 0) {
+          const shape = uploadMarquees[shapeHit.extra];
+          if (isUploadBoxTool(shape.tool)) {
+            const r = getShapeRect(shape);
+            shape.start = { x: r.x, y: r.y };
+            shape.current = { x: r.x + r.w, y: r.y + r.h };
+            rectMoveOffset = { x: x - r.x, y: y - r.y };
+          } else {
+            rectMoveOffset = { x: x - shape.start.x, y: y - shape.start.y };
+          }
+        } else if (isUploadBoxTool()) {
+          const r = getNormalizedRect();
+          rectStart = { x: r.x, y: r.y };
+          rectCurrent = { x: r.x + r.w, y: r.y + r.h };
+          rectMoveOffset = { x: x - r.x, y: y - r.y };
+        } else {
+          rectMoveOffset = { x: x - rectStart.x, y: y - rectStart.y };
+        }
       } else {
+        if (!uploadSelAddArmed && hasAnyUploadSelection()) return;
+        uploadSelBeforeDraw = snapshotUploadMarquee();
+        if (uploadSelAddArmed && hasLiveUploadMarquee()) {
+          uploadMarquees.push(cloneUploadShape(liveUploadShape()));
+        }
         isDrawingRect = true;
         isMovingRect = false;
         isScalingRect = false;
+        uploadEditExtraIndex = -1;
+        uploadLiveOp = uploadBoolMode === "subtract" ? "subtract" : "add";
         rectStart = { x, y };
         rectCurrent = { x, y };
-        drawRectSelection();
+        drawUploadMarquee();
         updateCropConfirmBar();
       }
     } else if (uploadTool === 'poly') {
@@ -8253,11 +10204,14 @@ function updateHistoryButtons() {
         if (polyPoints.length >= 3) {
           const startP = polyPoints[0];
           if (Math.hypot(x - startP.x, y - startP.y) <= clickTolerance) {
-            polyPolygons.push(clonePolyPoints(polyPoints));
+            applyPendingCurve(polyPoints, polyPoints[0], 28);
+            commitClosedPolygon(polyPoints);
             polyPoints = [];
             polyPointRedo = [];
+            uploadPolyHover = null;
             startMarchingAnts();
             syncAnchorMiniBar();
+            updateGlobalHistoryButtons();
             return;
           }
         }
@@ -8265,31 +10219,43 @@ function updateHistoryButtons() {
         for (let i = polyPoints.length - 1; i >= 0; i--) {
           const pt = polyPoints[i];
           if (Math.hypot(x - pt.x, y - pt.y) <= clickTolerance) {
+            polyPointRedo.length = 0;
             polyPoints.splice(i, 1);
             drawPolySelection();
+            updateGlobalHistoryButtons();
             return;
           }
         }
       }
 
-      polyPoints.push({ x, y, hIn: null, hOut: null });
+      const nextPt = { x, y, hIn: null, hOut: null };
+      applyPendingCurve(polyPoints, nextPt, 28);
+      polyPoints.push(nextPt);
       polyPointRedo.length = 0;
       isUploadPolyDrag = true;
       uploadPolyDragIndex = polyPoints.length - 1;
       uploadPolyDragKind = "new";
       drawPolySelection();
+      updateGlobalHistoryButtons();
     } else if (uploadTool === 'wand') {
       magicWandRemove(x, y, readWandTolerance());
     }
   });
 
   function clonePolyPoints(pts) {
-    return (pts || []).map((p) => ({
+    const next = (pts || []).map((p) => ({
       x: p.x,
       y: p.y,
       hIn: p.hIn ? { x: p.hIn.x, y: p.hIn.y } : null,
       hOut: p.hOut ? { x: p.hOut.x, y: p.hOut.y } : null
     }));
+    next.op = pts && pts.op === "subtract" ? "subtract" : "add";
+    return next;
+  }
+  function commitClosedPolygon(pts) {
+    const cloned = clonePolyPoints(pts);
+    cloned.op = uploadBoolMode === "subtract" ? "subtract" : "add";
+    polyPolygons.push(cloned);
   }
   function offsetPolyPoints(pts, dx, dy) {
     return clonePolyPoints(pts).map((p) => {
@@ -8335,23 +10301,53 @@ function updateHistoryButtons() {
       updateUploadPolyDrag(x, y);
       return;
     }
-    if (uploadTool !== "rect") return;
+    if (uploadTool === "poly") {
+      if (!anchorPaused && polyPoints.length) {
+        const { x, y } = getCropPreciseCoords(e);
+        const strokeScale = 1 / (origZoom || 1);
+        const clickTolerance = Math.max(8, 10 * strokeScale);
+        uploadPolyHover = { x, y };
+        polyHandleHover = hitTestPolyHandle(polyPoints, x, y, clickTolerance, clickTolerance * 0.45);
+        cropOverlay.style.cursor = polyHandleHover ? "pointer" : (anchorPaused ? "default" : "crosshair");
+        drawPolySelection();
+      }
+      return;
+    }
+    if (!isUploadMarqueeTool()) return;
     const { x, y } = getCropPreciseCoords(e);
     if (isScalingRect) {
-      applyRectScale(x, y);
+      if (uploadEditExtraIndex >= 0 && uploadMarquees[uploadEditExtraIndex]) {
+        applyShapeScale(uploadMarquees[uploadEditExtraIndex], x, y, rectScaleHandle, rectScaleOrigin);
+        drawUploadMarquee();
+      } else if (isUploadBoxTool()) applyRectScale(x, y);
+      else applyOvalScale(x, y);
     } else if (isMovingRect) {
-      applyRectDrag(x, y);
+      if (uploadEditExtraIndex >= 0 && uploadMarquees[uploadEditExtraIndex]) {
+        applyShapeDrag(uploadMarquees[uploadEditExtraIndex], x, y, rectMoveOffset);
+        drawUploadMarquee();
+      } else if (isUploadBoxTool()) applyRectDrag(x, y);
+      else applyOvalDrag(x, y);
     } else if (isDrawingRect && rectStart) {
-      rectCurrent = { x, y };
-      drawRectSelection();
-    } else {
-      const handle = hitTestRectScaleHandle(x, y);
-      if (handle) cropOverlay.style.cursor = handle.cursor;
-      else {
-        const r = getNormalizedRect();
-        cropOverlay.style.cursor = (r && r.w >= 5 && r.h >= 5 && pointInRect(x, y, r)) ? "move" : "crosshair";
+      if (uploadTool === "circle") {
+        const r = Math.max(1, Math.hypot(x - rectStart.x, y - rectStart.y));
+        rectCurrent = { x: rectStart.x + r, y: rectStart.y + r };
+      } else {
+        rectCurrent = { x, y };
       }
+      drawUploadMarquee();
+    } else {
+      const handleHit = hitTestAnyUploadHandle(x, y);
+      if (handleHit) cropOverlay.style.cursor = handleHit.handle.cursor;
+      else cropOverlay.style.cursor = (!uploadSelAddArmed && hitTestAnyUploadShape(x, y)) ? "move" : "crosshair";
     }
+  });
+
+  cropOverlay.addEventListener("mouseleave", () => {
+    if (uploadTool !== "poly") return;
+    if (!uploadPolyHover && !polyHandleHover) return;
+    uploadPolyHover = null;
+    polyHandleHover = null;
+    drawPolySelection();
   });
 
   window.addEventListener("mousemove", (e) => {
@@ -8360,14 +10356,29 @@ function updateHistoryButtons() {
       updateUploadPolyDrag(x, y);
       return;
     }
-    if (uploadTool !== "rect") return;
+    if (!isUploadMarqueeTool()) return;
     if (!isDrawingRect && !isMovingRect && !isScalingRect) return;
     const { x, y } = getCropPreciseCoords(e);
-    if (isScalingRect) applyRectScale(x, y);
-    else if (isMovingRect) applyRectDrag(x, y);
-    else if (isDrawingRect && rectStart) {
-      rectCurrent = { x, y };
-      drawRectSelection();
+    if (isScalingRect) {
+      if (uploadEditExtraIndex >= 0 && uploadMarquees[uploadEditExtraIndex]) {
+        applyShapeScale(uploadMarquees[uploadEditExtraIndex], x, y, rectScaleHandle, rectScaleOrigin);
+        drawUploadMarquee();
+      } else if (isUploadBoxTool()) applyRectScale(x, y);
+      else applyOvalScale(x, y);
+    } else if (isMovingRect) {
+      if (uploadEditExtraIndex >= 0 && uploadMarquees[uploadEditExtraIndex]) {
+        applyShapeDrag(uploadMarquees[uploadEditExtraIndex], x, y, rectMoveOffset);
+        drawUploadMarquee();
+      } else if (isUploadBoxTool()) applyRectDrag(x, y);
+      else applyOvalDrag(x, y);
+    } else if (isDrawingRect && rectStart) {
+      if (uploadTool === "circle") {
+        const r = Math.max(1, Math.hypot(x - rectStart.x, y - rectStart.y));
+        rectCurrent = { x: rectStart.x + r, y: rectStart.y + r };
+      } else {
+        rectCurrent = { x, y };
+      }
+      drawUploadMarquee();
     }
   });
 
@@ -8378,145 +10389,66 @@ function updateHistoryButtons() {
       uploadPolyDragKind = null;
       return;
     }
-    if (uploadTool !== "rect") return;
+    if (!isUploadMarqueeTool()) return;
     if (isDrawingRect && rectStart && rectCurrent) {
-      const r = getNormalizedRect();
-      if (!r || r.w < 5 || r.h < 5) {
+      if (isUploadBoxTool()) {
+        const r = getNormalizedRect();
+        if (!r || r.w < 5 || r.h < 5) {
+          rectStart = null;
+          rectCurrent = null;
+          if (!uploadMarquees.length && !(polyPolygons && polyPolygons.length)) ctxCrop.clearRect(0, 0, cropOverlay.width, cropOverlay.height);
+          else drawUploadMarquee();
+        } else {
+          rectStart = { x: r.x, y: r.y };
+          rectCurrent = { x: r.x + r.w, y: r.y + r.h };
+          uploadSelAddArmed = false;
+          drawUploadMarquee();
+          commitUploadMarqueeHistory();
+        }
+      } else if (!hasLiveUploadMarquee()) {
         rectStart = null;
         rectCurrent = null;
-        ctxCrop.clearRect(0, 0, cropOverlay.width, cropOverlay.height);
+        if (!uploadMarquees.length && !(polyPolygons && polyPolygons.length)) ctxCrop.clearRect(0, 0, cropOverlay.width, cropOverlay.height);
+        else drawUploadMarquee();
       } else {
-        rectStart = { x: r.x, y: r.y };
-        rectCurrent = { x: r.x + r.w, y: r.y + r.h };
-        drawRectSelection();
+        uploadSelAddArmed = false;
+        drawUploadMarquee();
+        commitUploadMarqueeHistory();
       }
     }
-    if (isScalingRect) {
-      const r = getNormalizedRect();
-      if (r && r.w >= 5 && r.h >= 5) {
-        rectStart = { x: r.x, y: r.y };
-        rectCurrent = { x: r.x + r.w, y: r.y + r.h };
-        drawRectSelection();
+    if (isScalingRect || isMovingRect) {
+      if (uploadEditExtraIndex < 0 && isUploadBoxTool()) {
+        const r = getNormalizedRect();
+        if (r && r.w >= 5 && r.h >= 5) {
+          rectStart = { x: r.x, y: r.y };
+          rectCurrent = { x: r.x + r.w, y: r.y + r.h };
+        }
       }
+      drawUploadMarquee();
+      commitUploadMarqueeHistory();
     }
     isDrawingRect = false;
     isMovingRect = false;
     isScalingRect = false;
     rectScaleHandle = null;
     rectScaleOrigin = null;
+    uploadEditExtraIndex = -1;
+    if (hasCompletedUploadMarquee() || (polyPolygons && polyPolygons.length)) drawUploadMarquee();
     updateCropConfirmBar();
+    updateGlobalHistoryButtons();
   });
 
   function drawRectSelection() {
-    ctxCrop.clearRect(0, 0, cropOverlay.width, cropOverlay.height);
-    if (!rectStart || !rectCurrent) return;
-    
-    const x = Math.min(rectStart.x, rectCurrent.x);
-    const y = Math.min(rectStart.y, rectCurrent.y);
-    const w = Math.abs(rectStart.x - rectCurrent.x);
-    const h = Math.abs(rectStart.y - rectCurrent.y);
-
-    const viewScale = 1 / (origZoom || 1);
-
-    ctxCrop.fillStyle = "rgba(0, 0, 0, 0.55)";
-    ctxCrop.fillRect(0, 0, cropOverlay.width, cropOverlay.height);
-    ctxCrop.clearRect(x, y, w, h);
-
-    ctxCrop.save();
-    ctxCrop.strokeStyle = "#ff3344";
-    ctxCrop.lineWidth = Math.max(1.8, 3 * viewScale);
-    ctxCrop.setLineDash([Math.round(6 * viewScale), Math.round(6 * viewScale)]);
-    ctxCrop.strokeRect(x, y, w, h);
-    ctxCrop.restore();
-
-    const hs = Math.max(4, 5 * viewScale);
-    getRectScaleHandles({ x, y, w, h }).forEach((h) => {
-      ctxCrop.fillStyle = "#ffffff";
-      ctxCrop.strokeStyle = "#ff3344";
-      ctxCrop.lineWidth = Math.max(1, 1.4 * viewScale);
-      ctxCrop.fillRect(h.x - hs, h.y - hs, hs * 2, hs * 2);
-      ctxCrop.strokeRect(h.x - hs, h.y - hs, hs * 2, hs * 2);
-    });
+    drawUploadMarquee();
   }
 
   function drawPolySelection() {
-    ctxCrop.clearRect(0, 0, cropOverlay.width, cropOverlay.height);
+    drawUploadMarquee();
 
     const viewScale = 1 / (origZoom || 1);
     const lineWidthVal = Math.max(1.8, 3 * viewScale);
     const dashVal = [Math.round(6 * viewScale), Math.round(6 * viewScale)];
-    const nodeRadius = Math.max(3.5, 5 * viewScale);
-
-    if (polyPolygons.length > 0) {
-      const W = cropOverlay.width;
-      const H = cropOverlay.height;
-
-      if (offscreenMask.width !== W || offscreenMask.height !== H) {
-        offscreenMask.width = W; offscreenMask.height = H;
-        offscreenStroke.width = W; offscreenStroke.height = H;
-        offscreenAnts.width = W; offscreenAnts.height = H;
-      }
-
-      mCtx.clearRect(0, 0, W, H);
-      sCtx.clearRect(0, 0, W, H);
-      aCtx.clearRect(0, 0, W, H);
-
-      mCtx.globalCompositeOperation = "source-over";
-      mCtx.fillStyle = "#ff3344";
-      polyPolygons.forEach(polygon => {
-        if (polygon.length < 3) return;
-        mCtx.beginPath();
-        tracePolyPath(mCtx, polygon, true, 1);
-        mCtx.fill("nonzero");
-      });
-
-      sCtx.globalCompositeOperation = "source-over";
-      sCtx.fillStyle = "#ff3344";
-      sCtx.strokeStyle = "#ff3344";
-      sCtx.lineWidth = lineWidthVal * 2;
-      sCtx.lineJoin = "round";
-
-      polyPolygons.forEach(polygon => {
-        if (polygon.length < 3) return;
-        sCtx.beginPath();
-        tracePolyPath(sCtx, polygon, true, 1);
-        sCtx.fill("nonzero");
-        sCtx.stroke();
-      });
-
-      sCtx.globalCompositeOperation = "destination-out";
-      sCtx.drawImage(offscreenMask, 0, 0);
-      sCtx.globalCompositeOperation = "source-over";
-
-      aCtx.globalCompositeOperation = "source-over";
-      aCtx.strokeStyle = "#ff3344";
-      aCtx.lineWidth = lineWidthVal;
-      aCtx.setLineDash(dashVal);
-      aCtx.lineDashOffset = -marchingAntsOffset * viewScale;
-
-      polyPolygons.forEach(polygon => {
-        if (polygon.length < 3) return;
-        aCtx.beginPath();
-        tracePolyPath(aCtx, polygon, true, 1);
-        aCtx.stroke();
-      });
-
-      aCtx.globalCompositeOperation = "destination-in";
-      aCtx.drawImage(offscreenStroke, 0, 0);
-      aCtx.globalCompositeOperation = "source-over";
-
-      ctxCrop.save();
-      ctxCrop.globalCompositeOperation = "source-over";
-      ctxCrop.globalAlpha = 0.28;
-      ctxCrop.drawImage(offscreenMask, 0, 0);
-      ctxCrop.restore();
-
-      ctxCrop.save();
-      ctxCrop.globalCompositeOperation = "source-over";
-      ctxCrop.globalAlpha = 1.0;
-      ctxCrop.drawImage(offscreenAnts, 0, 0);
-      ctxCrop.restore();
-    }
+    const nodeRadius = Math.max(2, 2.8 * viewScale);
 
     if (polyPoints.length > 0) {
       ctxCrop.save();
@@ -8524,11 +10456,20 @@ function updateHistoryButtons() {
       ctxCrop.globalAlpha = 1.0;
       ctxCrop.beginPath();
       tracePolyPath(ctxCrop, polyPoints, false, 1);
+      if (uploadPolyHover && !isUploadPolyDrag && !anchorPaused) {
+        const last = polyPoints[polyPoints.length - 1];
+        if (anchorNextCurve) {
+          const h = pendingCurveHandle(last, uploadPolyHover, 28);
+          ctxCrop.bezierCurveTo(h.x, h.y, uploadPolyHover.x, uploadPolyHover.y, uploadPolyHover.x, uploadPolyHover.y);
+        } else {
+          ctxCrop.lineTo(uploadPolyHover.x, uploadPolyHover.y);
+        }
+      }
       ctxCrop.strokeStyle = "#ff3344";
       ctxCrop.lineWidth = lineWidthVal;
       ctxCrop.setLineDash(dashVal);
       ctxCrop.stroke();
-      drawPolyHandleStems(ctxCrop, polyPoints, 1);
+      drawPolyHandleStems(ctxCrop, polyPoints, 1, currentPolyHandleHot(), Math.max(2, 2.6 * viewScale));
 
       polyPoints.forEach((p, idx) => {
         const isStartNode = (idx === 0);
@@ -8553,6 +10494,7 @@ function updateHistoryButtons() {
       ctxCrop.restore();
     }
     syncAnchorMiniBar();
+    syncUploadSelectMiniBar();
   }
 
   function goToEditWithCurrentImage() {
@@ -8575,27 +10517,28 @@ function updateHistoryButtons() {
   function applyCurrentSelection(onDone) {
     if (!currentImage) return false;
 
+    if (polyPoints.length >= 3) {
+      applyPendingCurve(polyPoints, polyPoints[0], 28);
+      commitClosedPolygon(polyPoints);
+      polyPoints = [];
+      uploadPolyHover = null;
+    }
+
+    const uploadShapes = collectUploadShapes().filter(isUploadShapeFilled);
+    if (!uploadShapes.length) return false;
+
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-
-    if (uploadTool === 'rect' && rectStart && rectCurrent) {
-      minX = Math.min(rectStart.x, rectCurrent.x);
-      minY = Math.min(rectStart.y, rectCurrent.y);
-      maxX = Math.max(rectStart.x, rectCurrent.x);
-      maxY = Math.max(rectStart.y, rectCurrent.y);
-    } else if (uploadTool === 'poly') {
-      if (polyPoints.length >= 3) {
-        polyPolygons.push(clonePolyPoints(polyPoints));
-        polyPoints = [];
-      }
-      if (polyPolygons.length === 0) return false;
-
-      const acc = { minX, minY, maxX, maxY };
-      polyPolygons.forEach((polygon) => expandPolyBounds(polygon, acc));
-      minX = acc.minX;
-      minY = acc.minY;
-      maxX = acc.maxX;
-      maxY = acc.maxY;
-    } else return false;
+    const boundShapes = uploadShapes.some((s) => s.op !== "subtract")
+      ? uploadShapes.filter((s) => s.op !== "subtract")
+      : uploadShapes;
+    boundShapes.forEach((s) => {
+      const b = getShapeBounds(s);
+      if (!b) return;
+      minX = Math.min(minX, b.x);
+      minY = Math.min(minY, b.y);
+      maxX = Math.max(maxX, b.x + b.w);
+      maxY = Math.max(maxY, b.y + b.h);
+    });
 
     minX = Math.max(0, Math.floor(minX));
     minY = Math.max(0, Math.floor(minY));
@@ -8610,27 +10553,25 @@ function updateHistoryButtons() {
     cvs.width = cropW;
     cvs.height = cropH;
     const ctx = cvs.getContext("2d");
+    const onlySharpRect = uploadShapes.length === 1
+      && uploadShapes[0].tool === "rect"
+      && uploadShapes[0].op !== "subtract"
+      && shapeCornerRadius(uploadShapes[0]) <= 0.5;
 
-    if (uploadTool === 'rect') {
+    if (onlySharpRect) {
       ctx.drawImage(currentImage, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
-    } else if (uploadTool === 'poly') {
+    } else {
       const mask = document.createElement("canvas");
       mask.width = cropW;
       mask.height = cropH;
       const maskCtx = mask.getContext("2d");
-      maskCtx.fillStyle = "#ffffff";
-      polyPolygons.forEach(polygon => {
-        if (polygon.length < 3) return;
-        maskCtx.beginPath();
-        tracePolyPath(maskCtx, offsetPolyPoints(polygon, -minX, -minY), true, 1);
-        maskCtx.fill("nonzero");
-      });
+      drawUploadSelectionMask(maskCtx, uploadShapes, minX, minY);
       ctx.drawImage(currentImage, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
       ctx.globalCompositeOperation = "destination-in";
       ctx.drawImage(mask, 0, 0);
       ctx.globalCompositeOperation = "source-over";
-      stopMarchingAnts();
     }
+    stopMarchingAnts();
 
     updateCurrentImageFromCanvas(cvs, onDone);
     return true;
@@ -8644,6 +10585,82 @@ function updateHistoryButtons() {
     const val = document.getElementById("wandToleranceVal");
     if (val) val.textContent = `${e.target.value}%`;
   });
+  function setUploadHandlePreview(hide) {
+    if (uploadHideMarqueeHandles === hide) {
+      if (hide && typeof drawUploadMarquee === "function") drawUploadMarquee();
+      return;
+    }
+    uploadHideMarqueeHandles = hide;
+    if (typeof drawUploadMarquee === "function") drawUploadMarquee();
+  }
+  document.getElementById("roundRectRadius")?.addEventListener("input", (e) => {
+    e.stopPropagation();
+    const pct = parseInt(e.target.value, 10);
+    uploadRoundRadiusPct = Number.isFinite(pct) ? Math.max(0, Math.min(50, pct)) : 0;
+    const val = document.getElementById("roundRectRadiusVal");
+    if (val) val.textContent = `${uploadRoundRadiusPct}`;
+    uploadHideMarqueeHandles = true;
+    if (hasLiveUploadMarquee() && isUploadBoxTool()) {
+      drawUploadMarquee();
+      return;
+    }
+    if (hasCompletedUploadMarquee()) {
+      for (let i = (uploadMarquees || []).length - 1; i >= 0; i--) {
+        if (isUploadBoxTool(uploadMarquees[i].tool)) {
+          uploadMarquees[i].radiusPct = uploadRoundRadiusPct;
+          break;
+        }
+      }
+      drawUploadMarquee();
+    }
+  });
+  const roundRectMenu = document.getElementById("roundRectMenu");
+  const roundRectSlider = document.getElementById("roundRectRadius");
+  const rectToolWrap = document.getElementById("rectToolWrap");
+  if (roundRectSlider) {
+    roundRectSlider.addEventListener("pointerdown", (e) => {
+      e.stopPropagation();
+      setUploadHandlePreview(true);
+      const restore = (ev) => {
+        if (ev.pointerId != null && e.pointerId != null && ev.pointerId !== e.pointerId) return;
+        setUploadHandlePreview(false);
+        window.removeEventListener("pointerup", restore);
+        window.removeEventListener("pointercancel", restore);
+      };
+      window.addEventListener("pointerup", restore);
+      window.addEventListener("pointercancel", restore);
+    });
+    roundRectSlider.addEventListener("pointerup", () => setUploadHandlePreview(false));
+    roundRectSlider.addEventListener("change", () => setUploadHandlePreview(false));
+    roundRectSlider.addEventListener("keyup", () => setUploadHandlePreview(false));
+    roundRectSlider.addEventListener("mousedown", (e) => e.stopPropagation());
+  }
+  if (roundRectMenu) {
+    roundRectMenu.addEventListener("mousedown", (e) => e.stopPropagation());
+    roundRectMenu.addEventListener("pointerenter", () => setUploadHandlePreview(true));
+    roundRectMenu.addEventListener("pointerleave", () => setUploadHandlePreview(false));
+  }
+  if (rectToolWrap) {
+    rectToolWrap.addEventListener("pointerleave", () => setUploadHandlePreview(false));
+  }
+  document.getElementById("editRoundRectRadius")?.addEventListener("input", (e) => {
+    e.stopPropagation();
+    const pct = parseInt(e.target.value, 10);
+    editRoundRadiusPct = Number.isFinite(pct) ? Math.max(0, Math.min(50, pct)) : 0;
+    const val = document.getElementById("editRoundRectRadiusVal");
+    if (val) val.textContent = `${editRoundRadiusPct}`;
+    if (typeof applyEditRoundRadiusToLastRect === "function") applyEditRoundRadiusToLastRect();
+  });
+  const editRoundRectMenu = document.getElementById("editRoundRectMenu");
+  const editRoundRectSlider = document.getElementById("editRoundRectRadius");
+  if (editRoundRectSlider) {
+    editRoundRectSlider.addEventListener("pointerdown", (e) => e.stopPropagation());
+    editRoundRectSlider.addEventListener("mousedown", (e) => e.stopPropagation());
+  }
+  if (editRoundRectMenu) {
+    editRoundRectMenu.addEventListener("mousedown", (e) => e.stopPropagation());
+    editRoundRectMenu.addEventListener("click", (e) => e.stopPropagation());
+  }
 
   function magicWandRemove(startX, startY, tolerance = 30) {
     const cvs = document.createElement("canvas");
@@ -9468,22 +11485,57 @@ function updateHistoryButtons() {
     });
   }
 
+  function movePickedLibraryItems(folderId) {
+    if (!libraryPickedIds.size) return;
+    const data = getLibraryData();
+    data.items.forEach((it) => {
+      if (libraryPickedIds.has(it.id)) it.folderId = folderId || null;
+    });
+    saveLibraryData(data);
+    setLibraryPickMode(null);
+  }
+
+  function renderMoveFolderOptions() {
+    const list = document.getElementById("libraryMoveFolderList");
+    if (!list) return;
+    const show = libraryPickMode === "move" && libraryPickedIds.size > 0;
+    list.hidden = !show;
+    list.innerHTML = "";
+    if (!show) return;
+    const data = getLibraryData();
+    const opts = [{ id: "", name: "未分類" }, ...(data.folders || [])];
+    opts.forEach((f) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "zoom-btn";
+      btn.textContent = f.name;
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        movePickedLibraryItems(f.id || null);
+      };
+      list.appendChild(btn);
+    });
+  }
+
   function syncLibraryHeaderActions() {
     const moveBtn = document.getElementById("libraryMoveBtn");
     const delBtn = document.getElementById("libraryDeleteBtn");
     const menu = document.getElementById("libraryPickMenu");
+    const confirmBtn = document.getElementById("libraryPickConfirmBtn");
     const moveWrap = document.getElementById("libraryMoveWrap");
     const delWrap = document.getElementById("libraryDeleteWrap");
     const picking = !!libraryPickMode;
     const hasPicks = libraryPickedIds.size > 0;
     if (moveBtn) moveBtn.classList.toggle("is-on", libraryPickMode === "move");
     if (delBtn) delBtn.classList.toggle("is-on", libraryPickMode === "delete");
-    const showMenu = picking && hasPicks;
+    const showMenu = picking && (hasPicks || libraryPickMode === "move");
     if (menu) {
       const host = libraryPickMode === "delete" ? delWrap : moveWrap;
       if (showMenu && host && menu.parentElement !== host) host.appendChild(menu);
       menu.hidden = !showMenu;
     }
+    if (confirmBtn) confirmBtn.hidden = libraryPickMode === "move" || !hasPicks;
+    renderMoveFolderOptions();
   }
   function setLibraryPickMode(mode) {
     if (mode && libraryPickMode === mode) return;
