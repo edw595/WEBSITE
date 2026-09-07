@@ -51,6 +51,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 .header-content {
   display: flex;
@@ -496,7 +497,14 @@ body.stage-upload.has-upload-image .image-toolbox {
   top: -8px;
   height: 8px;
 }
-.image-toolbox:hover .image-toolbox-menu,
+@media (hover: hover) and (pointer: fine) {
+  body:not(.is-compact-ui) .image-toolbox:hover .image-toolbox-menu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+  }
+}
 .image-toolbox.is-menu-open .image-toolbox-menu {
   opacity: 1;
   visibility: visible;
@@ -614,7 +622,7 @@ body.stage-upload.has-upload-image .image-toolbox {
     .stage-nav-bar {
       position: sticky;
       top: var(--top-nav-h);
-      z-index: 40;
+      z-index: 80;
       height: var(--sub-nav-h);
       display: grid;
       grid-template-columns: 1fr auto 1fr;
@@ -622,6 +630,7 @@ body.stage-upload.has-upload-image .image-toolbox {
       padding: 0 16px;
       background: transparent;
       border: none;
+      pointer-events: auto;
     }
     .stage-nav-bar .stage-nav {
       grid-column: 2;
@@ -655,6 +664,8 @@ body.stage-upload.has-upload-image .image-toolbox {
       font-size: 0.82rem;
       transition: 0.2s;
       white-space: nowrap;
+      touch-action: manipulation;
+      pointer-events: auto;
     }
     .stage-tab:hover {
       color: #fff;
@@ -1361,8 +1372,30 @@ body.stage-upload.has-upload-image .image-toolbox {
       margin: 0 0 12px;
       z-index: 50;
     }
-    body.stage-upload.has-upload-image .upload-tools-row {
+    body.stage-upload .upload-tools-row {
       display: flex;
+    }
+    body.stage-upload:not(.has-upload-image) .upload-toolbar-slot {
+      display: none;
+    }
+    .upload-load-btn {
+      background: var(--highlight-active);
+      color: #11111b;
+      border: 1px solid #ffffff;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: none;
+    }
+    .upload-load-btn:hover {
+      background: #fff46a;
     }
     .upload-toolbar-slot {
       display: flex;
@@ -1462,8 +1495,20 @@ body.stage-upload.has-upload-image .image-toolbox {
     .zoom-level-text { font-size: 0.78rem; font-weight: 700; color: var(--highlight-active); min-width: 42px; text-align: center; font-family: 'Silkscreen', monospace; }
 
     .edit-bar { display: flex; background: transparent; border: none; border-radius: 0; padding: 4px 0 8px; margin-bottom: 8px; align-items: center; justify-content: flex-start; flex-wrap: wrap; gap: 8px; width: 100%; }
-    .edit-bar .global-history-bar {
+    .history-select-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+      min-width: 0;
+    }
+    #compactSelectSlot:empty,
+    #compactSelectSlot[hidden] { display: none; }
+    .edit-bar .history-select-wrap {
       margin-left: auto;
+    }
+    .edit-bar .global-history-bar {
+      margin-left: 0;
       background: transparent;
       border: none;
       box-shadow: none;
@@ -1714,6 +1759,18 @@ body.stage-upload.has-upload-image .image-toolbox {
     .orig-viewport-wrap {
       position: relative;
     }
+    .orig-upload-hit {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 8;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: auto;
+    }
+    body.has-upload-image .orig-upload-hit { display: none; }
     .poly-confirm-bar {
       display: none;
       position: absolute;
@@ -1825,6 +1882,7 @@ body.stage-upload.has-upload-image .image-toolbox {
       display: block;
       padding: 0;
       text-align: left;
+      cursor: default;
     }
     .orig-zoom-sizer {
       box-sizing: border-box;
@@ -2263,6 +2321,28 @@ body.stage-upload.has-upload-image .image-toolbox {
     .color-filter-btn.active { transform: translateY(-3px) scale(1.15); border-color: #ffffff; outline: 3px solid var(--highlight-active); box-shadow: 0 0 14px var(--highlight-active); z-index: 10; }
     .color-filter-btn.dimmed { opacity: 0.35; filter: grayscale(40%); }
 
+    #virtualPointer {
+      display: none;
+      position: fixed;
+      width: 22px;
+      height: 32px;
+      pointer-events: none !important;
+      z-index: 800;
+      background: none;
+      border: none;
+      border-radius: 0;
+      transform: none;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    #virtualPointer.is-on { display: block; }
+    #virtualPointer svg {
+      display: block;
+      width: 22px;
+      height: 32px;
+      overflow: visible;
+      shape-rendering: crispEdges;
+    }
     #beadTooltip { position: fixed; pointer-events: none; background: rgba(17, 17, 27, 0.95); color: #FFFFFF; padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6); z-index: 560; display: none; white-space: nowrap; border: 1px solid var(--border-dark); }
     #beadTooltip .tip-coord { color: var(--highlight-active); margin-bottom: 2px; font-family: 'Silkscreen', monospace; }
     #beadTooltip .tip-color { display: flex; align-items: center; gap: 6px; }
@@ -2300,10 +2380,112 @@ body.stage-upload.has-upload-image .image-toolbox {
       .sidebar { height: 460px; max-height: 460px; }
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 768px), (pointer: coarse) {
       .stage-nav-bar { padding: 0 8px; }
       .stage-tab span:not(.stage-num) { display: none; }
       .stage-tab { padding: 4px; }
+      :root { --floating-bar-bottom: max(12px, env(safe-area-inset-bottom, 0px)); }
+      .main-content { padding: 12px 10px 16px; }
+      .upload-tools-row {
+        flex-wrap: wrap;
+        align-items: stretch;
+        gap: 8px;
+      }
+      .upload-load-btn {
+        width: 100%;
+        padding: 10px 14px;
+        font-size: 0.88rem;
+        border-radius: 10px;
+      }
+      .upload-toolbar-slot {
+        flex: 1 1 100%;
+        width: 100%;
+        min-width: 0;
+      }
+      .upload-toolbar-slot .floating-zoom-row,
+      #editViewHeader .floating-zoom-row {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        gap: 6px;
+      }
+      .floating-zoom-bar,
+      .global-history-bar,
+      #editViewHeader .floating-zoom-bar {
+        width: 100%;
+        max-width: 100%;
+        flex-wrap: wrap;
+        justify-content: center;
+        overflow: visible;
+        white-space: normal;
+        border-radius: 14px;
+        padding: 6px 8px;
+        gap: 4px;
+      }
+      .upload-toolbar-slot .global-history-bar {
+        justify-content: space-evenly;
+      }
+      .floating-zoom-bar input[type="range"] { width: 64px; flex: 1 1 64px; min-width: 48px; max-width: 120px; }
+      .bar-btn-label { display: none; }
+      .global-history-bar .bar-btn-label {
+        display: inline;
+        font-size: 0.72rem;
+        font-weight: 800;
+      }
+      .image-toolbox {
+        flex-wrap: wrap;
+        width: 100%;
+        max-width: 100%;
+      }
+      .image-toolbox.is-menu-open .image-toolbox-menu {
+        position: static;
+        transform: none;
+        width: 100%;
+        margin-top: 6px;
+      }
+      .floating-zoom-bar .zoom-btn,
+      .global-history-bar .zoom-btn {
+        padding: 6px 8px;
+        font-size: 0.75rem;
+      }
+      .edit-bar .history-select-wrap,
+      .edit-bar .global-history-bar {
+        margin-left: 0;
+        width: 100%;
+      }
+      .edit-bar .global-history-bar {
+        justify-content: space-evenly;
+      }
+      .upload-toolbar-slot .history-select-wrap {
+        width: 100%;
+      }
+      #compactSelectSlot:not([hidden]) {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        min-width: 0;
+      }
+      #compactSelectSlot .anchor-mini-bar {
+        position: relative;
+        left: auto !important;
+        top: auto !important;
+        width: 100%;
+        max-width: 100%;
+        flex-wrap: wrap;
+        cursor: default;
+        touch-action: manipulation;
+        z-index: 6;
+      }
+      #compactSelectSlot .anchor-mini-bar-handle { display: none; }
+      #compactSelectSlot #uploadSelectConfirmBtn { margin-left: 0; }
+      .pixel-title {
+        font-size: 0.78rem;
+        letter-spacing: 0;
+        gap: 6px;
+      }
     }
 
     body.stage-edit {
@@ -2332,6 +2514,47 @@ body.stage-upload.has-upload-image .image-toolbox {
 </head>
 <body class="stage-upload">
 
+<div id="virtualPointer" aria-hidden="true">
+  <svg viewBox="0 0 11 16" width="22" height="32" shape-rendering="crispEdges" aria-hidden="true">
+    <g fill="#11111b">
+      <rect x="0" y="0" width="1" height="14"/>
+      <rect x="1" y="1" width="1" height="1"/>
+      <rect x="2" y="2" width="1" height="1"/>
+      <rect x="3" y="3" width="1" height="1"/>
+      <rect x="4" y="4" width="1" height="1"/>
+      <rect x="5" y="5" width="1" height="1"/>
+      <rect x="6" y="6" width="1" height="1"/>
+      <rect x="7" y="7" width="1" height="1"/>
+      <rect x="8" y="8" width="1" height="1"/>
+      <rect x="5" y="9" width="1" height="1"/>
+      <rect x="1" y="10" width="1" height="1"/>
+      <rect x="3" y="10" width="1" height="1"/>
+      <rect x="5" y="10" width="1" height="1"/>
+      <rect x="2" y="11" width="1" height="1"/>
+      <rect x="6" y="11" width="1" height="1"/>
+      <rect x="1" y="12" width="1" height="1"/>
+      <rect x="6" y="12" width="1" height="1"/>
+      <rect x="0" y="13" width="1" height="1"/>
+      <rect x="7" y="13" width="1" height="1"/>
+      <rect x="6" y="14" width="1" height="1"/>
+      <rect x="7" y="15" width="2" height="1"/>
+    </g>
+    <g fill="#ffe600">
+      <rect x="1" y="2" width="1" height="8"/>
+      <rect x="2" y="3" width="1" height="7"/>
+      <rect x="3" y="4" width="1" height="6"/>
+      <rect x="4" y="5" width="1" height="4"/>
+      <rect x="5" y="6" width="1" height="3"/>
+      <rect x="6" y="7" width="1" height="2"/>
+      <rect x="7" y="8" width="1" height="1"/>
+      <rect x="4" y="10" width="1" height="1"/>
+      <rect x="5" y="11" width="1" height="1"/>
+      <rect x="5" y="12" width="1" height="1"/>
+      <rect x="6" y="13" width="1" height="1"/>
+      <rect x="6" y="14" width="1" height="1"/>
+    </g>
+  </svg>
+</div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <header>
@@ -2345,7 +2568,7 @@ body.stage-upload.has-upload-image .image-toolbox {
         <rect x="5" y="3" width="1" height="1" fill="#FFFFFF"/>
       </svg>
       染上拼豆之路
-      <span class="app-version" id="appVersion" title="網站版本">v169</span>
+      <span class="app-version" id="appVersion" title="網站版本">v177</span>
     </h1>
   </div>
 </header>
@@ -2381,9 +2604,10 @@ body.stage-upload.has-upload-image .image-toolbox {
             <span class="badge" id="origDimensions">尚未載入</span>
           </div>
         </div>
-        <input type="file" id="imageInput" accept="image/*" hidden />
+        <input type="file" id="imageInput" accept="image/*,image/heic,image/heif,.heic,.heif" hidden />
 
         <div class="upload-tools-row" id="uploadToolsRow">
+        <button type="button" class="upload-load-btn" id="uploadLoadBtn">載入圖片</button>
         <div class="image-toolbox" id="imageToolbox">
           <button type="button" class="image-toolbox-toggle" id="imageToolboxToggle">圖片裁剪工具</button>
           <div class="image-toolbox-menu" id="imageToolboxMenu">
@@ -2458,6 +2682,7 @@ body.stage-upload.has-upload-image .image-toolbox {
             <button type="button" class="zoom-btn highlight" id="uploadSelectConfirmBtn">確認選取</button>
           </div>
           <div class="orig-viewport" id="origViewport" onclick="triggerFileInput(event)">
+          <label class="orig-upload-hit" id="origUploadHit" for="imageInput">上傳圖片</label>
           <div class="orig-zoom-sizer" id="origZoomSizer">
           <div class="orig-zoom-frame" id="origZoomFrame">
           <div class="orig-zoom-wrapper" id="origZoomWrapper">
@@ -2471,7 +2696,7 @@ body.stage-upload.has-upload-image .image-toolbox {
             <div class="empty-state" id="origPlaceholder">
               “請將要上傳的圖片拖曳進來”<br>或“點我上傳”
             </div>
-          <div class="upload-hint-banner" id="uploadHintBanner" style="display: none;">💡 支援拖曳更換圖片或點擊留白處選取檔案</div>
+          <div class="upload-hint-banner" id="uploadHintBanner" style="display: none;">💡 更換圖片請按上方「載入圖片」</div>
         </div>
         </div>
       </div>
@@ -2935,26 +3160,29 @@ body.stage-upload.has-upload-image .image-toolbox {
     <input type="range" id="origZoomSlider" min="1" max="400" value="100" step="1" />
     <span class="zoom-level-text" id="origZoomText">100%</span>
     <button type="button" class="zoom-btn zoom-icon-btn" onclick="adjustFloatingZoom(0.15)" title="放大">+</button>
-    <button type="button" class="zoom-btn highlight" id="floatingFitBtn" onclick="fitFloatingZoom()">🔍 適應視窗</button>
+    <button type="button" class="zoom-btn highlight" id="floatingFitBtn" onclick="fitFloatingZoom()">🔍<span class="bar-btn-label"> 適應視窗</span></button>
     <button type="button" class="zoom-btn" onclick="setFloatingZoom(1.0)">1:1</button>
-    <button type="button" class="zoom-btn" id="compareBtn" onclick="toggleCompareMode()">🔍 比較原圖</button>
+    <button type="button" class="zoom-btn" id="compareBtn" onclick="toggleCompareMode()">🔍<span class="bar-btn-label"> 比較原圖</span></button>
   </div>
+  <div class="history-select-wrap" id="historySelectWrap">
   <div class="global-history-bar" id="globalHistoryBar">
     <button class="zoom-btn" id="globalUndoBtn" onclick="handleGlobalUndo()" disabled title="上一步 (Ctrl+Z)">
-      <span>↩</span> 上一步
+      <span>↩</span><span class="bar-btn-label"> 上一步</span>
     </button>
     <button class="zoom-btn" id="globalRedoBtn" onclick="handleGlobalRedo()" disabled title="下一步 (Ctrl+Y)">
-      <span>↪</span> 下一步
+      <span>↪</span><span class="bar-btn-label"> 下一步</span>
     </button>
     <div class="reset-choice-dock" id="editResetDock">
       <button class="zoom-btn" id="globalResetBtn" onclick="handleGlobalReset()" disabled title="還原">
-        <span>🔄</span> 還原
+        <span>🔄</span><span class="bar-btn-label"> 還原</span>
       </button>
       <div class="reset-choice-menu" id="editResetMenu">
         <button type="button" class="zoom-btn" onclick="resetDrawingEdits()">還原繪圖</button>
         <button type="button" class="zoom-btn" onclick="resetPatternSettings()">還原圖紙設定</button>
       </div>
     </div>
+  </div>
+  <div class="compact-select-slot" id="compactSelectSlot"></div>
   </div>
   </div>
 </div>
@@ -3017,6 +3245,59 @@ body.stage-upload.has-upload-image .image-toolbox {
   const sidebar = document.getElementById("sidebar");
   const floatingSidebarTrigger = document.getElementById("floatingSidebarTrigger");
   const sidebarOverlay = document.getElementById("sidebarOverlay");
+  let pendingUploadFile = null;
+  let lastStageNavAt = 0;
+
+  function bindStageNavClicks() {
+    const nav = document.getElementById("stageNav");
+    if (!nav || nav.dataset.bound === "1") return;
+    nav.dataset.bound = "1";
+    const go = (e) => {
+      const tab = e.target && e.target.closest && e.target.closest(".stage-tab");
+      if (!tab || !tab.dataset.stage) return;
+      const now = Date.now();
+      if (now - lastStageNavAt < 350) return;
+      lastStageNavAt = now;
+      if (typeof switchStageView === "function") switchStageView(tab.dataset.stage);
+    };
+    nav.addEventListener("click", go);
+    nav.addEventListener("pointerup", (e) => {
+      if (e.pointerType === "mouse") return;
+      go(e);
+    });
+  }
+  function bindImageInput() {
+    const input = document.getElementById("imageInput");
+    if (!input || input.dataset.bound === "1") return;
+    input.dataset.bound = "1";
+    const onFile = () => {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      if (typeof handleImageLoad === "function") handleImageLoad(file);
+      else pendingUploadFile = file;
+    };
+    input.addEventListener("change", onFile);
+    input.addEventListener("input", onFile);
+  }
+  function openImageFilePicker() {
+    const input = document.getElementById("imageInput");
+    if (!input) return;
+    input.value = "";
+    input.click();
+  }
+  function bindUploadLoadBtn() {
+    const btn = document.getElementById("uploadLoadBtn");
+    if (!btn || btn.dataset.bound === "1") return;
+    btn.dataset.bound = "1";
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openImageFilePicker();
+    });
+  }
+  bindStageNavClicks();
+  bindImageInput();
+  bindUploadLoadBtn();
 
   function isMobileView() { return window.innerWidth <= 768; }
 
@@ -3024,7 +3305,7 @@ body.stage-upload.has-upload-image .image-toolbox {
   let editorPanelCloseTimer = 0;
 
   function isEditorHovering() {
-    return sidebar.matches(":hover") || floatingSidebarTrigger.matches(":hover");
+    return !!(sidebar && (sidebar.matches(":hover") || (floatingSidebarTrigger && floatingSidebarTrigger.matches(":hover"))));
   }
 
   function openSidebar(pin = false) {
@@ -3068,22 +3349,26 @@ body.stage-upload.has-upload-image .image-toolbox {
     }, 280);
   }
 
-  floatingSidebarTrigger.addEventListener("mouseenter", () => {
-    cancelEditorPanelClose();
-    openSidebar(false);
-  });
-  floatingSidebarTrigger.addEventListener("mouseleave", scheduleEditorPanelClose);
-  floatingSidebarTrigger.addEventListener("click", (e) => {
-    e.preventDefault();
-    if (editorPanelPinned && !sidebar.classList.contains("collapsed")) {
-      closeSidebar();
-    } else {
-      openSidebar(true);
-    }
-  });
-  sidebarOverlay.addEventListener("click", closeSidebar);
-  sidebar.addEventListener("mouseenter", cancelEditorPanelClose);
-  sidebar.addEventListener("mouseleave", scheduleEditorPanelClose);
+  if (floatingSidebarTrigger) {
+    floatingSidebarTrigger.addEventListener("mouseenter", () => {
+      cancelEditorPanelClose();
+      openSidebar(false);
+    });
+    floatingSidebarTrigger.addEventListener("mouseleave", scheduleEditorPanelClose);
+    floatingSidebarTrigger.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (editorPanelPinned && !sidebar.classList.contains("collapsed")) {
+        closeSidebar();
+      } else {
+        openSidebar(true);
+      }
+    });
+  }
+  if (sidebarOverlay) sidebarOverlay.addEventListener("click", closeSidebar);
+  if (sidebar) {
+    sidebar.addEventListener("mouseenter", cancelEditorPanelClose);
+    sidebar.addEventListener("mouseleave", scheduleEditorPanelClose);
+  }
 
   window.addEventListener("resize", () => {
     if (!isMobileView()) {
@@ -3101,6 +3386,110 @@ body.stage-upload.has-upload-image .image-toolbox {
   }
   function isBeadStage() {
     return currentStage === "bead";
+  }
+  function isCoarseUi() {
+    try {
+      return window.matchMedia("(pointer: coarse)").matches || window.innerWidth <= 768;
+    } catch (_) {
+      return window.innerWidth <= 768;
+    }
+  }
+  function patternMaxWorkingSide() {
+    const el = document.getElementById("beadWidth");
+    const max = el ? parseInt(el.max, 10) : 600;
+    return Math.max(10, max || 600);
+  }
+  function workingImageMaxSide() {
+    return isCoarseUi() ? patternMaxWorkingSide() : 0;
+  }
+  function canvasFromSource(source, srcW, srcH, maxSide, fillWhite) {
+    const w = srcW || source.width;
+    const h = srcH || source.height;
+    const longest = Math.max(w, h) || 1;
+    const cap = maxSide > 0 ? maxSide : longest;
+    const scale = longest > cap ? cap / longest : 1;
+    const cw = Math.max(1, Math.round(w * scale));
+    const ch = Math.max(1, Math.round(h * scale));
+    const cvs = document.createElement("canvas");
+    cvs.width = cw;
+    cvs.height = ch;
+    const ctx = cvs.getContext("2d");
+    if (!ctx) return cvs;
+    ctx.imageSmoothingEnabled = scale < 1;
+    ctx.imageSmoothingQuality = (scale < 1 && isCoarseUi()) ? "low" : "high";
+    if (fillWhite) {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, cw, ch);
+    }
+    ctx.drawImage(source, 0, 0, cw, ch);
+    return cvs;
+  }
+  function isUsableImageUrl(url) {
+    return typeof url === "string" && url.length > 24 && url !== "data:," &&
+      (url.indexOf("data:image") === 0 || url.indexOf("blob:") === 0);
+  }
+  function canvasToSafeUrl(cvs, mime, quality) {
+    const type = mime || "image/jpeg";
+    const q = quality == null ? 0.88 : quality;
+    return new Promise((resolve) => {
+      let settled = false;
+      const settle = (url) => {
+        if (settled) return;
+        settled = true;
+        resolve(url || "");
+      };
+      const finishDataUrl = () => {
+        try {
+          const url = type === "image/jpeg" ? cvs.toDataURL("image/jpeg", q) : cvs.toDataURL("image/png");
+          settle(isUsableImageUrl(url) ? url : "");
+        } catch (_) {
+          settle("");
+        }
+      };
+      if (!cvs || !cvs.width || !cvs.height) {
+        settle("");
+        return;
+      }
+      const timer = setTimeout(() => finishDataUrl(), 2000);
+      if (typeof cvs.toBlob !== "function") {
+        clearTimeout(timer);
+        finishDataUrl();
+        return;
+      }
+      try {
+        cvs.toBlob((blob) => {
+          clearTimeout(timer);
+          if (!blob || blob.size < 8) {
+            finishDataUrl();
+            return;
+          }
+          settle(URL.createObjectURL(blob));
+        }, type, q);
+      } catch (_) {
+        clearTimeout(timer);
+        finishDataUrl();
+      }
+    });
+  }
+  function downscaleWorkingImage(img, done) {
+    const w = img.naturalWidth || img.width;
+    const h = img.naturalHeight || img.height;
+    const maxSide = workingImageMaxSide();
+    if (!maxSide || !w || !h || Math.max(w, h) <= maxSide) {
+      done(img);
+      return;
+    }
+    const cvs = canvasFromSource(img, w, h, maxSide, true);
+    canvasToSafeUrl(cvs, "image/jpeg", 0.72).then((url) => {
+      if (!url) {
+        done(img);
+        return;
+      }
+      const scaled = new Image();
+      scaled.onload = () => done(scaled);
+      scaled.onerror = () => done(img);
+      scaled.src = url;
+    });
   }
 
   function beadFsElement() {
@@ -3193,21 +3582,24 @@ body.stage-upload.has-upload-image .image-toolbox {
     const headerSlot = document.getElementById("editHeaderZoomSlot");
     const stack = document.getElementById("floatingZoomStack");
     const uploadSlot = document.getElementById("uploadToolbarSlot");
-    const historyBar = document.getElementById("globalHistoryBar");
+    const historyWrap = document.getElementById("historySelectWrap") || document.getElementById("globalHistoryBar");
     const editBar = document.getElementById("editBar");
     if (!row) return;
     if (isPatternStage(stage) && headerSlot) {
       headerSlot.appendChild(row);
       if (bar) bar.classList.add("is-over-content");
-      if (historyBar && editBar) editBar.appendChild(historyBar);
+      if (historyWrap && editBar) editBar.appendChild(historyWrap);
     } else if (stage === "upload" && uploadSlot) {
       uploadSlot.appendChild(row);
       if (bar) bar.classList.remove("is-over-content");
-      if (historyBar && row) row.appendChild(historyBar);
+      if (historyWrap && row) row.appendChild(historyWrap);
     } else if (stack) {
       stack.appendChild(row);
-      if (historyBar) row.appendChild(historyBar);
+      if (historyWrap) row.appendChild(historyWrap);
       if (bar) bar.classList.remove("is-over-content");
+    }
+    if (typeof placeSelectMiniBarsForUi === "function") {
+      try { placeSelectMiniBarsForUi(); } catch (_) {}
     }
   }
   placeZoomBarForStage(currentStage);
@@ -3239,49 +3631,52 @@ body.stage-upload.has-upload-image .image-toolbox {
       tab.setAttribute("aria-pressed", on ? "true" : "false");
     });
     Object.entries(stagePanels).forEach(([key, panel]) => {
+      if (!panel) return;
       const on = key === stage || (key === "edit" && stage === "bead");
       panel.classList.toggle("active", on);
     });
 
+    try {
     if (stage !== "bead") exitBeadFullscreen();
     closeSidebar();
     placeZoomBarForStage(stage);
     placeColorFilterForStage(stage);
     if (stage !== "library") {
       libraryPickMode = null;
-      libraryPickedIds.clear();
+      if (typeof libraryPickedIds !== "undefined" && libraryPickedIds) libraryPickedIds.clear();
       if (typeof syncLibraryHeaderActions === "function") syncLibraryHeaderActions();
     }
     if (stage === "library") {
-      renderLibraryGrid();
+      if (typeof renderLibraryGrid === "function") renderLibraryGrid();
     } else if (stage === "upload") {
       if (typeof updateMinimap === "function") updateMinimap();
     } else if (isPatternStage(stage)) {
-      if (stage === "bead") clearSelection();
+      if (stage === "bead" && typeof clearSelection === "function") clearSelection();
       requestAnimationFrame(() => {
-        if (stage === "bead") canvasZoom = 1;
-        else applySuggestedEditZoom();
-        if (patternGridData.length > 0) {
-          resizeCanvases();
-          renderBasePattern();
-          renderGrid();
-          renderInteractionLayer();
-        }
-        updateMinimap();
-        syncFloatingZoomBar();
+        try {
+          if (stage === "bead") canvasZoom = 1;
+          else if (typeof applySuggestedEditZoom === "function") applySuggestedEditZoom();
+          if (patternGridData && patternGridData.length > 0) {
+            resizeCanvases();
+            renderBasePattern();
+            renderGrid();
+            renderInteractionLayer();
+          }
+          if (typeof updateMinimap === "function") updateMinimap();
+          if (typeof syncFloatingZoomBar === "function") syncFloatingZoomBar();
+        } catch (_) {}
       });
     }
-    updateGlobalHistoryButtons();
-    syncFloatingZoomBar();
-    syncAnchorMiniBar();
-    syncSelectMiniBar();
-    requestAnimationFrame(syncFloatingDockFrost);
+    if (typeof updateGlobalHistoryButtons === "function") updateGlobalHistoryButtons();
+    if (typeof syncFloatingZoomBar === "function") syncFloatingZoomBar();
+    if (typeof syncAnchorMiniBar === "function") syncAnchorMiniBar();
+    if (typeof syncSelectMiniBar === "function") syncSelectMiniBar();
+    if (typeof syncFloatingDockFrost === "function") requestAnimationFrame(syncFloatingDockFrost);
+    if (typeof restoreVirtualPointerIfCompact === "function") restoreVirtualPointerIfCompact();
+    } catch (_) {}
   }
 
-  document.getElementById("stageNav").addEventListener("click", (e) => {
-    const tab = e.target.closest(".stage-tab");
-    if (tab) switchStageView(tab.dataset.stage);
-  });
+  bindStageNavClicks();
 
   const MARD_PALETTE_RAW = [
     {"code":"A1","r":250,"g":244,"b":200,"hex":"#FAF4C8"},{"code":"A2","r":255,"g":255,"b":213,"hex":"#FFFFD5"},{"code":"A3","r":254,"g":255,"b":139,"hex":"#FEFF8B"},{"code":"A4","r":251,"g":237,"b":86,"hex":"#FBED56"},{"code":"A5","r":244,"g":215,"b":56,"hex":"#F4D738"},{"code":"A6","r":254,"g":172,"b":76,"hex":"#FEAC4C"},{"code":"A7","r":254,"g":139,"b":76,"hex":"#FE8B4C"},{"code":"A8","r":255,"g":218,"b":69,"hex":"#FFDA45"},{"code":"A9","r":255,"g":153,"b":91,"hex":"#FF995B"},{"code":"A10","r":247,"g":124,"b":49,"hex":"#F77C31"},{"code":"A11","r":255,"g":221,"b":153,"hex":"#FFDD99"},{"code":"A12","r":254,"g":159,"b":114,"hex":"#FE9F72"},{"code":"A13","r":255,"g":195,"b":101,"hex":"#FFC365"},{"code":"A14","r":253,"g":84,"b":61,"hex":"#FD543D"},{"code":"A15","r":255,"g":243,"b":101,"hex":"#FFF365"},{"code":"A16","r":255,"g":255,"b":159,"hex":"#FFFF9F"},{"code":"A17","r":255,"g":227,"b":110,"hex":"#FFE36E"},{"code":"A18","r":254,"g":190,"b":125,"hex":"#FEBE7D"},{"code":"A19","r":253,"g":124,"b":114,"hex":"#FD7C72"},{"code":"A20","r":255,"g":213,"b":104,"hex":"#FFD568"},{"code":"A21","r":255,"g":227,"b":149,"hex":"#FFE395"},{"code":"A22","r":244,"g":245,"b":125,"hex":"#F4F57D"},{"code":"A23","r":230,"g":201,"b":183,"hex":"#E6C9B7"},{"code":"A24","r":247,"g":248,"b":162,"hex":"#F7F8A2"},{"code":"A25","r":255,"g":214,"b":125,"hex":"#FFD67D"},{"code":"A26","r":255,"g":200,"b":48,"hex":"#FFC830"},
@@ -3719,10 +4114,12 @@ function updateGlobalHistoryButtons() {
     if (isInsideOpenPalettePicker(e.target)) return;
     if (isPaletteHoverCloseTarget(e.target)) closePaletteDropdowns();
   }, true);
-  initPaletteDropdown();
-  refreshPaletteTrigger(currentSelectedBead);
-  fillBrandSelect(document.getElementById("beadBrandSelect"), DEFAULT_BEAD_BRAND);
-  fillBrandSelect(document.getElementById("beadStockBrandSelect"), stockBrandId);
+  try {
+    initPaletteDropdown();
+    refreshPaletteTrigger(currentSelectedBead);
+    fillBrandSelect(document.getElementById("beadBrandSelect"), DEFAULT_BEAD_BRAND);
+    fillBrandSelect(document.getElementById("beadStockBrandSelect"), stockBrandId);
+  } catch (_) {}
   const beadBrandSelect = document.getElementById("beadBrandSelect");
   if (beadBrandSelect) {
     beadBrandSelect.addEventListener("change", () => {
@@ -3819,6 +4216,10 @@ function updateGlobalHistoryButtons() {
       renderInteractionLayer();
       renderHeaders();
     });
+  }
+  function paintEditLayer() {
+    if (isCoarseUi()) scheduleHoverLayerRedraw();
+    else renderInteractionLayer();
   }
 
   let isEditMode = true, isPipetteMode = false, isCompareMode = false;
@@ -4216,6 +4617,7 @@ function updateHistoryButtons() {
       document.body.classList.add("has-upload-image");
       document.getElementById("uploadHintBanner").style.display = "block";
       updateOrigDimensionsLabel();
+      try { restoreVirtualPointerIfCompact(); } catch (_) {}
       cropOverlay.width = currentImage.width;
       cropOverlay.height = currentImage.height;
       cropOverlay.style.width = currentImage.width + "px";
@@ -7423,8 +7825,7 @@ function updateHistoryButtons() {
     const bounds = getVisibleSelectionBounds();
     if (!bounds) return null;
     const rect = interactionCanvas.getBoundingClientRect();
-    let clientX = e.clientX, clientY = e.clientY;
-    if (e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+    const { clientX, clientY } = clientPointFromEvent(e, { show: false });
     const cssX = clientX - rect.left, cssY = clientY - rect.top;
     const cellCss = rect.width > 0 ? rect.width / currentCols : 1;
     const h = selectionMoveHandlePoint(bounds, cellCss);
@@ -7512,8 +7913,7 @@ function updateHistoryButtons() {
     const ignoreHover = opts && opts.ignoreHover;
     const multi = parts.length > 1 && !isScalingSelection && !ignoreHover;
     const rect = interactionCanvas.getBoundingClientRect();
-    let clientX = e.clientX, clientY = e.clientY;
-    if (e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+    const { clientX, clientY } = clientPointFromEvent(e, { show: false });
     const cssX = clientX - rect.left, cssY = clientY - rect.top;
     const cellCss = rect.width > 0 ? rect.width / currentCols : 1;
     for (let pi = parts.length - 1; pi >= 0; pi--) {
@@ -7710,10 +8110,142 @@ function updateHistoryButtons() {
     renderBasePattern();
   }
 
+  let virtualPointerTouching = false;
+  let ignoreMouseUntil = 0;
+  const VIRTUAL_POINTER_LIFT = 52;
+
+  function canShowVirtualPointer() {
+    if (!isCoarseUi()) return false;
+    if (!document.body.classList.contains("has-upload-image")) return false;
+    try {
+      if (currentStage === "library") return false;
+    } catch (_) {}
+    return true;
+  }
+
+  function isFingerTouchEvent(e) {
+    if (!e) return false;
+    if (e.pointerType === "pen" || e.pointerType === "mouse") return false;
+    const t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]);
+    if (t && t.touchType === "stylus") return false;
+    if (e.pointerType === "touch") return true;
+    if (e.touches && e.touches.length > 0) return true;
+    return !!(e.type && e.type.indexOf("touch") === 0 && e.changedTouches && e.changedTouches.length);
+  }
+
+  function shouldSuppressMouseAfterTouch(e) {
+    if (!e) return false;
+    const isMouse = e.type === "mousedown" || e.type === "mousemove" || e.type === "mouseup" || e.type === "mouseleave";
+    if (!isMouse) return false;
+    if (e.isTrusted === false) return false;
+    return virtualPointerTouching || Date.now() < ignoreMouseUntil;
+  }
+
+  function rawEventClientPoint(e) {
+    let clientX = e.clientX, clientY = e.clientY;
+    if (e.touches && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else if (e.changedTouches && e.changedTouches.length > 0) {
+      clientX = e.changedTouches[0].clientX;
+      clientY = e.changedTouches[0].clientY;
+    }
+    return { clientX, clientY };
+  }
+
+  function virtualPointerEl() {
+    return document.getElementById("virtualPointer");
+  }
+
+  let virtualPointerLast = null;
+
+  function defaultVirtualPointerPos() {
+    const host = (typeof currentStage === "string" && currentStage === "upload")
+      ? document.getElementById("origViewport")
+      : document.getElementById("mainScroll") || document.getElementById("gridFrozenContainer");
+    if (host) {
+      const r = host.getBoundingClientRect();
+      if (r.width > 8 && r.height > 8) {
+        return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+      }
+    }
+    return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+  }
+
+  function showVirtualPointer(clientX, clientY) {
+    const el = virtualPointerEl();
+    if (!el) return;
+    if (!canShowVirtualPointer()) {
+      el.classList.remove("is-on");
+      return;
+    }
+    const x = Math.max(0, Math.min(window.innerWidth - 4, clientX));
+    const y = Math.max(0, Math.min(window.innerHeight - 4, clientY));
+    virtualPointerLast = { x, y };
+    const fsHost = typeof isBeadFullscreen === "function" && isBeadFullscreen() ? beadFsElement() : null;
+    const host = fsHost || document.body;
+    if (el.parentElement !== host) host.appendChild(el);
+    el.classList.add("is-on");
+    if (fsHost) {
+      const r = fsHost.getBoundingClientRect();
+      el.style.position = "absolute";
+      el.style.left = `${x - r.left}px`;
+      el.style.top = `${y - r.top}px`;
+    } else {
+      el.style.position = "fixed";
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+    }
+  }
+
+  function restoreVirtualPointerIfCompact() {
+    try {
+      if (!canShowVirtualPointer()) {
+        hideVirtualPointer(true);
+        return;
+      }
+      const pos = virtualPointerLast || defaultVirtualPointerPos();
+      showVirtualPointer(pos.x, pos.y);
+    } catch (_) {}
+  }
+
+  function hideVirtualPointer(force) {
+    if (!force && canShowVirtualPointer()) {
+      restoreVirtualPointerIfCompact();
+      return;
+    }
+    const el = virtualPointerEl();
+    if (el) el.classList.remove("is-on");
+  }
+
+  function beginVirtualPointerTouch() {
+    virtualPointerTouching = true;
+  }
+
+  function endVirtualPointerTouch() {
+    virtualPointerTouching = false;
+    ignoreMouseUntil = Date.now() + 500;
+    if (isCoarseUi()) restoreVirtualPointerIfCompact();
+    else hideVirtualPointer(true);
+  }
+
+  function clientPointFromEvent(e, opts) {
+    const raw = rawEventClientPoint(e);
+    const twoFinger = !!(e.touches && e.touches.length >= 2);
+    if (!isFingerTouchEvent(e) || pinchZooming || twoFinger) {
+      return raw;
+    }
+    let clientX = raw.clientX;
+    let clientY = raw.clientY - VIRTUAL_POINTER_LIFT;
+    clientX = Math.max(8, Math.min(window.innerWidth - 8, clientX));
+    clientY = Math.max(8, Math.min(window.innerHeight - 8, clientY));
+    if ((!opts || opts.show !== false) && canShowVirtualPointer()) showVirtualPointer(clientX, clientY);
+    return { clientX, clientY };
+  }
+
   function getCanvasCoordsFromEvent(e) {
     const rect = interactionCanvas.getBoundingClientRect();
-    let clientX = e.clientX, clientY = e.clientY;
-    if (e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+    const { clientX, clientY } = clientPointFromEvent(e);
     const fx = rect.width > 0 ? (clientX - rect.left) / rect.width * currentCols : 0;
     const fy = rect.height > 0 ? (clientY - rect.top) / rect.height * currentRows : 0;
     const col = Math.floor(fx);
@@ -7733,14 +8265,16 @@ function updateHistoryButtons() {
     if (!tooltip) return;
     tooltip.style.display = "block";
     const host = isBeadFullscreen() ? beadFsElement() : null;
-    const ox = coarse ? 8 : 14;
-    const oy = coarse ? -58 : 14;
+    const vpOn = virtualPointerEl() && virtualPointerEl().classList.contains("is-on");
+    const lift = coarse && !vpOn;
+    const ox = lift ? 8 : 14;
+    const oy = lift ? -58 : 14;
     if (host) {
       const r = host.getBoundingClientRect();
       const tw = tooltip.offsetWidth || 148;
       const th = tooltip.offsetHeight || 52;
       tooltip.style.position = "absolute";
-      let left = clientX - r.left + (coarse ? -(tw / 2) : ox);
+      let left = clientX - r.left + (lift ? -(tw / 2) : ox);
       let top = clientY - r.top + oy;
       left = Math.max(8, Math.min(r.width - tw - 8, left));
       top = Math.max(8, Math.min(r.height - th - 8, top));
@@ -8109,6 +8643,54 @@ function updateHistoryButtons() {
     return document.querySelector(".orig-viewport-wrap") || document.getElementById("origViewport");
   }
 
+  function isDockedSelectMiniBar(bar) {
+    return !!(bar && bar.closest && bar.closest("#compactSelectSlot"));
+  }
+
+  function placeSelectMiniBarsForUi() {
+    try {
+    const slot = document.getElementById("compactSelectSlot");
+    const uploadBar = document.getElementById("uploadSelectMiniBar");
+    const selectBar = document.getElementById("selectMiniBar");
+    const uploadHome = document.querySelector(".orig-viewport-wrap");
+    const selectHome = document.getElementById("gridFrozenContainer");
+    const compact = isCoarseUi();
+    document.body.classList.toggle("is-compact-ui", compact);
+    if (compact && slot) {
+      [uploadBar, selectBar].forEach((bar) => {
+        if (!bar) return;
+        bar.style.left = "";
+        bar.style.top = "";
+        if (bar.parentElement !== slot) slot.appendChild(bar);
+      });
+    } else {
+      if (uploadBar && uploadHome && uploadBar.parentElement !== uploadHome) {
+        const vp = document.getElementById("origViewport");
+        if (vp && vp.parentElement === uploadHome) uploadHome.insertBefore(uploadBar, vp);
+        else uploadHome.appendChild(uploadBar);
+      }
+      if (selectBar && selectHome && selectBar.parentElement !== selectHome) {
+        const scroll = document.getElementById("mainScroll");
+        if (scroll && scroll.parentElement === selectHome) selectHome.insertBefore(selectBar, scroll);
+        else selectHome.appendChild(selectBar);
+      }
+    }
+    if (typeof layoutStatusMiniBars === "function") layoutStatusMiniBars();
+    if (typeof syncCompactSelectSlot === "function") syncCompactSelectSlot();
+    if (compact) restoreVirtualPointerIfCompact();
+    else hideVirtualPointer(true);
+    } catch (_) {}
+  }
+
+  function syncCompactSelectSlot() {
+    const slot = document.getElementById("compactSelectSlot");
+    if (!slot) return;
+    const uploadBar = document.getElementById("uploadSelectMiniBar");
+    const selectBar = document.getElementById("selectMiniBar");
+    const any = (uploadBar && !uploadBar.hidden) || (selectBar && !selectBar.hidden);
+    slot.hidden = !(isCoarseUi() && any);
+  }
+
   function applyUploadSelectMiniBarPos(bar, clientLeft, clientTop) {
     const host = getUploadSelectBarHost();
     if (!bar || !host) return null;
@@ -8144,8 +8726,8 @@ function updateHistoryButtons() {
     const selectBar = document.getElementById("selectMiniBar");
     const uploadBar = document.getElementById("uploadSelectMiniBar");
     const anchorBar = document.getElementById("anchorMiniBar");
-    const selectOn = !!(selectBar && !selectBar.hidden);
-    const uploadOn = !!(uploadBar && !uploadBar.hidden);
+    const selectOn = !!(selectBar && !selectBar.hidden && !isDockedSelectMiniBar(selectBar));
+    const uploadOn = !!(uploadBar && !uploadBar.hidden && !isDockedSelectMiniBar(uploadBar));
     const anchorOn = !!(anchorBar && !anchorBar.hidden);
     if (!selectOn && !uploadOn && !anchorOn) return;
 
@@ -8218,6 +8800,7 @@ function updateHistoryButtons() {
       applyAnchorMiniBarPos(anchorBar, p.left, p.top);
     }
   }
+  try { placeSelectMiniBarsForUi(); } catch (_) {}
 
   function placeUploadSelectMiniBar(bar, sx, sy, extraGap, avoidRect) {
     const host = getUploadSelectBarHost();
@@ -8250,6 +8833,7 @@ function updateHistoryButtons() {
       selectMiniBarUserPos = null;
       bar.classList.remove("is-dragging");
       layoutStatusMiniBars();
+      syncCompactSelectSlot();
       return;
     }
     bar.hidden = false;
@@ -8282,6 +8866,7 @@ function updateHistoryButtons() {
       freeBtn.classList.toggle("highlight", showScale && !scaleKeepRatio);
     }
     layoutStatusMiniBars();
+    syncCompactSelectSlot();
   }
 
   (function bindAnchorMiniBar() {
@@ -8329,6 +8914,7 @@ function updateHistoryButtons() {
     if (selectBar) {
       selectBar.addEventListener("pointerdown", (e) => {
         e.stopPropagation();
+        if (isDockedSelectMiniBar(selectBar)) return;
         if (e.target.closest("button") || e.target.closest(".upload-sel-submenu")) return;
         const rect = selectBar.getBoundingClientRect();
         selectMiniBarDrag = {
@@ -8428,6 +9014,7 @@ function updateHistoryButtons() {
       });
     }
     window.addEventListener("resize", () => {
+      if (typeof placeSelectMiniBarsForUi === "function") placeSelectMiniBarsForUi();
       syncAnchorMiniBar();
       syncSelectMiniBar();
       if (typeof syncUploadSelectMiniBar === "function") syncUploadSelectMiniBar();
@@ -8442,6 +9029,7 @@ function updateHistoryButtons() {
     if (uploadSelBar) {
       uploadSelBar.addEventListener("pointerdown", (e) => {
         e.stopPropagation();
+        if (isDockedSelectMiniBar(uploadSelBar)) return;
         if (e.target.closest("button") || e.target.closest(".upload-sel-submenu")) return;
         const rect = uploadSelBar.getBoundingClientRect();
         uploadSelectMiniBarDrag = {
@@ -9010,18 +9598,25 @@ function updateHistoryButtons() {
   interactionCanvas.addEventListener("touchstart", (e) => {
     if (e.touches.length >= 2 || pinchZooming) {
       isMouseDown = false;
+      hideVirtualPointer(true);
       e.preventDefault();
       return;
     }
     if (isBeadStage()) {
       beadTouchHovering = true;
+      beginVirtualPointerTouch();
       handlePointerMove(e);
       return;
     }
-    if (isEditMode) { e.preventDefault(); handlePointerStart(e); }
+    if (isEditMode) {
+      beginVirtualPointerTouch();
+      e.preventDefault();
+      handlePointerStart(e);
+    }
   }, { passive: false });
 
   function handlePointerStart(e) {
+    if (shouldSuppressMouseAfterTouch(e)) return;
     if (isBeadStage() || !isEditMode || patternGridData.length === 0) return;
     const { col, row, fx, fy } = getCanvasCoordsFromEvent(e);
     updateHoverEditPart(e);
@@ -9204,7 +9799,7 @@ function updateHistoryButtons() {
     if (isScalingSelection || isMovingSelection || isMovingMarquee || isPolyHandleDrag) handlePointerMove(e);
   });
   interactionCanvas.addEventListener("touchmove", (e) => {
-    if (e.touches.length >= 2 || pinchZooming) { e.preventDefault(); return; }
+    if (e.touches.length >= 2 || pinchZooming) { hideVirtualPointer(true); e.preventDefault(); return; }
     if (isBeadStage()) {
       beadTouchHovering = true;
       handlePointerMove(e);
@@ -9217,23 +9812,26 @@ function updateHistoryButtons() {
     beadTouchHovering = true;
     handlePointerMove(e);
   }, { passive: true });
-  window.addEventListener("touchend", () => {
+  window.addEventListener("touchend", (e) => {
+    if (!e.touches || e.touches.length === 0) endVirtualPointerTouch();
     if (!beadTouchHovering) return;
     beadTouchHovering = false;
     clearHover();
   });
   window.addEventListener("touchcancel", () => {
+    endVirtualPointerTouch();
     if (!beadTouchHovering) return;
     beadTouchHovering = false;
     clearHover();
   });
 
   function handlePointerMove(e) {
+    if (shouldSuppressMouseAfterTouch(e)) return;
     if (patternGridData.length === 0) return;
     const { col, row, fx, fy, clientX, clientY } = getCanvasCoordsFromEvent(e);
 
     if (!isBeadStage() && isEditMode && !isScalingSelection && !isMovingMarquee && !isMovingSelection && !isPainting) {
-      if (updateHoverEditPart(e)) renderInteractionLayer();
+      if (updateHoverEditPart(e)) paintEditLayer();
     }
 
     if (!isBeadStage() && isEditMode && isPainting && (editPaintTool === "pencil" || editPaintTool === "eraser")) {
@@ -9242,7 +9840,7 @@ function updateHistoryButtons() {
 
     if (!isBeadStage() && isEditMode && isScalingSelection && scaleStartBounds) {
       scalePreviewBounds = boundsFromScaleHandle(scaleHandleId, col, row, scaleStartBounds);
-      renderInteractionLayer();
+      paintEditLayer();
     }
 
     const scaleCursors = { nw: "nwse-resize", n: "ns-resize", ne: "nesw-resize", e: "ew-resize", se: "nwse-resize", s: "ns-resize", sw: "nesw-resize", w: "ew-resize" };
@@ -9286,21 +9884,21 @@ function updateHistoryButtons() {
           }
         }
       }
-      renderInteractionLayer();
+      paintEditLayer();
     } else if (!isBeadStage() && isEditMode && isAnchorSelectTool() && editPolyPoints.length && !anchorPaused) {
       editPolyHover = { x: fx, y: fy };
       polyHandleHover = hitTestPolyHandle(editPolyPoints, fx, fy, 0.32, 0.14);
       if (interactionCanvas) {
         interactionCanvas.style.cursor = (polyHandleHover || isHoveringPolyCloseAnchor()) ? "pointer" : "";
       }
-      renderInteractionLayer();
+      paintEditLayer();
     }
 
     if (!isBeadStage() && isEditMode && (isMovingSelection || isMovingMarquee) && moveStartCell) {
       const c = Math.max(0, Math.min(currentCols - 1, col));
       const r = Math.max(0, Math.min(currentRows - 1, row));
       moveOffset = clampMoveOffset(c - moveStartCell.col, r - moveStartCell.row);
-      renderInteractionLayer();
+      paintEditLayer();
     }
 
     if (col >= 0 && col < currentCols && row >= 0 && row < currentRows) {
@@ -9330,9 +9928,12 @@ function updateHistoryButtons() {
           }
         }
         updateSelectCount();
-        renderInteractionLayer();
         if (!hoveredCell || hoveredCell.col !== col || hoveredCell.row !== row) {
           hoveredCell = { col, row };
+        }
+        if (isCoarseUi()) scheduleHoverLayerRedraw();
+        else {
+          renderInteractionLayer();
           renderHeaders();
         }
       } else if (!hoveredCell || hoveredCell.col !== col || hoveredCell.row !== row) {
@@ -9599,6 +10200,7 @@ function updateHistoryButtons() {
     if (!isPatternStage() || currentCols === 0 || e.touches.length !== 2) return;
     pinchZooming = true;
     isMouseDown = false;
+    hideVirtualPointer(true);
     pinchStartDist = pinchDistance(e.touches[0], e.touches[1]);
     pinchStartZoom = canvasZoom;
     e.preventDefault();
@@ -9625,6 +10227,7 @@ function updateHistoryButtons() {
     pinchZooming = false;
     pinchPending = null;
     scheduleZoomCommit();
+    restoreVirtualPointerIfCompact();
   }
 
   const gridFrozenContainer = document.getElementById("gridFrozenContainer");
@@ -9718,9 +10321,13 @@ function updateHistoryButtons() {
     });
   }
   (function initBeadWidthMarks() {
-    fillBeadWidthChips(document.getElementById("beadWidthChips"));
-    updateBeadSizeLabel(document.getElementById("beadWidth").value);
+    try {
+      fillBeadWidthChips(document.getElementById("beadWidthChips"));
+      const w = document.getElementById("beadWidth");
+      if (w) updateBeadSizeLabel(w.value);
+    } catch (_) {}
   })();
+  try {
   document.getElementById("sharpen").addEventListener("input", (e) => { document.getElementById("sharpenVal").textContent = `${e.target.value}%`; scheduleProcessImage("調整銳利度"); });
   document.getElementById("saturation").addEventListener("input", (e) => { document.getElementById("saturationVal").textContent = `${e.target.value}%`; scheduleProcessImage("調整飽和度"); });
   document.getElementById("contrast").addEventListener("input", (e) => { document.getElementById("contrastVal").textContent = `${e.target.value}%`; scheduleProcessImage("調整對比度"); });
@@ -9732,6 +10339,7 @@ function updateHistoryButtons() {
   
   document.getElementById("samplingMode").addEventListener("change", () => scheduleProcessImage("變更取樣模式"));
   document.getElementById("cleanNoise").addEventListener("change", () => scheduleProcessImage("噪點過濾"));
+  } catch (_) {}
   document.getElementById("beadShowCodes")?.addEventListener("change", () => { renderBasePattern(); });
   document.getElementById("beadUsageBtn")?.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -10127,7 +10735,7 @@ function updateHistoryButtons() {
   }
 
   async function scheduleFaceDetect() {
-    if (!currentImage) {
+    if (!currentImage || isCoarseUi()) {
       detectedFaces = [];
       setFaceCropEnabled(false);
       updateOrigDimensionsLabel();
@@ -10197,8 +10805,13 @@ function updateHistoryButtons() {
   let uploadStaticDirty = true;
 
   function triggerFileInput(e) {
-    if (uploadTool !== 'none' || e.target.tagName.toLowerCase() === 'button') return;
-    document.getElementById("imageInput").click();
+    if (document.body.classList.contains("has-upload-image")) return;
+    if (!e || uploadTool !== "none") return;
+    const t = e.target;
+    if (!t) return;
+    if (t.tagName && t.tagName.toLowerCase() === "button") return;
+    if (t.closest && t.closest("#origUploadHit, label[for='imageInput'], #uploadLoadBtn")) return;
+    openImageFilePicker();
   }
 
   const origViewport = document.getElementById("origViewport");
@@ -10207,74 +10820,204 @@ function updateHistoryButtons() {
     if (typeof syncUploadSelectMiniBar === "function") syncUploadSelectMiniBar();
     if (typeof scheduleMinimapViewport === "function") scheduleMinimapViewport();
   }, { passive: true });
-  origViewport.addEventListener("dragover", (e) => { e.preventDefault(); origViewport.classList.add("drag-over"); });
+  origViewport.addEventListener("dragover", (e) => {
+    if (document.body.classList.contains("has-upload-image")) return;
+    e.preventDefault();
+    origViewport.classList.add("drag-over");
+  });
   origViewport.addEventListener("dragleave", () => { origViewport.classList.remove("drag-over"); });
   origViewport.addEventListener("drop", (e) => {
     e.preventDefault();
     origViewport.classList.remove("drag-over");
+    if (document.body.classList.contains("has-upload-image")) return;
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleImageLoad(e.dataTransfer.files[0]);
     }
   });
 
   async function handleImageLoad(file) {
-    try {
-      const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
-      const cvs = document.createElement("canvas");
-      cvs.width = bitmap.width;
-      cvs.height = bitmap.height;
-      const ctx = cvs.getContext("2d");
-      ctx.drawImage(bitmap, 0, 0);
-      setupImageFromDataUrl(cvs.toDataURL("image/png"));
-    } catch (err) {
+    if (!file) return;
+    const dim = document.getElementById("origDimensions");
+    if (dim) dim.textContent = "載入圖片中…";
+    const readAsDataUrl = () => new Promise((resolve) => {
       const reader = new FileReader();
-      reader.onload = (event) => setupImageFromDataUrl(event.target.result);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => resolve("");
       reader.readAsDataURL(file);
+    });
+    const loadFromObjectUrl = () => {
+      try {
+        const objUrl = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => downscaleWorkingImage(img, applyLoadedWorkingImage);
+        img.onerror = async () => {
+          const dataUrl = await readAsDataUrl();
+          if (dataUrl) setupImageFromDataUrl(dataUrl);
+          else if (dim) dim.textContent = "無法載入此圖片";
+        };
+        img.src = objUrl;
+      } catch (_) {
+        readAsDataUrl().then((dataUrl) => {
+          if (dataUrl) setupImageFromDataUrl(dataUrl);
+          else if (dim) dim.textContent = "無法載入此圖片";
+        });
+      }
+    };
+    try {
+      if (typeof createImageBitmap === "function") {
+        let bitmap = null;
+        try { bitmap = await createImageBitmap(file, { imageOrientation: "from-image" }); } catch (_) {}
+        if (!bitmap) try { bitmap = await createImageBitmap(file); } catch (_) {}
+        if (bitmap && bitmap.width) {
+          const maxSide = workingImageMaxSide();
+          const longest = Math.max(bitmap.width, bitmap.height);
+          let source = bitmap;
+          if (maxSide && longest > maxSide) {
+            const scale = maxSide / longest;
+            const rw = Math.max(1, Math.round(bitmap.width * scale));
+            const rh = Math.max(1, Math.round(bitmap.height * scale));
+            try {
+              const resized = await createImageBitmap(bitmap, {
+                resizeWidth: rw,
+                resizeHeight: rh,
+                resizeQuality: "low"
+              });
+              if (bitmap.close && bitmap !== resized) try { bitmap.close(); } catch (_) {}
+              source = resized;
+            } catch (_) {
+              const cvs = canvasFromSource(bitmap, bitmap.width, bitmap.height, maxSide, true);
+              if (bitmap.close) try { bitmap.close(); } catch (_) {}
+              const url = await canvasToSafeUrl(cvs, "image/jpeg", 0.72);
+              if (url) {
+                setupImageFromDataUrl(url);
+                return;
+              }
+              loadFromObjectUrl();
+              return;
+            }
+          } else if (isCoarseUi()) {
+            if (bitmap.close) try { bitmap.close(); } catch (_) {}
+            loadFromObjectUrl();
+            return;
+          }
+          const cvs = document.createElement("canvas");
+          cvs.width = source.width;
+          cvs.height = source.height;
+          const ctx = cvs.getContext("2d");
+          if (ctx) {
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(source, 0, 0);
+          }
+          if (source.close) try { source.close(); } catch (_) {}
+          const url = await canvasToSafeUrl(cvs, isCoarseUi() ? "image/jpeg" : "image/png", isCoarseUi() ? 0.72 : 0.88);
+          if (url) {
+            setupImageFromDataUrl(url);
+            return;
+          }
+        }
+      }
+    } catch (_) {}
+    loadFromObjectUrl();
+  }
+
+  function applyLoadedWorkingImage(working) {
+    if (!working) return;
+    editingLibraryId = null;
+    rawSourceImage = working;
+    const reveal = () => {
+      currentImage = working;
+      const origImgEl = document.getElementById("originalImg");
+      origImgEl.src = working.src;
+      origImgEl.style.display = "block";
+      origImgEl.style.width = (working.naturalWidth || working.width) + "px";
+      origImgEl.style.height = (working.naturalHeight || working.height) + "px";
+
+      document.getElementById("origPlaceholder").style.display = "none";
+      document.body.classList.add("has-upload-image");
+      document.getElementById("uploadHintBanner").style.display = "block";
+      updateOrigDimensionsLabel();
+      try { restoreVirtualPointerIfCompact(); } catch (_) {}
+
+      cropOverlay.width = working.naturalWidth || working.width;
+      cropOverlay.height = working.naturalHeight || working.height;
+      cropOverlay.style.width = cropOverlay.width + "px";
+      cropOverlay.style.height = cropOverlay.height + "px";
+
+      historyStack = [];
+      historyIndex = -1;
+      uploadHistoryStack = [];
+      uploadHistoryIndex = -1;
+      try {
+        if (isCoarseUi()) updateBeadSizeLabel();
+        else applySuggestedBeadWidth();
+      } catch (_) {}
+      const runCore = () => {
+        try { processImageCore(true, "載入圖片"); } catch (_) {}
+        try { pushUploadHistoryState(); } catch (_) {}
+        try { scheduleFaceDetect(); } catch (_) {}
+      };
+      if (isCoarseUi()) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => setTimeout(runCore, 0));
+        });
+      } else {
+        runCore();
+      }
+      setTimeout(() => { fitOrigToWindow(); fitCanvasToWindow(); }, 50);
+    };
+    if (working.complete && (working.naturalWidth || working.width)) reveal();
+    else {
+      working.onload = reveal;
+      working.onerror = () => {};
     }
   }
 
   function setupImageFromDataUrl(dataUrl) {
     editingLibraryId = null;
+    if (!isUsableImageUrl(dataUrl) && !(typeof dataUrl === "string" && dataUrl.indexOf("data:image") === 0 && dataUrl.length > 24)) {
+      return;
+    }
     rawSourceImage = new Image();
-    rawSourceImage.onload = () => {
-      currentImage = new Image();
-      currentImage.onload = () => {
-        const origImgEl = document.getElementById("originalImg");
-        origImgEl.src = currentImage.src;
-        origImgEl.style.display = "block";
-        origImgEl.style.width = currentImage.width + "px";
-        origImgEl.style.height = currentImage.height + "px";
-
-        document.getElementById("origPlaceholder").style.display = "none";
-        document.body.classList.add("has-upload-image");
-        document.getElementById("uploadHintBanner").style.display = "block";
-        updateOrigDimensionsLabel();
-
-        cropOverlay.width = currentImage.width;
-        cropOverlay.height = currentImage.height;
-        cropOverlay.style.width = currentImage.width + "px";
-        cropOverlay.style.height = currentImage.height + "px";
-
-        historyStack = [];
-        historyIndex = -1;
-        uploadHistoryStack = [];
-        uploadHistoryIndex = -1;
-        applySuggestedBeadWidth();
-        processImageCore(true, "載入圖片");
-        pushUploadHistoryState();
-        scheduleFaceDetect();
-        setTimeout(() => { fitOrigToWindow(); fitCanvasToWindow(); }, 50);
-      };
-      currentImage.src = dataUrl;
-    };
+    rawSourceImage.onload = () => downscaleWorkingImage(rawSourceImage, applyLoadedWorkingImage);
+    rawSourceImage.onerror = () => {};
     rawSourceImage.src = dataUrl;
   }
 
-  document.getElementById("imageInput").addEventListener("change", (e) => {
-    if (e.target.files[0]) handleImageLoad(e.target.files[0]);
-  });
+  bindImageInput();
+  if (pendingUploadFile) {
+    const queued = pendingUploadFile;
+    pendingUploadFile = null;
+    handleImageLoad(queued);
+  }
 
   function layoutImageToolboxFan() {}
+
+  function closeImageToolboxMenu() {
+    const box = document.getElementById("imageToolbox");
+    if (box) box.classList.remove("is-menu-open");
+  }
+  function bindImageToolboxMenu() {
+    const box = document.getElementById("imageToolbox");
+    const btn = document.getElementById("imageToolboxToggle");
+    if (!box || !btn || btn.dataset.bound === "1") return;
+    btn.dataset.bound = "1";
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      box.classList.toggle("is-menu-open");
+    });
+    const zoomBar = document.getElementById("floatingZoomBar");
+    if (zoomBar) {
+      zoomBar.addEventListener("pointerdown", closeImageToolboxMenu);
+      zoomBar.addEventListener("click", closeImageToolboxMenu);
+    }
+    document.addEventListener("pointerdown", (e) => {
+      if (!box.classList.contains("is-menu-open")) return;
+      if (box.contains(e.target)) return;
+      closeImageToolboxMenu();
+    }, true);
+  }
+  bindImageToolboxMenu();
 
   function isUploadMarqueeTool() {
     return uploadTool === "rect" || uploadTool === "roundrect" || uploadTool === "circle" || uploadTool === "ellipse";
@@ -10955,7 +11698,25 @@ function updateHistoryButtons() {
     }
   }
 
+  let uploadMarqueeRaf = 0;
+  let uploadMarqueePendingOpts = null;
   function drawUploadMarquee(opts) {
+    if (isCoarseUi() && !(opts && opts.sync)) {
+      if (!uploadMarqueePendingOpts || !(opts && opts.antsOnly)) {
+        uploadMarqueePendingOpts = opts || null;
+      }
+      if (uploadMarqueeRaf) return;
+      uploadMarqueeRaf = requestAnimationFrame(() => {
+        uploadMarqueeRaf = 0;
+        const pending = uploadMarqueePendingOpts;
+        uploadMarqueePendingOpts = null;
+        drawUploadMarqueeNow(pending);
+      });
+      return;
+    }
+    drawUploadMarqueeNow(opts);
+  }
+  function drawUploadMarqueeNow(opts) {
     const antsOnly = !!(opts && opts.antsOnly);
     ctxCrop.clearRect(0, 0, cropOverlay.width, cropOverlay.height);
     const shapes = collectUploadShapes();
@@ -11238,6 +11999,7 @@ function updateHistoryButtons() {
       uploadSelectMiniBarUserPos = null;
       bar.classList.remove("is-dragging");
       layoutStatusMiniBars();
+      syncCompactSelectSlot();
       return;
     }
     bar.hidden = false;
@@ -11273,6 +12035,7 @@ function updateHistoryButtons() {
       freeBtn.classList.toggle("highlight", showMarquee && !uploadScaleKeepRatio);
     }
     layoutStatusMiniBars();
+    syncCompactSelectSlot();
   }
 
   function syncUploadToolHighlights() {
@@ -11477,12 +12240,7 @@ function updateHistoryButtons() {
 
   function getCropPreciseCoords(e) {
     const rect = cropOverlay.getBoundingClientRect();
-    let clientX = e.clientX, clientY = e.clientY;
-    if (e.touches && e.touches.length > 0) {
-      clientX = e.touches[0].clientX;
-      clientY = e.touches[0].clientY;
-    }
-    
+    const { clientX, clientY } = clientPointFromEvent(e);
     const scaleX = cropOverlay.width / rect.width;
     const scaleY = cropOverlay.height / rect.height;
 
@@ -11572,6 +12330,7 @@ function updateHistoryButtons() {
   }
 
   cropOverlay.addEventListener("mousedown", (e) => {
+    if (shouldSuppressMouseAfterTouch(e)) return;
     if (!currentImage) return;
     const { x, y } = getCropPreciseCoords(e);
     const strokeScale = 1 / (origZoom || 1);
@@ -11720,6 +12479,43 @@ function updateHistoryButtons() {
     }
   });
 
+  function dispatchOffsetMouseFromTouch(target, type, e) {
+    const p = clientPointFromEvent(e);
+    target.dispatchEvent(new MouseEvent(type, {
+      bubbles: true,
+      cancelable: true,
+      view: window,
+      clientX: p.clientX,
+      clientY: p.clientY,
+      button: 0,
+      buttons: type === "mouseup" ? 0 : 1
+    }));
+  }
+  cropOverlay.addEventListener("touchstart", (e) => {
+    if (!currentImage || e.touches.length >= 2) return;
+    e.preventDefault();
+    beginVirtualPointerTouch();
+    dispatchOffsetMouseFromTouch(cropOverlay, "mousedown", e);
+  }, { passive: false });
+  cropOverlay.addEventListener("touchmove", (e) => {
+    if (!currentImage || e.touches.length >= 2) {
+      hideVirtualPointer(true);
+      return;
+    }
+    e.preventDefault();
+    dispatchOffsetMouseFromTouch(cropOverlay, "mousemove", e);
+  }, { passive: false });
+  cropOverlay.addEventListener("touchend", (e) => {
+    if (e.touches && e.touches.length > 0) return;
+    e.preventDefault();
+    dispatchOffsetMouseFromTouch(window, "mouseup", e);
+    endVirtualPointerTouch();
+  }, { passive: false });
+  cropOverlay.addEventListener("touchcancel", () => {
+    window.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, cancelable: true, view: window }));
+    endVirtualPointerTouch();
+  });
+
   function clonePolyPoints(pts) {
     const next = (pts || []).map((p) => ({
       x: p.x,
@@ -11816,6 +12612,7 @@ function updateHistoryButtons() {
   }
 
   cropOverlay.addEventListener("mousemove", (e) => {
+    if (shouldSuppressMouseAfterTouch(e)) return;
     if (uploadTool === "poly") {
       const { x, y } = getCropPreciseCoords(e);
       if (isMovingUploadPoly) {
@@ -11891,6 +12688,7 @@ function updateHistoryButtons() {
   });
 
   window.addEventListener("mousemove", (e) => {
+    if (shouldSuppressMouseAfterTouch(e)) return;
     if (uploadTool === "poly" && isMovingUploadPoly) {
       const { x, y } = getCropPreciseCoords(e);
       applyClosedPolyDrag(x, y);
@@ -11927,7 +12725,8 @@ function updateHistoryButtons() {
     }
   });
 
-  window.addEventListener("mouseup", () => {
+  window.addEventListener("mouseup", (e) => {
+    if (shouldSuppressMouseAfterTouch(e)) return;
     if (uploadTool === "poly") {
       if (isMovingUploadPoly) {
         resetUploadPolyMove();
@@ -11994,7 +12793,7 @@ function updateHistoryButtons() {
   }
 
   function drawPolySelection(opts) {
-    drawUploadMarquee(opts);
+    drawUploadMarquee(Object.assign({}, opts || {}, { sync: true }));
 
     const viewScale = 1 / (origZoom || 1);
     const lineWidthVal = Math.max(1.8, 3 * viewScale);
@@ -13423,6 +14222,7 @@ function updateHistoryButtons() {
       document.body.classList.add("has-upload-image");
       document.getElementById("uploadHintBanner").style.display = "block";
       updateOrigDimensionsLabel();
+      try { restoreVirtualPointerIfCompact(); } catch (_) {}
 
       cropOverlay.width = currentImage.width;
       cropOverlay.height = currentImage.height;
