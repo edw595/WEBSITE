@@ -251,7 +251,8 @@ body.stage-edit .floating-zoom-stack {
 .floating-tools-stack.is-over-content:hover .image-toolbox-toggle {
   opacity: 1;
 }
-body.stage-edit .pattern-minimap.is-ready {
+body.stage-edit .pattern-minimap.is-ready,
+body.stage-upload.has-upload-image .pattern-minimap.is-ready {
   display: block;
 }
 .pattern-minimap {
@@ -293,7 +294,8 @@ body.stage-edit .pattern-minimap.is-ready {
   align-items: flex-end;
   gap: 8px;
 }
-body.stage-edit .minimap-guide-row:has(#patternMinimap.is-ready) {
+body.stage-edit .minimap-guide-row:has(#patternMinimap.is-ready),
+body.stage-upload.has-upload-image .minimap-guide-row:has(#patternMinimap.is-ready) {
   display: flex;
 }
 .grid-guide-dock {
@@ -495,7 +497,7 @@ body.stage-upload.has-upload-image .image-toolbox {
   height: 8px;
 }
 .image-toolbox:hover .image-toolbox-menu,
-.image-toolbox:focus-within .image-toolbox-menu {
+.image-toolbox.is-menu-open .image-toolbox-menu {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
@@ -557,7 +559,7 @@ body.stage-upload.has-upload-image .image-toolbox {
   height: 8px;
 }
 .wand-tool-wrap:hover .wand-tolerance-menu,
-.wand-tool-wrap:focus-within .wand-tolerance-menu {
+.wand-tool-wrap.is-menu-open .wand-tolerance-menu {
   display: flex;
 }
 .wand-tolerance-menu label {
@@ -666,7 +668,7 @@ body.stage-upload.has-upload-image .image-toolbox {
       width: 28px;
       height: 28px;
       border-radius: 50%;
-      background: var(--highlight-active);
+      background: #4a4d63;
       color: #1e1e2e;
       font-family: 'Silkscreen', 'Press Start 2P', monospace;
       font-weight: 900;
@@ -674,11 +676,24 @@ body.stage-upload.has-upload-image .image-toolbox {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 2px 2px 0 #c4b000;
+      box-shadow: 2px 2px 0 #313244;
       flex-shrink: 0;
       line-height: 1;
+      opacity: 0.4;
+      filter: saturate(0.25) brightness(0.72);
+      transition: opacity 0.2s, filter 0.2s, background 0.2s, box-shadow 0.2s;
+    }
+    .stage-tab:not(.active) {
+      color: #6c7086;
+    }
+    .stage-tab:hover:not(.active) .stage-num {
+      opacity: 0.62;
+      filter: saturate(0.4) brightness(0.85);
     }
     .stage-tab.active .stage-num {
+      background: var(--highlight-active);
+      opacity: 1;
+      filter: none;
       box-shadow: 0 0 12px rgba(255, 230, 0, 0.75), 2px 2px 0 #c4b000;
     }
 
@@ -816,9 +831,20 @@ body.stage-upload.has-upload-image .image-toolbox {
       justify-content: center;
       gap: 6px;
       min-width: 0;
+      position: relative;
+      min-height: 28px;
+      padding: 0 46px;
     }
-    .library-card-title { font-size: 0.85rem; font-weight: 900; color: var(--text-main); word-break: break-all; text-align: left; min-width: 0; flex: 1; }
-    .library-card-rename { flex-shrink: 0; width: auto; }
+    .library-card.is-pickable .library-card-title-row { padding: 0; }
+    .library-card-title { font-size: 0.85rem; font-weight: 900; color: var(--text-main); word-break: break-all; text-align: center; min-width: 0; width: 100%; }
+    .library-card-rename {
+      flex-shrink: 0;
+      width: auto;
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+    }
     .library-card.is-pickable .library-card-rename { display: none; }
     .library-title-hint { font-size: 0.78rem; font-weight: 700; color: var(--text-sub); }
     #panelLibrary .view-title .zoom-btn {
@@ -838,6 +864,21 @@ body.stage-upload.has-upload-image .image-toolbox {
       border-radius: 12px;
     }
     .bead-stock-panel.is-open { display: flex; }
+    .bead-stock-toolbar {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+    }
+    .bead-stock-toolbar label {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin: 0;
+      min-width: 220px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--text-sub);
+    }
     .bead-stock-summary {
       font-size: 0.78rem;
       font-weight: 800;
@@ -924,6 +965,41 @@ body.stage-upload.has-upload-image .image-toolbox {
       cursor: pointer;
     }
     .app-modal-check input { width: 16px; height: 16px; accent-color: var(--title-red); }
+    .app-modal-choice-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .app-modal-choice {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .app-modal-choice label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+    .app-modal-choice input { width: 15px; height: 15px; accent-color: var(--title-red); }
+    .app-modal-grid-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .app-modal-grid-step input[type="text"] {
+      width: 56px;
+      text-align: center;
+      padding: 6px 8px;
+    }
+    .app-modal-grid-step.is-off {
+      opacity: 0.45;
+      pointer-events: none;
+    }
     .app-modal-field input[type="range"] { width: 100%; accent-color: var(--highlight-active); }
     .app-modal {
       position: fixed;
@@ -1274,6 +1350,9 @@ body.stage-upload.has-upload-image .image-toolbox {
     body.stage-upload .floating-zoom-stack {
       display: none;
     }
+    body.stage-upload.has-upload-image .floating-zoom-stack {
+      display: flex;
+    }
     .upload-tools-row {
       display: none;
       position: relative;
@@ -1366,6 +1445,7 @@ body.stage-upload.has-upload-image .image-toolbox {
     body.stage-bead #saveLibraryBtn { display: none; }
     .zoom-toolbar { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
     .zoom-btn { background: #313244; border: 1px solid var(--border-dark); border-radius: 6px; padding: 5px 9px; font-size: 0.78rem; font-weight: 700; cursor: pointer; color: var(--text-main); transition: 0.15s; display: inline-flex; align-items: center; gap: 4px; user-select: none; }
+    .zoom-btn[hidden] { display: none !important; }
     .tool-icon {
       width: 13px;
       height: 13px;
@@ -1426,6 +1506,21 @@ body.stage-upload.has-upload-image .image-toolbox {
       border-color: var(--title-red);
       color: #fff;
     }
+    @keyframes hint-btn-blink {
+      0%, 100% {
+        box-shadow: none;
+        filter: none;
+      }
+      45% {
+        box-shadow: 0 0 0 3px #ffe600, 0 0 16px rgba(255, 230, 0, 0.9);
+        filter: brightness(1.28);
+        border-color: #ffe600;
+      }
+    }
+    .zoom-btn.is-hint-blink,
+    .pattern-size-toggle.is-hint-blink {
+      animation: hint-btn-blink 0.3s ease-in-out 3;
+    }
     .pattern-size-menu {
       position: absolute;
       top: calc(100% + 4px);
@@ -1458,7 +1553,7 @@ body.stage-upload.has-upload-image .image-toolbox {
       height: 8px;
     }
     .pattern-size-toolbox:hover .pattern-size-menu,
-    .pattern-size-toolbox:focus-within .pattern-size-menu {
+    .pattern-size-toolbox.is-menu-open .pattern-size-menu {
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
@@ -1510,7 +1605,7 @@ body.stage-upload.has-upload-image .image-toolbox {
       height: 8px;
     }
     .select-sub-dock:hover .select-sub-menu,
-    .select-sub-dock:focus-within .select-sub-menu {
+    .select-sub-dock.is-menu-open .select-sub-menu {
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
@@ -1593,7 +1688,7 @@ body.stage-upload.has-upload-image .image-toolbox {
       height: 8px;
     }
     .paint-brush-tools:hover .brush-size-pop,
-    .paint-brush-tools:focus-within .brush-size-pop {
+    .paint-brush-tools.is-menu-open .brush-size-pop {
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
@@ -1653,33 +1748,36 @@ body.stage-upload.has-upload-image .image-toolbox {
       transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
     }
     .poly-confirm-btn.ok {
-      background: rgba(255, 230, 0, 0.18);
-      color: var(--highlight-active);
+      background: #ffe600;
+      color: #11111b;
+      border-color: #ffffff;
     }
     .poly-confirm-btn.cancel {
-      background: rgba(49, 50, 68, 0.55);
+      background: #45475a;
       color: #fff;
-      border-color: rgba(255, 255, 255, 0.22);
+      border-color: #cdd6f4;
     }
     .poly-confirm-btn:hover {
       transform: scale(1.06);
-      background: rgba(255, 230, 0, 0.28);
-      border-color: var(--highlight-active);
-      color: var(--highlight-active);
+    }
+    .poly-confirm-btn.ok:hover {
+      background: #fff46a;
+      border-color: #ffffff;
+      color: #11111b;
     }
     .poly-confirm-btn.cancel:hover {
-      background: rgba(69, 71, 90, 0.7);
+      background: #585b70;
       color: #fff;
-      border-color: rgba(255, 255, 255, 0.4);
+      border-color: #ffffff;
     }
     .poly-confirm-upload-btn {
       width: 104px;
       height: 52px;
       padding: 0 10px;
-      border: 1.5px solid rgba(80, 220, 130, 0.5);
+      border: 2px solid #ffffff;
       border-radius: 50px;
-      background: rgba(46, 204, 113, 0.22);
-      color: #b8ffd4;
+      background: #2ecc71;
+      color: #ffffff;
       font-size: 0.92rem;
       font-weight: 900;
       line-height: 1.2;
@@ -1722,6 +1820,20 @@ body.stage-upload.has-upload-image .image-toolbox {
     .orig-viewport.drag-over {
       border-color: var(--highlight-active);
       background-color: rgba(255, 230, 0, 0.08);
+    }
+    body.has-upload-image #origViewport {
+      display: block;
+      padding: 0;
+      text-align: left;
+    }
+    .orig-zoom-sizer {
+      box-sizing: border-box;
+      min-width: 100%;
+      min-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
     }
     .orig-zoom-frame {
       flex-shrink: 0;
@@ -1788,12 +1900,12 @@ body.stage-upload.has-upload-image .image-toolbox {
       display: flex;
       flex-direction: row;
       align-items: center;
-      gap: 4px;
-      padding: 4px;
-      background: #1e1e2e;
-      border: 1.5px solid var(--border-dark);
-      border-radius: 8px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+      gap: 5px;
+      padding: 6px;
+      background: #3b3d55;
+      border: 2px solid #ffe600;
+      border-radius: 10px;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 230, 0, 0.35);
       pointer-events: auto;
       touch-action: none;
       user-select: none;
@@ -1809,7 +1921,7 @@ body.stage-upload.has-upload-image .image-toolbox {
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #6c7086;
+      color: #ffe600;
       cursor: grab;
       flex: 0 0 14px;
     }
@@ -1822,11 +1934,24 @@ body.stage-upload.has-upload-image .image-toolbox {
     }
     .anchor-mini-bar[hidden] { display: none !important; }
     .anchor-mini-bar .zoom-btn {
-      padding: 4px 8px;
-      font-size: 0.72rem;
+      padding: 5px 10px;
+      font-size: 0.74rem;
       font-weight: 800;
       white-space: nowrap;
       cursor: pointer;
+      background: #585b76;
+      border: 1.5px solid #cdd6f4;
+      color: #ffffff;
+    }
+    .anchor-mini-bar .zoom-btn:hover {
+      background: #6c7086;
+      color: #fff;
+      border-color: #ffe600;
+    }
+    .anchor-mini-bar .zoom-btn.highlight {
+      background: #ffe600;
+      border-color: #ffffff;
+      color: #11111b;
     }
     .anchor-mini-bar .zoom-btn:disabled {
       opacity: 0.42;
@@ -1849,17 +1974,18 @@ body.stage-upload.has-upload-image .image-toolbox {
     .upload-sel-submenu {
       display: none;
       position: absolute;
-      top: calc(100% + 4px);
+      top: calc(100% + 5px);
       left: 0;
-      min-width: 100%;
-      padding: 4px;
-      background: #1e1e2e;
-      border: 1.5px solid var(--border-dark);
-      border-radius: 8px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+      min-width: max-content;
+      padding: 6px;
+      background: #3b3d55;
+      border: 2px solid #ffe600;
+      border-radius: 10px;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 230, 0, 0.35);
       z-index: 40;
       flex-direction: column;
-      gap: 4px;
+      align-items: stretch;
+      gap: 5px;
     }
     .upload-sel-submenu::before {
       content: "";
@@ -1870,13 +1996,12 @@ body.stage-upload.has-upload-image .image-toolbox {
       height: 8px;
     }
     .upload-sel-subwrap:hover .upload-sel-submenu,
-    .upload-sel-subwrap:focus-within .upload-sel-submenu {
+    .upload-sel-subwrap.is-menu-open .upload-sel-submenu {
       display: flex;
     }
-    #uploadSelectMiniBar .upload-sel-submenu .zoom-btn,
-    #selectMiniBar .upload-sel-submenu .zoom-btn {
+    .anchor-mini-bar .upload-sel-submenu .zoom-btn {
       width: 100%;
-      justify-content: flex-start;
+      justify-content: center;
     }
     #selectMiniBar {
       position: absolute;
@@ -1982,6 +2107,110 @@ body.stage-upload.has-upload-image .image-toolbox {
       color: var(--text-sub);
     }
     .bead-usage-panel .color-list { max-height: 240px; }
+    .bead-mono-hint {
+      display: none;
+      margin: 0;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-sub);
+      line-height: 1.4;
+    }
+    body.stage-bead .bead-mono-hint { display: block; }
+    .bead-fs-tools {
+      display: none;
+      position: absolute;
+      top: calc(var(--header-size) + 8px);
+      left: calc(var(--header-size) + 8px);
+      z-index: 80;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .bead-fs-tools > * { pointer-events: auto; }
+    .bead-fs-tools .grid-guide-dock { align-self: flex-start; }
+    .bead-fs-color-dock { position: relative; flex-shrink: 0; }
+    .bead-fs-color-capsule {
+      display: inline-flex;
+      align-items: center;
+      height: 38px;
+      min-width: 38px;
+      padding: 0 9.5px;
+      border-radius: 999px;
+      border: 1.5px dashed var(--highlight-active);
+      background: rgba(24, 24, 37, 0.92);
+      color: var(--highlight-active);
+      overflow: hidden;
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+    .bead-fs-color-icon {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      display: block;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    .bead-fs-color-swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+      border: 1px solid #fff;
+      flex-shrink: 0;
+      display: none;
+    }
+    .bead-fs-color-dock.has-active .bead-fs-color-icon { display: none; }
+    .bead-fs-color-dock.has-active .bead-fs-color-swatch { display: block; }
+    .bead-fs-color-label {
+      max-width: 0;
+      opacity: 0;
+      overflow: hidden;
+      font-size: 0.78rem;
+      font-weight: 900;
+      color: var(--highlight-active);
+      margin-left: 0;
+      transition: max-width 0.22s ease, opacity 0.18s ease, margin 0.22s ease;
+    }
+    .bead-fs-color-dock:hover .bead-fs-color-label,
+    .bead-fs-color-dock:focus-within .bead-fs-color-label,
+    .bead-fs-color-dock.is-open .bead-fs-color-label {
+      max-width: 88px;
+      opacity: 1;
+      margin-left: 8px;
+    }
+    .bead-fs-color-extras {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      z-index: 81;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      width: max-content;
+      max-width: min(72vw, 360px);
+      max-height: 42vh;
+      overflow: auto;
+      padding: 8px;
+      background: rgba(24, 24, 37, 0.96);
+      border: 1.5px dashed var(--highlight-active);
+      border-radius: 12px;
+    }
+    .bead-fs-color-dock.is-open .bead-fs-color-extras {
+      display: flex;
+    }
+    .bead-fs-color-extras .all-colors-btn {
+      height: 32px;
+      padding: 0 10px;
+      font-size: 0.72rem;
+    }
+    .bead-fs-color-extras .color-filter-btn {
+      width: 32px;
+      height: 32px;
+      font-size: 0.62rem;
+    }
     .bead-fs-exit {
       display: none;
       position: absolute;
@@ -2009,6 +2238,11 @@ body.stage-upload.has-upload-image .image-toolbox {
     .grid-frozen-container.is-bead-fs .bead-fs-exit {
       display: inline-flex;
     }
+    .grid-frozen-container:fullscreen .bead-fs-tools,
+    .grid-frozen-container:-webkit-full-screen .bead-fs-tools,
+    .grid-frozen-container.is-bead-fs .bead-fs-tools {
+      display: flex;
+    }
     .color-filter-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
     .color-filter-title { font-size: 0.85rem; font-weight: 900; color: var(--text-main); display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
     .color-filter-title > .zoom-btn,
@@ -2029,7 +2263,7 @@ body.stage-upload.has-upload-image .image-toolbox {
     .color-filter-btn.active { transform: translateY(-3px) scale(1.15); border-color: #ffffff; outline: 3px solid var(--highlight-active); box-shadow: 0 0 14px var(--highlight-active); z-index: 10; }
     .color-filter-btn.dimmed { opacity: 0.35; filter: grayscale(40%); }
 
-    #beadTooltip { position: fixed; pointer-events: none; background: rgba(17, 17, 27, 0.95); color: #FFFFFF; padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6); z-index: 100; display: none; white-space: nowrap; border: 1px solid var(--border-dark); }
+    #beadTooltip { position: fixed; pointer-events: none; background: rgba(17, 17, 27, 0.95); color: #FFFFFF; padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6); z-index: 560; display: none; white-space: nowrap; border: 1px solid var(--border-dark); }
     #beadTooltip .tip-coord { color: var(--highlight-active); margin-bottom: 2px; font-family: 'Silkscreen', monospace; }
     #beadTooltip .tip-color { display: flex; align-items: center; gap: 6px; }
     #beadTooltip .tip-swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; border: 1px solid #fff; }
@@ -2098,7 +2332,6 @@ body.stage-upload.has-upload-image .image-toolbox {
 </head>
 <body class="stage-upload">
 
-<div id="beadTooltip"></div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <header>
@@ -2112,7 +2345,7 @@ body.stage-upload.has-upload-image .image-toolbox {
         <rect x="5" y="3" width="1" height="1" fill="#FFFFFF"/>
       </svg>
       染上拼豆之路
-      <span class="app-version" id="appVersion" title="網站版本">v144</span>
+      <span class="app-version" id="appVersion" title="網站版本">v169</span>
     </h1>
   </div>
 </header>
@@ -2225,12 +2458,14 @@ body.stage-upload.has-upload-image .image-toolbox {
             <button type="button" class="zoom-btn highlight" id="uploadSelectConfirmBtn">確認選取</button>
           </div>
           <div class="orig-viewport" id="origViewport" onclick="triggerFileInput(event)">
+          <div class="orig-zoom-sizer" id="origZoomSizer">
           <div class="orig-zoom-frame" id="origZoomFrame">
           <div class="orig-zoom-wrapper" id="origZoomWrapper">
             <div style="position: relative; display: inline-block;">
               <img id="originalImg" style="display: none;" alt="原圖預覽" />
               <canvas id="cropOverlayCanvas" class="crop-canvas-overlay"></canvas>
             </div>
+          </div>
           </div>
           </div>
             <div class="empty-state" id="origPlaceholder">
@@ -2245,7 +2480,7 @@ body.stage-upload.has-upload-image .image-toolbox {
     <div class="view-panel" id="panelEdit">
       <div class="view-card">
         <div class="view-header" id="editViewHeader">
-          <div class="edit-header-tools">
+          <div class="edit-header-tools" id="editHeaderTools">
             <div class="grid-guide-dock" id="gridGuideDock">
               <div class="grid-guide-capsule" role="group" aria-label="格線設定">
                 <svg class="grid-guide-icon" viewBox="0 0 16 16" aria-hidden="true" shape-rendering="crispEdges">
@@ -2355,13 +2590,13 @@ body.stage-upload.has-upload-image .image-toolbox {
                     </button>
                   </div>
                 </div>
-                <button class="zoom-btn" type="button" id="editWandSelectBtn" onclick="setEditSelectTool('wand')">
-                  <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="#ff6b9d" stroke-width="1.7" stroke-linecap="round" d="M3.2 12.8 9.4 6.6"/><path fill="#ff6b9d" d="M10.2 2.1h1.2v2.6H10.2zM9.1 3.2h3.4v1.2H9.1zM12.4 5.1h1.1v1.8h-1.1zM13.6 4.3h1.6v1.1h-1.6z"/></svg>
-                  魔術棒選取
-                </button>
                 <button class="zoom-btn" type="button" id="editPolySelectBtn" onclick="setEditSelectTool('poly')">
                   <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="#ff6b9d" stroke-width="1.45" d="M3.2 12.2 5.4 3.8l5.4 2.4L13 12.4z"/><circle cx="3.2" cy="12.2" r="1.15" fill="#ff6b9d"/><circle cx="5.4" cy="3.8" r="1.15" fill="#ff6b9d"/><circle cx="10.8" cy="6.2" r="1.15" fill="#ff6b9d"/><circle cx="13" cy="12.4" r="1.15" fill="#ff6b9d"/></svg>
                   錨點選取
+                </button>
+                <button class="zoom-btn" type="button" id="editWandSelectBtn" onclick="setEditSelectTool('wand')">
+                  <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="#ff6b9d" stroke-width="1.7" stroke-linecap="round" d="M3.2 12.8 9.4 6.6"/><path fill="#ff6b9d" d="M10.2 2.1h1.2v2.6H10.2zM9.1 3.2h3.4v1.2H9.1zM12.4 5.1h1.1v1.8h-1.1zM13.6 4.3h1.6v1.1h-1.6z"/></svg>
+                  魔術棒選取
                 </button>
                 <button class="zoom-btn" type="button" id="editMoveCopySelectBtn" onclick="setEditSelectTool('movecopy')">
                   <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="#ff6b9d" stroke-width="1.4" stroke-linecap="round" d="M6.8 2.6v8.6M2.5 6.9h8.6"/><path fill="#ff6b9d" d="M6.8 1.4 8.8 4H4.8zm0 10.8 2-2.6H4.8zM1.4 6.9 4 5.1v3.6zm10.8 0-2.6-1.8v3.6z"/><path fill="#ff6b9d" d="M12.15 9.2h1.45v5.4h-1.45zm-1.95 1.98h5.35v1.45H10.2z"/></svg>
@@ -2437,7 +2672,24 @@ body.stage-upload.has-upload-image .image-toolbox {
         <div class="color-filter-slot" id="colorFilterSlotTop"></div>
         <div class="edit-grid-row">
         <div class="grid-frozen-container" id="gridFrozenContainer">
+          <div class="bead-fs-tools" id="beadFsTools">
+            <div class="bead-fs-grid-slot" id="beadFsGridSlot"></div>
+            <div class="bead-fs-color-dock" id="beadFsColorDock" hidden>
+              <div class="bead-fs-color-capsule" role="button" tabindex="0" aria-label="圖紙色號" aria-expanded="false">
+                <svg class="bead-fs-color-icon" viewBox="0 0 16 16" aria-hidden="true" shape-rendering="crispEdges">
+                  <rect x="1" y="1" width="6" height="6" fill="#ff3344"/>
+                  <rect x="9" y="1" width="6" height="6" fill="#ffe600"/>
+                  <rect x="1" y="9" width="6" height="6" fill="#0088ff"/>
+                  <rect x="9" y="9" width="6" height="6" fill="#cdd6f4"/>
+                </svg>
+                <span class="bead-fs-color-swatch" id="beadFsColorSwatch" aria-hidden="true"></span>
+                <span class="bead-fs-color-label">圖紙色號</span>
+              </div>
+              <div class="bead-fs-color-extras" id="beadFsPaletteItems"></div>
+            </div>
+          </div>
           <button type="button" class="zoom-btn highlight bead-fs-exit" id="beadFsExitBtn" hidden>取消全屏</button>
+          <div id="beadTooltip"></div>
           <div class="frozen-corner">XY</div>
           <div class="frozen-top-wrapper" id="topHeaderWrapper">
             <canvas id="topHeaderCanvas"></canvas>
@@ -2461,6 +2713,7 @@ body.stage-upload.has-upload-image .image-toolbox {
                 <button type="button" class="zoom-btn" id="selectScaleFreeBtn">非等比放大</button>
               </div>
             </div>
+            <button type="button" class="zoom-btn" id="selectCancelBtn">取消選取</button>
           </div>
           <div class="frozen-main-scroll" id="mainScroll">
             <div class="canvas-flex-container">
@@ -2496,13 +2749,14 @@ body.stage-upload.has-upload-image .image-toolbox {
             </div>
             <div class="form-group">
               <label>顏色數量 <span class="range-val" id="maxColorsVal">0 色</span></label>
-              <input type="range" id="maxColors" min="0" max="120" value="0" />
+              <input type="range" id="maxColors" min="0" max="291" value="0" />
             </div>
 
             <div class="form-group">
               <label>拼豆顏色廠牌</label>
               <select id="beadBrandSelect">
-                <option value="mard" selected>MARD 拼豆之路</option>
+                <option value="mard" selected>MARD 291色</option>
+                <option value="mard221">MARD 221色</option>
               </select>
             </div>
             <details class="manual-edit-fold">
@@ -2594,6 +2848,7 @@ body.stage-upload.has-upload-image .image-toolbox {
               </div>
             </div>
           </div>
+          <p class="bead-mono-hint">點擊色票進入單色拼豆模式。</p>
           <div class="color-filter-btn-group" id="colorFilterButtonGroup">
             <div id="paletteFilterItems" style="display: contents;"></div>
           </div>
@@ -2630,6 +2885,14 @@ body.stage-upload.has-upload-image .image-toolbox {
           </div>
         </div>
         <div class="bead-stock-panel" id="beadStockPanel">
+          <div class="bead-stock-toolbar">
+            <label>拼豆顏色廠牌
+              <select id="beadStockBrandSelect">
+                <option value="mard" selected>MARD 291色</option>
+                <option value="mard221">MARD 221色</option>
+              </select>
+            </label>
+          </div>
           <div class="bead-stock-summary" id="beadStockSummary"></div>
           <div class="palette-letter-bar" id="beadStockTabs"></div>
           <div class="bead-stock-legend">
@@ -2669,7 +2932,7 @@ body.stage-upload.has-upload-image .image-toolbox {
       </svg>
     </button>
     <button type="button" class="zoom-btn zoom-icon-btn" onclick="adjustFloatingZoom(-0.15)" title="縮小">−</button>
-    <input type="range" id="origZoomSlider" min="5" max="400" value="100" step="1" />
+    <input type="range" id="origZoomSlider" min="1" max="400" value="100" step="1" />
     <span class="zoom-level-text" id="origZoomText">100%</span>
     <button type="button" class="zoom-btn zoom-icon-btn" onclick="adjustFloatingZoom(0.15)" title="放大">+</button>
     <button type="button" class="zoom-btn highlight" id="floatingFitBtn" onclick="fitFloatingZoom()">🔍 適應視窗</button>
@@ -2714,6 +2977,23 @@ body.stage-upload.has-upload-image .image-toolbox {
         <input type="checkbox" id="appModalShowCodes" />
         顯示色號
       </label>
+      <div class="app-modal-choice-row">
+        <span>空白背景</span>
+        <div class="app-modal-choice">
+          <label><input type="radio" name="appModalBgTheme" value="dark" checked /> 深色</label>
+          <label><input type="radio" name="appModalBgTheme" value="light" /> 淺色</label>
+        </div>
+      </div>
+      <label class="app-modal-check">
+        <input type="checkbox" id="appModalShowGrid" checked />
+        顯示格線
+      </label>
+      <div class="app-modal-grid-step" id="appModalGridStepWrap">
+        <span>格線間隔</span>
+        <input type="text" id="appModalGridStepX" value="5" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" aria-label="格線直向間隔" />
+        <span>×</span>
+        <input type="text" id="appModalGridStepY" value="5" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" aria-label="格線橫向間隔" />
+      </div>
       <label>
         圖紙單格解析度 <span class="range-val" id="appModalGridSizeVal">24 px</span>
         <input type="range" id="appModalGridSize" min="12" max="48" value="24" />
@@ -2810,7 +3090,8 @@ body.stage-upload.has-upload-image .image-toolbox {
       sidebarOverlay.classList.remove("active");
       document.body.style.overflow = "";
     }
-    scheduleMinimapViewport();
+    if (typeof updateMinimap === "function") updateMinimap();
+    else scheduleMinimapViewport();
   });
 
   let currentStage = "upload";
@@ -2852,6 +3133,20 @@ body.stage-upload.has-upload-image .image-toolbox {
       enter.classList.toggle("highlight", on);
     }
     if (exit) exit.hidden = !on;
+    placeGridGuideForBeadFs(on);
+    const colorDock = document.getElementById("beadFsColorDock");
+    if (colorDock && !on) colorDock.classList.remove("is-open");
+  }
+  function placeGridGuideForBeadFs(on) {
+    const dock = document.getElementById("gridGuideDock");
+    const home = document.getElementById("editHeaderTools");
+    const slot = document.getElementById("beadFsGridSlot");
+    if (!dock || !home || !slot) return;
+    if (on) {
+      if (dock.parentElement !== slot) slot.appendChild(dock);
+    } else if (dock.parentElement !== home) {
+      home.insertBefore(dock, home.firstChild);
+    }
   }
   function enterBeadFullscreen() {
     const el = beadFsElement();
@@ -2959,6 +3254,8 @@ body.stage-upload.has-upload-image .image-toolbox {
     }
     if (stage === "library") {
       renderLibraryGrid();
+    } else if (stage === "upload") {
+      if (typeof updateMinimap === "function") updateMinimap();
     } else if (isPatternStage(stage)) {
       if (stage === "bead") clearSelection();
       requestAnimationFrame(() => {
@@ -3022,11 +3319,157 @@ body.stage-upload.has-upload-image .image-toolbox {
   const BEAD_H7 = BEAD_BY_CODE.H7 || BEAD_PALETTE.find(b => b.r === 0 && b.g === 0 && b.b === 0);
   const MARD120_CODES = ["B3","C3","D9","E2","G1","A4","B5","C5","D6","E4","G5","A6","B8","C8","D7","F5","G7","A7","H1","H2","H3","H4","H5","H7","C2","C13","D19","E8","A13","A11","C10","C6","D18","E3","A10","G9","C11","C7","D21","D13","F13","G13","B12","D3","D15","E7","F8","G8","A3","B20","D16","D8","E1","G2","B18","B10","D11","D12","E12","G3","B14","B19","D2","D20","E5","F10","B17","B7","C16","D14","E13","F7","E11","E14","F1","A14","M6","M5","E15","F14","F9","F2","G14","M9","E9","E6","F12","F3","F11","M12","D5","E10","F4","F6","G17","H6","A15","A5","A8","A12","A9","G6","A1","B13","B1","B2","B4","B11","H12","C1","B16","B6","C15","B15","C14","D17","D1","C4","C17","C9"];
   const BEAD_PALETTE_120 = MARD120_CODES.map(code => BEAD_BY_CODE[code]).filter(Boolean);
+  const BEAD_PALETTE_221 = BEAD_PALETTE.filter((b) => !/^[TPQRYZ]/i.test(b.code));
+  const BEAD_BRANDS = [
+    { id: "mard", series: "mard", label: "MARD 291色", colors: BEAD_PALETTE },
+    { id: "mard221", series: "mard", label: "MARD 221色", colors: BEAD_PALETTE_221 }
+  ];
+  const DEFAULT_BEAD_BRAND = "mard";
+  let stockBrandId = DEFAULT_BEAD_BRAND;
+  let convertBrandId = DEFAULT_BEAD_BRAND;
+  function activeConvertPalette() {
+    const sel = document.getElementById("beadBrandSelect");
+    const id = (sel && sel.value) || convertBrandId || DEFAULT_BEAD_BRAND;
+    return getBeadBrand(id).colors || BEAD_PALETTE;
+  }
   let currentSelectedBead = BEAD_PALETTE[0];
+  function getBeadBrand(id) {
+    return BEAD_BRANDS.find((b) => b.id === (id || stockBrandId)) || BEAD_BRANDS[0];
+  }
+  function brandSeriesId(id) {
+    const brand = BEAD_BRANDS.find((b) => b.id === id) || getBeadBrand(id);
+    if (brand && brand.series) return brand.series;
+    const src = (brand && brand.label) || String(id || "");
+    const m = String(src).match(/^[A-Za-z]+/);
+    return (m ? m[0] : "mard").toLowerCase();
+  }
+  function brandSeriesLabel(seriesId) {
+    const brand = BEAD_BRANDS.find((b) => brandSeriesId(b.id) === seriesId);
+    const m = String((brand && brand.label) || seriesId).match(/^[A-Za-z0-9]+/);
+    return `${m ? m[0] : seriesId} 系列`;
+  }
+  function colorsForBrandSeries(seriesId) {
+    const sid = seriesId || brandSeriesId(stockBrandId);
+    const seen = new Set();
+    const colors = [];
+    BEAD_BRANDS.forEach((brand) => {
+      if (brandSeriesId(brand.id) !== sid) return;
+      (brand.colors || []).forEach((bead) => {
+        if (!bead || seen.has(bead.code)) return;
+        seen.add(bead.code);
+        colors.push(bead);
+      });
+    });
+    return colors;
+  }
+  function fillBrandSelect(select, value) {
+    if (!select) return;
+    const cur = value || select.value || DEFAULT_BEAD_BRAND;
+    select.innerHTML = BEAD_BRANDS.map((b) => `<option value="${b.id}">${b.label}</option>`).join("");
+    select.value = BEAD_BRANDS.some((b) => b.id === cur) ? cur : DEFAULT_BEAD_BRAND;
+  }
 
   function labDist2(a, b) {
     const dL = a.L - b.L, da = a.a - b.a, db = a.b - b.b;
     return dL * dL + da * da + db * db;
+  }
+
+  function parseCssRgb(color) {
+    if (!color) return null;
+    const m = String(color).trim().match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+    if (!m) return null;
+    let h = m[1];
+    if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    return {
+      r: parseInt(h.slice(0, 2), 16),
+      g: parseInt(h.slice(2, 4), 16),
+      b: parseInt(h.slice(4, 6), 16)
+    };
+  }
+
+  function rgbToCss(rgb) {
+    const hex = (n) => Math.max(0, Math.min(255, n | 0)).toString(16).padStart(2, "0");
+    return `#${hex(rgb.r)}${hex(rgb.g)}${hex(rgb.b)}`;
+  }
+
+  function rgbToHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    const l = (max + min) / 2;
+    if (max === min) return { h: 0, s: 0, l };
+    const d = max - min;
+    const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    let h = 0;
+    if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+    else if (max === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    return { h: h * 60, s, l };
+  }
+
+  function invertRgbCss(rgb) {
+    return rgbToCss({ r: 255 - rgb.r, g: 255 - rgb.g, b: 255 - rgb.b });
+  }
+
+  function isSameColorFamily(a, b) {
+    if (!a || !b) return false;
+    const ha = rgbToHsl(a.r, a.g, a.b);
+    const hb = rgbToHsl(b.r, b.g, b.b);
+    let dh = Math.abs(ha.h - hb.h);
+    if (dh > 180) dh = 360 - dh;
+    if (ha.s >= 0.16 && hb.s >= 0.10 && dh <= 40) return true;
+    const dr = a.r - b.r, dg = a.g - b.g, db = a.b - b.b;
+    if (dr * dr + dg * dg + db * db < 72 * 72) return true;
+    const labA = rgbToLab(a.r, a.g, a.b);
+    const labB = rgbToLab(b.r, b.g, b.b);
+    return labDist2(labA, labB) < 30 * 30;
+  }
+
+  function contrastStrokeColor(strokeHex, bgHex) {
+    const stroke = parseCssRgb(strokeHex);
+    const bg = parseCssRgb(bgHex);
+    if (!stroke || !bg) return strokeHex;
+    if (!isSameColorFamily(stroke, bg)) return strokeHex;
+    return invertRgbCss(stroke);
+  }
+
+  const contrastHexCache = new Map();
+  function contrastAgainstHexes(strokeHex, ...bgs) {
+    const key = strokeHex + "\0" + bgs.join("\0");
+    const cached = contrastHexCache.get(key);
+    if (cached) return cached;
+    const stroke = parseCssRgb(strokeHex);
+    let result = strokeHex;
+    if (stroke) {
+      for (let i = 0; i < bgs.length; i++) {
+        const bg = parseCssRgb(bgs[i]);
+        if (bg && isSameColorFamily(stroke, bg)) {
+          result = invertRgbCss(stroke);
+          break;
+        }
+      }
+    }
+    if (contrastHexCache.size > 5000) contrastHexCache.clear();
+    contrastHexCache.set(key, result);
+    return result;
+  }
+
+  function strokeAdaptivePolyline(ctx, points, strokeHex, sampleBgAt, closed) {
+    if (!points || points.length < 2) return;
+    const pts = closed ? points.concat([{ x: points[0].x, y: points[0].y }]) : points;
+    const colors = pts.map((p) => contrastStrokeColor(strokeHex, sampleBgAt(p.x, p.y)));
+    let i = 0;
+    while (i < pts.length - 1) {
+      const col = colors[i];
+      let j = i + 1;
+      while (j < pts.length && colors[j] === col) j++;
+      const end = Math.min(j, pts.length - 1);
+      ctx.strokeStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(pts[i].x, pts[i].y);
+      for (let k = i + 1; k <= end; k++) ctx.lineTo(pts[k].x, pts[k].y);
+      ctx.stroke();
+      i = end;
+    }
   }
 
   const paletteTriggerBtn = document.getElementById("paletteTriggerBtn");
@@ -3060,7 +3503,8 @@ body.stage-upload.has-upload-image .image-toolbox {
     if (!menu) return;
     menu.innerHTML = "";
     const groups = new Map(PALETTE_FAMILIES.map((f) => [f.id, []]));
-    BEAD_PALETTE.forEach((bead) => {
+    const brandPalette = (typeof activeConvertPalette === "function" ? activeConvertPalette() : BEAD_PALETTE);
+    brandPalette.forEach((bead) => {
       groups.get(beadFamilyId(bead.code)).push(bead);
     });
     groups.forEach((beads) => beads.sort((a, b) => {
@@ -3078,6 +3522,12 @@ body.stage-upload.has-upload-image .image-toolbox {
       bar.querySelectorAll(".palette-family-tab").forEach((tab) => {
         tab.classList.toggle("is-on", tab.dataset.family === familyId);
       });
+      if (panel.dataset.family === familyId && panel.childElementCount) {
+        panel.querySelectorAll(".palette-option-item").forEach((item) => {
+          item.classList.toggle("is-selected", currentSelectedBead && item.dataset.code === currentSelectedBead.code);
+        });
+        return;
+      }
       panel.innerHTML = "";
       panel.dataset.family = familyId;
       groups.get(familyId).forEach((bead) => {
@@ -3180,7 +3630,7 @@ function updateGlobalHistoryButtons() {
   }
 
   const sess = currentAnchorSession();
-  const canAnchorUndo = !!(sess && sess.points.length);
+  const canAnchorUndo = !!(sess && sess.points.length) || canUncloseAnchor();
   const canAnchorRedo = !!(sess && sess.redo.length);
   const canUploadSelUndo = typeof canUndoUploadMarquee === "function" && canUndoUploadMarquee();
   const canUploadSelRedo = typeof canRedoUploadMarquee === "function" && canRedoUploadMarquee();
@@ -3207,6 +3657,9 @@ function updateGlobalHistoryButtons() {
       const item = el.querySelector(`.palette-option-item[data-code="${bead.code}"]`);
       if (item) item.scrollIntoView({ block: "nearest" });
     });
+  }
+  function closePaletteDropdowns() {
+    paletteMenus().forEach((el) => el.classList.remove("open"));
   }
   function togglePaletteDropdown(menuId) {
     const id = (typeof menuId === "string" && menuId) ? menuId : "paletteDropdownMenu";
@@ -3241,25 +3694,54 @@ function updateGlobalHistoryButtons() {
   function selectPaletteColor(bead) {
     currentSelectedBead = bead;
     refreshPaletteTrigger(bead);
-    paletteMenus().forEach((el) => el.classList.remove("open"));
+    closePaletteDropdowns();
   }
+  function isInsidePalettePicker(target) {
+    return !!(target && target.closest && target.closest(".custom-palette-picker"));
+  }
+  function isInsideOpenPalettePicker(target) {
+    const picker = target && target.closest && target.closest(".custom-palette-picker");
+    if (!picker) return false;
+    return !!picker.querySelector(".palette-dropdown-menu.open");
+  }
+  function isPaletteHoverCloseTarget(target) {
+    if (!target || !target.closest) return false;
+    return !!target.closest("button, .zoom-btn, .all-colors-btn, .color-filter-btn, .pattern-size-toggle, .grid-guide-eye, .bead-fs-color-capsule, .palette-trigger-btn, select, a[href], label.bead-show-codes, .app-modal-actions");
+  }
+  window.addEventListener("pointerdown", (e) => {
+    if (!isInsidePalettePicker(e.target)) closePaletteDropdowns();
+  }, true);
   window.addEventListener("click", (e) => {
-    if (!e.target.closest(".custom-palette-picker")) {
-      paletteMenus().forEach((el) => el.classList.remove("open"));
-    }
+    if (!isInsidePalettePicker(e.target)) closePaletteDropdowns();
   });
+  document.addEventListener("pointerover", (e) => {
+    if (!paletteMenus().some((el) => el.classList.contains("open"))) return;
+    if (isInsideOpenPalettePicker(e.target)) return;
+    if (isPaletteHoverCloseTarget(e.target)) closePaletteDropdowns();
+  }, true);
   initPaletteDropdown();
   refreshPaletteTrigger(currentSelectedBead);
+  fillBrandSelect(document.getElementById("beadBrandSelect"), DEFAULT_BEAD_BRAND);
+  fillBrandSelect(document.getElementById("beadStockBrandSelect"), stockBrandId);
   const beadBrandSelect = document.getElementById("beadBrandSelect");
   if (beadBrandSelect) {
     beadBrandSelect.addEventListener("change", () => {
+      convertBrandId = beadBrandSelect.value || DEFAULT_BEAD_BRAND;
+      const palette = activeConvertPalette();
+      if (!palette.some((b) => b.code === currentSelectedBead?.code)) currentSelectedBead = palette[0] || BEAD_PALETTE[0];
       initPaletteDropdown();
       refreshPaletteTrigger(currentSelectedBead);
+      if (currentImage) scheduleProcessImage("變更廠牌色票");
     });
   }
+  document.getElementById("beadStockBrandSelect")?.addEventListener("change", (e) => {
+    stockBrandId = e.target.value || DEFAULT_BEAD_BRAND;
+    renderBeadStockPanel();
+  });
 
   const colorCache = new Map();
   const colorCache120 = new Map();
+  const colorCache221 = new Map();
   function ciede2000(a, b) {
     const deg = (x) => x * 180 / Math.PI;
     const rad = (x) => x * Math.PI / 180;
@@ -3310,10 +3792,14 @@ function updateGlobalHistoryButtons() {
   }
 
   function getClosestBeadLab(r, g, b, a) {
-    return getClosestBeadFromPalette(BEAD_PALETTE, colorCache, r, g, b, a);
+    const palette = activeConvertPalette();
+    const cache = palette === BEAD_PALETTE_221 ? colorCache221 : colorCache;
+    return getClosestBeadFromPalette(palette, cache, r, g, b, a);
   }
 
   let currentImage = null;
+  let uploadSamplePixels = null;
+  let uploadSampleSrc = "";
   let rawSourceImage = null;
   let patternGridData = [];
 
@@ -3322,13 +3808,27 @@ function updateGlobalHistoryButtons() {
   let baseCellSize = 24;
   let canvasZoom = 1.0;
   let origZoom = 1.0;
+  const MIN_VIEW_ZOOM = 0.01;
+  const MAX_VIEW_ZOOM = 4.0;
   let hoveredCell = null;
+  let hoverRedrawRaf = 0;
+  function scheduleHoverLayerRedraw() {
+    if (hoverRedrawRaf) return;
+    hoverRedrawRaf = requestAnimationFrame(() => {
+      hoverRedrawRaf = 0;
+      renderInteractionLayer();
+      renderHeaders();
+    });
+  }
 
   let isEditMode = true, isPipetteMode = false, isCompareMode = false;
   let highlightedColorCode = null;
   let selectedCells = new Set();
   let editSelectParts = [];
   let editScalePartIndex = -1;
+  let hoverEditPartIndex = -1;
+  let hoverUploadShapeIndex = -1;
+  let hoverUploadCoveredIndex = -1;
   let isMouseDown = false, dragStartCell = null, isDeselecting = false;
   let marqueeDragMoved = false;
   let selectionSnapshot = new Set();
@@ -3348,10 +3848,12 @@ function updateGlobalHistoryButtons() {
   let polyHandleKind = null;
   let polyHandleHover = null;
   let editPolyRedo = [];
+  let editPolyClosedUndo = null;
   let uploadTool = "none";
   let polyPoints = [];
   let polyPolygons = [];
   let polyPointRedo = [];
+  let uploadPolyClosedUndo = null;
   let anchorPaused = false;
   let anchorNextCurve = false;
   let uploadPolyHover = null;
@@ -3778,6 +4280,7 @@ function updateHistoryButtons() {
       rebuildPartsFromCells();
     }
     resetEditPoly();
+    editPolyClosedUndo = null;
     isMovingSelection = false;
     isMovingMarquee = false;
     moveOffset = { dx: 0, dy: 0 };
@@ -4611,7 +5114,7 @@ function updateHistoryButtons() {
     const used = currentUniqueColorCount();
     const n = parseInt(slider.value, 10) || 0;
     if (used > 0 && !n) {
-      const cap = Math.max(120, used);
+      const cap = Math.max(291, used);
       slider.max = String(cap);
       slider.value = String(used);
     }
@@ -4621,12 +5124,12 @@ function updateHistoryButtons() {
   function readMaxColorLimit() {
     const n = parseInt(document.getElementById("maxColors").value, 10);
     if (!n || n < 1) return null;
-    return Math.min(200, n);
+    return Math.min(291, n);
   }
 
   function limitGridToMaxColors(grid, cols, rows, maxN, protectMask) {
     if (maxN == null) return grid;
-    maxN = Math.max(1, Math.min(200, parseInt(maxN, 10) || 0));
+    maxN = Math.max(1, Math.min(291, parseInt(maxN, 10) || 0));
     if (!maxN) return grid;
     const counts = countGridColors(grid, cols, rows);
     const unique = Object.keys(counts).filter(code => BEAD_BY_CODE[code]);
@@ -4833,6 +5336,18 @@ function updateHistoryButtons() {
         if (!wrap || !scroll) return;
         scroll.scrollLeft = Math.max(0, wrap.offsetLeft + wrap.offsetWidth / 2 - scroll.clientWidth / 2);
         scroll.scrollTop = Math.max(0, wrap.offsetTop + wrap.offsetHeight / 2 - scroll.clientHeight / 2);
+      });
+    });
+  }
+
+  function centerOrigInView() {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const vp = document.getElementById("origViewport");
+        const frame = document.getElementById("origZoomFrame");
+        if (!vp || !frame) return;
+        vp.scrollLeft = Math.max(0, frame.offsetLeft + frame.offsetWidth / 2 - vp.clientWidth / 2);
+        vp.scrollTop = Math.max(0, frame.offsetTop + frame.offsetHeight / 2 - vp.clientHeight / 2);
       });
     });
   }
@@ -5403,7 +5918,7 @@ function updateHistoryButtons() {
     let usedSnappedGrid = false;
     if (autoDetectActive) {
       try {
-        const preserved = sampleFeaturePreserving(sourceImg, currentCols, currentRows, BEAD_PALETTE_120);
+        const preserved = sampleFeaturePreserving(sourceImg, currentCols, currentRows, activeConvertPalette());
         if (preserved && preserved.length === currentRows) {
           patternGridData = preserved;
           usedSnappedGrid = true;
@@ -5417,7 +5932,9 @@ function updateHistoryButtons() {
           const idx = (y * currentCols + x) * 4;
           if (rawImgData[idx + 3] < 64) continue;
           if (autoDetectActive) {
-            patternGridData[y][x] = getClosestBeadFromPalette(BEAD_PALETTE_120, colorCache120, rawImgData[idx], rawImgData[idx + 1], rawImgData[idx + 2], 255);
+            const palette = activeConvertPalette();
+            const cache = palette === BEAD_PALETTE_221 ? colorCache221 : colorCache;
+            patternGridData[y][x] = getClosestBeadFromPalette(palette, cache, rawImgData[idx], rawImgData[idx + 1], rawImgData[idx + 2], 255);
           } else {
             const adj = applyAdjustments(rawImgData[idx], rawImgData[idx + 1], rawImgData[idx + 2], brightness, contrast, saturation);
             patternGridData[y][x] = getClosestBeadLab(adj.r, adj.g, adj.b, 255);
@@ -5469,6 +5986,7 @@ function updateHistoryButtons() {
   }
 
   function filterByColor(code) {
+    closePaletteDropdowns();
     if (code && highlightedColorCode === code) {
       highlightedColorCode = null;
       selectedCells.clear();
@@ -5490,6 +6008,37 @@ function updateHistoryButtons() {
     renderInteractionLayer();
   }
 
+  function syncBeadFsColorDock(counts, codes, makeFilterBtn) {
+    const dock = document.getElementById("beadFsColorDock");
+    const extras = document.getElementById("beadFsPaletteItems");
+    const swatch = document.getElementById("beadFsColorSwatch");
+    const cap = dock && dock.querySelector(".bead-fs-color-capsule");
+    if (!dock || !extras) return;
+    extras.innerHTML = "";
+    if (!codes || !codes.length) {
+      dock.hidden = true;
+      dock.classList.remove("is-open", "has-active");
+      return;
+    }
+    dock.hidden = false;
+    const allBtn = document.createElement("button");
+    allBtn.type = "button";
+    allBtn.className = highlightedColorCode === null ? "all-colors-btn active" : "all-colors-btn";
+    allBtn.textContent = "全部";
+    allBtn.onclick = () => filterByColor(null);
+    extras.appendChild(allBtn);
+    if (makeFilterBtn) {
+      codes.forEach((code) => {
+        const btn = makeFilterBtn(code);
+        if (btn) extras.appendChild(btn);
+      });
+    }
+    const activeBead = highlightedColorCode && BEAD_PALETTE.find((b) => b.code === highlightedColorCode);
+    dock.classList.toggle("has-active", !!activeBead);
+    if (swatch) swatch.style.background = activeBead ? activeBead.hex : "";
+    if (cap) cap.setAttribute("aria-expanded", dock.classList.contains("is-open") ? "true" : "false");
+  }
+
   function updateColorFilterBar(counts) {
     const colorFilterCard = document.getElementById("colorFilterCard");
     const paletteFilterItems = document.getElementById("paletteFilterItems");
@@ -5498,6 +6047,7 @@ function updateHistoryButtons() {
     const codes = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
     if (codes.length === 0) {
       colorFilterCard.style.display = "none";
+      syncBeadFsColorDock({}, [], null);
       requestAnimationFrame(syncFloatingDockFrost);
       return;
     }
@@ -5506,21 +6056,27 @@ function updateHistoryButtons() {
     paletteFilterItems.innerHTML = "";
     allColorsBtn.className = (highlightedColorCode === null) ? "all-colors-btn active" : "all-colors-btn";
 
-    codes.forEach(code => {
+    const makeFilterBtn = (code) => {
       const bead = BEAD_PALETTE.find(b => b.code === code);
-      if (!bead) return;
+      if (!bead) return null;
       const isCurrentActive = (highlightedColorCode === code);
       const isDimmed = (highlightedColorCode !== null && !isCurrentActive);
-
       const btn = document.createElement("button");
-      btn.className = `color-filter-btn ${isCurrentActive ? 'active' : ''} ${isDimmed ? 'dimmed' : ''}`;
+      btn.type = "button";
+      btn.className = `color-filter-btn ${isCurrentActive ? "active" : ""} ${isDimmed ? "dimmed" : ""}`;
       btn.style.backgroundColor = bead.hex;
       btn.style.color = (bead.lab.L > 55) ? "#000000" : "#ffffff";
       btn.title = `色號: ${bead.code} (${counts[code]} 顆)`;
       btn.textContent = bead.code;
       btn.onclick = () => { filterByColor(highlightedColorCode === code ? null : code); };
-      paletteFilterItems.appendChild(btn);
+      return btn;
+    };
+
+    codes.forEach(code => {
+      const btn = makeFilterBtn(code);
+      if (btn) paletteFilterItems.appendChild(btn);
     });
+    syncBeadFsColorDock(counts, codes, makeFilterBtn);
     const replaceBtn = document.getElementById("replaceThisColorBtn");
     if (replaceBtn) replaceBtn.disabled = selectedCells.size === 0;
     requestAnimationFrame(syncFloatingDockFrost);
@@ -5712,8 +6268,77 @@ function updateHistoryButtons() {
     });
   }
 
+  function isUploadMinimapActive() {
+    return currentStage === "upload" && document.body.classList.contains("has-upload-image");
+  }
+
+  function updateUploadMinimap() {
+    const img = document.getElementById("originalImg");
+    const vp = document.getElementById("origViewport");
+    const frame = document.getElementById("origZoomFrame");
+    if (!minimapWrap || !img || !img.naturalWidth || img.style.display === "none" || !vp || !frame) {
+      if (minimapWrap) minimapWrap.classList.remove("is-ready");
+      return;
+    }
+    const overflow = frame.offsetWidth > vp.clientWidth + 2 || frame.offsetHeight > vp.clientHeight + 2;
+    if (!overflow) {
+      minimapWrap.classList.remove("is-ready");
+      return;
+    }
+    const nw = img.naturalWidth;
+    const nh = img.naturalHeight;
+    const scale = Math.min(MINIMAP_MAX / nw, MINIMAP_MAX / nh, 1);
+    const w = Math.max(24, Math.round(nw * scale));
+    const h = Math.max(24, Math.round(nh * scale));
+    if (minimapCanvas.width !== w || minimapCanvas.height !== h) {
+      minimapCanvas.width = w;
+      minimapCanvas.height = h;
+    }
+    minimapWrap.style.width = `${w}px`;
+    minimapWrap.style.height = `${h}px`;
+    minimapCtx.fillStyle = "#181825";
+    minimapCtx.fillRect(0, 0, w, h);
+    minimapCtx.imageSmoothingEnabled = true;
+    minimapCtx.drawImage(img, 0, 0, w, h);
+    minimapWrap.classList.add("is-ready");
+    updateUploadMinimapViewport();
+  }
+
+  function updateUploadMinimapViewport() {
+    const vp = document.getElementById("origViewport");
+    const frame = document.getElementById("origZoomFrame");
+    if (!minimapWrap || !vp || !frame) return;
+    const fr = frame.getBoundingClientRect();
+    const vr = vp.getBoundingClientRect();
+    if (fr.width < 1 || fr.height < 1) return;
+    const mapW = minimapWrap.clientWidth || minimapCanvas.width || 1;
+    const mapH = minimapWrap.clientHeight || minimapCanvas.height || 1;
+    const visLeft = Math.max(0, (vr.left - fr.left) / fr.width);
+    const visTop = Math.max(0, (vr.top - fr.top) / fr.height);
+    const visRight = Math.min(1, (vr.right - fr.left) / fr.width);
+    const visBottom = Math.min(1, (vr.bottom - fr.top) / fr.height);
+    minimapViewport.style.transform = `translate(${visLeft * mapW}px, ${visTop * mapH}px)`;
+    minimapViewport.style.width = `${Math.max(8, (visRight - visLeft) * mapW)}px`;
+    minimapViewport.style.height = `${Math.max(8, (visBottom - visTop) * mapH)}px`;
+  }
+
+  function panUploadFromMinimap(clientX, clientY) {
+    const vp = document.getElementById("origViewport");
+    const frame = document.getElementById("origZoomFrame");
+    if (!minimapWrap || !vp || !frame) return;
+    const rect = minimapWrap.getBoundingClientRect();
+    const x = Math.max(0, Math.min(1, (clientX - rect.left) / Math.max(1, rect.width)));
+    const y = Math.max(0, Math.min(1, (clientY - rect.top) / Math.max(1, rect.height)));
+    vp.scrollLeft = frame.offsetLeft + x * frame.offsetWidth - vp.clientWidth / 2;
+    vp.scrollTop = frame.offsetTop + y * frame.offsetHeight - vp.clientHeight / 2;
+  }
+
   function updateMinimap() {
     if (!minimapWrap) return;
+    if (isUploadMinimapActive()) {
+      updateUploadMinimap();
+      return;
+    }
     if (!isPatternStage() || currentCols === 0 || patternGridData.length === 0) {
       minimapWrap.classList.remove("is-ready");
       return;
@@ -5755,6 +6380,10 @@ function updateHistoryButtons() {
 
   function updateMinimapViewport() {
     if (!minimapWrap || !minimapWrap.classList.contains("is-ready")) return;
+    if (isUploadMinimapActive()) {
+      updateUploadMinimapViewport();
+      return;
+    }
     const contentW = mainCanvasWrapper.offsetWidth || patternCanvas.width || 1;
     const contentH = mainCanvasWrapper.offsetHeight || patternCanvas.height || 1;
     const mapW = minimapWrap.clientWidth || minimapCanvas.width;
@@ -5771,6 +6400,10 @@ function updateHistoryButtons() {
   }
 
   function panFromMinimap(clientX, clientY) {
+    if (isUploadMinimapActive()) {
+      panUploadFromMinimap(clientX, clientY);
+      return;
+    }
     const rect = minimapWrap.getBoundingClientRect();
     const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
@@ -5862,6 +6495,34 @@ function updateHistoryButtons() {
     });
     document.addEventListener("pointerdown", (e) => {
       if (!dock.contains(e.target)) dock.classList.remove("is-open");
+    });
+  })();
+
+  (function bindBeadFsColorDock() {
+    const dock = document.getElementById("beadFsColorDock");
+    if (!dock) return;
+    const cap = dock.querySelector(".bead-fs-color-capsule");
+    const toggle = () => {
+      dock.classList.toggle("is-open");
+      if (cap) cap.setAttribute("aria-expanded", dock.classList.contains("is-open") ? "true" : "false");
+    };
+    if (cap) {
+      cap.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggle();
+      });
+      cap.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          toggle();
+        }
+      });
+    }
+    document.addEventListener("pointerdown", (e) => {
+      if (!dock.contains(e.target)) {
+        dock.classList.remove("is-open");
+        if (cap) cap.setAttribute("aria-expanded", "false");
+      }
     });
   })();
 
@@ -5964,11 +6625,33 @@ function updateHistoryButtons() {
     syncSelectedFromParts();
   }
 
-  function strokeSelectionPerimeter(ctx, cells, cell) {
+  function beadHexAtCell(col, row) {
+    const bead = patternGridData[row]?.[col];
+    return bead && bead.hex ? bead.hex : null;
+  }
+
+  function sampleEditHexAtCanvas(px, py, cell) {
+    const col = Math.floor(px / cell);
+    const row = Math.floor(py / cell);
+    return beadHexAtCell(col, row);
+  }
+
+  function strokeSelectionPerimeter(ctx, cells, cell, strokeHex, opts) {
     if (!cells || !cells.size) return;
+    strokeHex = strokeHex || "#ff3344";
+    const halo = !!(opts && opts.halo);
+    const skipContrast = !!(opts && opts.skipContrast) || cells.size > 700;
     const dx = (isMovingSelection || isMovingMarquee) ? moveOffset.dx : 0;
     const dy = (isMovingSelection || isMovingMarquee) ? moveOffset.dy : 0;
-    ctx.beginPath();
+    const buckets = new Map();
+    const addEdge = (x0, y0, x1, y1, col) => {
+      let list = buckets.get(col);
+      if (!list) {
+        list = [];
+        buckets.set(col, list);
+      }
+      list.push(x0, y0, x1, y1);
+    };
     cells.forEach((key) => {
       const [x, y] = key.split(",").map(Number);
       const px = x + dx;
@@ -5978,19 +6661,109 @@ function updateHistoryButtons() {
       const y0 = Math.round(py * cell);
       const x1 = Math.round((px + 1) * cell);
       const y1 = Math.round((py + 1) * cell);
-      if (!cells.has(`${x},${y - 1}`)) { ctx.moveTo(x0 + 1, y0 + 1); ctx.lineTo(x1 - 1, y0 + 1); }
-      if (!cells.has(`${x + 1},${y}`)) { ctx.moveTo(x1 - 1, y0 + 1); ctx.lineTo(x1 - 1, y1 - 1); }
-      if (!cells.has(`${x},${y + 1}`)) { ctx.moveTo(x1 - 1, y1 - 1); ctx.lineTo(x0 + 1, y1 - 1); }
-      if (!cells.has(`${x - 1},${y}`)) { ctx.moveTo(x0 + 1, y1 - 1); ctx.lineTo(x0 + 1, y0 + 1); }
+      const edgeColor = (cx, cy, nx, ny) => skipContrast
+        ? strokeHex
+        : contrastAgainstHexes(strokeHex, beadHexAtCell(cx, cy), beadHexAtCell(nx, ny));
+      if (!cells.has(`${x},${y - 1}`)) addEdge(x0 + 1, y0 + 1, x1 - 1, y0 + 1, edgeColor(x, y, x, y - 1));
+      if (!cells.has(`${x + 1},${y}`)) addEdge(x1 - 1, y0 + 1, x1 - 1, y1 - 1, edgeColor(x, y, x + 1, y));
+      if (!cells.has(`${x},${y + 1}`)) addEdge(x1 - 1, y1 - 1, x0 + 1, y1 - 1, edgeColor(x, y, x, y + 1));
+      if (!cells.has(`${x - 1},${y}`)) addEdge(x0 + 1, y1 - 1, x0 + 1, y0 + 1, edgeColor(x, y, x - 1, y));
     });
-    ctx.stroke();
+    const lw = ctx.lineWidth || 2;
+    if (halo) {
+      ctx.save();
+      ctx.lineJoin = "miter";
+      ctx.strokeStyle = "rgba(255,255,255,0.95)";
+      ctx.lineWidth = lw + 3;
+      ctx.beginPath();
+      buckets.forEach((pts) => {
+        for (let i = 0; i < pts.length; i += 4) {
+          ctx.moveTo(pts[i], pts[i + 1]);
+          ctx.lineTo(pts[i + 2], pts[i + 3]);
+        }
+      });
+      ctx.stroke();
+      ctx.restore();
+    }
+    buckets.forEach((pts, col) => {
+      ctx.strokeStyle = col;
+      ctx.lineWidth = lw;
+      ctx.beginPath();
+      for (let i = 0; i < pts.length; i += 4) {
+        ctx.moveTo(pts[i], pts[i + 1]);
+        ctx.lineTo(pts[i + 2], pts[i + 3]);
+      }
+      ctx.stroke();
+    });
   }
 
-  const POLY_CLOSE_HIT = 0.7;
+  const POLY_CLOSE_HIT = 0.85;
   function isHoveringPolyCloseAnchor() {
     if (editPolyPoints.length < 3 || !editPolyHover || isPolyHandleDrag) return false;
     const first = editPolyPoints[0];
     return Math.hypot(editPolyHover.x - first.x, editPolyHover.y - first.y) < POLY_CLOSE_HIT;
+  }
+
+  function uploadPolyCloseHitPx() {
+    return Math.max(12, 16 / (origZoom || 1));
+  }
+
+  function isHoveringUploadPolyClose() {
+    if (polyPoints.length < 3 || !uploadPolyHover || isUploadPolyDrag || anchorPaused) return false;
+    const first = polyPoints[0];
+    return Math.hypot(uploadPolyHover.x - first.x, uploadPolyHover.y - first.y) <= uploadPolyCloseHitPx();
+  }
+
+  let polyClosePulseRaf = 0;
+  function kickPolyClosePulse() {
+    if (polyClosePulseRaf) return;
+    polyClosePulseRaf = requestAnimationFrame(() => {
+      polyClosePulseRaf = 0;
+      const editOn = typeof isPatternStage === "function" && isPatternStage() && !isBeadStage() && isAnchorSelectTool() && isHoveringPolyCloseAnchor();
+      const uploadOn = currentStage === "upload" && uploadTool === "poly" && isHoveringUploadPolyClose();
+      if (editOn) renderInteractionLayer();
+      else if (uploadOn) drawPolySelection();
+      if (editOn || uploadOn) kickPolyClosePulse();
+    });
+  }
+
+  function drawPolyCloseAnchor(ctx, x, y, baseR, hot) {
+    ctx.save();
+    if (!hot) {
+      ctx.beginPath();
+      ctx.arc(x, y, baseR, 0, Math.PI * 2);
+      ctx.fillStyle = "#ffe600";
+      ctx.fill();
+      ctx.lineWidth = Math.max(1.2, baseR * 0.32);
+      ctx.strokeStyle = "#181825";
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(x, y, baseR + Math.max(1, baseR * 0.32), 0, Math.PI * 2);
+      ctx.lineWidth = Math.max(0.8, baseR * 0.2);
+      ctx.strokeStyle = "#ffffff";
+      ctx.stroke();
+      ctx.restore();
+      return;
+    }
+    const t = (performance.now() / 320) % 1;
+    ctx.beginPath();
+    ctx.arc(x, y, baseR * (2.25 + t * 0.95), 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(0, 255, 136, ${0.78 * (1 - t)})`;
+    ctx.lineWidth = Math.max(2, baseR * 0.55);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(x, y, baseR * 2.05, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(255,255,255,0.95)";
+    ctx.lineWidth = Math.max(2, baseR * 0.38);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(x, y, baseR * 1.7, 0, Math.PI * 2);
+    ctx.fillStyle = "#00ff88";
+    ctx.fill();
+    ctx.lineWidth = Math.max(2, baseR * 0.38);
+    ctx.strokeStyle = "#11111b";
+    ctx.stroke();
+    ctx.restore();
   }
 
   function renderInteractionLayer() {
@@ -6026,8 +6799,11 @@ function updateHistoryButtons() {
           }
         });
       }
+      const irregularSel = !selBounds.filled || editSelectTool === "wand";
       if (highlightedColorCode === null) {
-        ctxInteract.fillStyle = movingPixels ? "rgba(255, 51, 68, 0.16)" : "rgba(255, 51, 68, 0.32)";
+        ctxInteract.fillStyle = movingPixels
+          ? "rgba(255, 51, 68, 0.16)"
+          : (irregularSel ? "rgba(255, 51, 68, 0.55)" : "rgba(255, 51, 68, 0.32)");
         if (selBounds.filled) {
           const posX = Math.round(selBounds.minX * cell);
           const posY = Math.round(selBounds.minY * cell);
@@ -6051,23 +6827,22 @@ function updateHistoryButtons() {
           });
         }
       }
-      ctxInteract.strokeStyle = "#ff3344";
-      ctxInteract.lineWidth = Math.max(2, Math.floor(cell * 0.12));
+      ctxInteract.lineWidth = irregularSel
+        ? Math.max(3, Math.floor(cell * 0.2))
+        : Math.max(2, Math.floor(cell * 0.12));
       const parts = liveEditSelectParts();
+      const multiParts = parts.length > 1;
+      let outlineIdx = -1;
+      if (!multiParts) outlineIdx = 0;
+      else if (isScalingSelection && editScalePartIndex >= 0) outlineIdx = editScalePartIndex;
+      else if (isMouseDown && isMarqueeSelectTool()) outlineIdx = parts.length - 1;
+      else outlineIdx = hoverEditPartIndex;
       parts.forEach((part, i) => {
-        const box = (isScalingSelection && i === editScalePartIndex && scalePreviewBounds)
-          ? scalePreviewBounds
-          : boundsOfCells(part);
-        if (!box) return;
-        if (box.filled) {
-          const boxX = Math.round(box.minX * cell);
-          const boxY = Math.round(box.minY * cell);
-          const boxW = Math.round((box.maxX + 1) * cell) - boxX;
-          const boxH = Math.round((box.maxY + 1) * cell) - boxY;
-          ctxInteract.strokeRect(boxX + 1, boxY + 1, boxW - 2, boxH - 2);
-        } else {
-          strokeSelectionPerimeter(ctxInteract, part, cell);
-        }
+        if (multiParts && i !== outlineIdx) return;
+        strokeSelectionPerimeter(ctxInteract, part, cell, "#ff3344", {
+          halo: !multiParts && irregularSel && editSelectTool !== "wand",
+          skipContrast: multiParts || editSelectTool === "wand" || part.size > 700
+        });
       });
       const handleBox = isScalingSelection && scalePreviewBounds ? scalePreviewBounds : selBounds;
       if (isScalingSelection && scalePreviewBounds) {
@@ -6077,14 +6852,21 @@ function updateHistoryButtons() {
         const pH = Math.round((scalePreviewBounds.maxY + 1) * cell) - pY;
         ctxInteract.save();
         ctxInteract.setLineDash([5, 4]);
-        ctxInteract.strokeStyle = "#ffe600";
         ctxInteract.lineWidth = Math.max(2, Math.floor(cell * 0.1));
-        ctxInteract.strokeRect(pX + 1, pY + 1, pW - 2, pH - 2);
+        strokeAdaptivePolyline(ctxInteract, [
+          { x: pX + 1, y: pY + 1 },
+          { x: pX + pW - 1, y: pY + 1 },
+          { x: pX + pW - 1, y: pY + pH - 1 },
+          { x: pX + 1, y: pY + pH - 1 }
+        ], "#ffe600", (x, y) => sampleEditHexAtCanvas(x, y, cell), true);
         ctxInteract.restore();
       }
       const drawingMarquee = isMouseDown && isMarqueeSelectTool() && !isScalingSelection && !isMovingMarquee;
       if (canScaleSelection() && !isMovingSelection && !isMovingMarquee && !drawingMarquee) {
+        const multi = parts.length > 1;
         parts.forEach((part, i) => {
+          if (isScalingSelection && i !== editScalePartIndex) return;
+          if (!isScalingSelection && multi && i !== hoverEditPartIndex) return;
           const box = (isScalingSelection && i === editScalePartIndex && scalePreviewBounds)
             ? scalePreviewBounds
             : boundsOfCells(part);
@@ -6092,7 +6874,7 @@ function updateHistoryButtons() {
           const hs = selectionHandleDrawSize(cell, box);
           selectionHandlePoints(box, cell).forEach((h) => {
             ctxInteract.fillStyle = "#ffffff";
-            ctxInteract.strokeStyle = "#ff3344";
+            ctxInteract.strokeStyle = contrastStrokeColor("#ff3344", sampleEditHexAtCanvas(h.x, h.y, cell));
             ctxInteract.lineWidth = 1.5;
             ctxInteract.fillRect(h.x - hs, h.y - hs, hs * 2, hs * 2);
             ctxInteract.strokeRect(h.x - hs, h.y - hs, hs * 2, hs * 2);
@@ -6105,37 +6887,37 @@ function updateHistoryButtons() {
     }
 
     if (!isBeadStage() && isAnchorSelectTool() && editPolyPoints.length) {
-      const last = editPolyPoints[editPolyPoints.length - 1];
       const closeHover = isHoveringPolyCloseAnchor();
       const hoverPt = closeHover ? editPolyPoints[0] : editPolyHover;
       ctxInteract.save();
-      ctxInteract.beginPath();
-      tracePolyPath(ctxInteract, editPolyPoints, false, cell);
-      if (hoverPt && !isPolyHandleDrag && !anchorPaused) {
-        if (anchorNextCurve) {
-          const h = pendingCurveHandle(last, hoverPt, 0.75);
-          ctxInteract.bezierCurveTo(h.x * cell, h.y * cell, hoverPt.x * cell, hoverPt.y * cell, hoverPt.x * cell, hoverPt.y * cell);
-        } else {
-          ctxInteract.lineTo(hoverPt.x * cell, hoverPt.y * cell);
-        }
-      }
-      ctxInteract.strokeStyle = closeHover ? "#00ff88" : "#ff6b9d";
       ctxInteract.lineWidth = Math.max(2, Math.floor(cell * 0.1));
       ctxInteract.setLineDash([6, 4]);
-      ctxInteract.stroke();
+      const polyInk = closeHover ? "#00ff88" : "#ff6b9d";
+      const polyPts = flattenEditPoly(editPolyPoints, false).map((p) => ({ x: p.x * cell, y: p.y * cell }));
+      if (hoverPt && !isPolyHandleDrag && !anchorPaused) {
+        polyPts.push({ x: hoverPt.x * cell, y: hoverPt.y * cell });
+      }
+      if (polyPts.length >= 2) {
+        strokeAdaptivePolyline(ctxInteract, polyPts, polyInk, (x, y) => sampleEditHexAtCanvas(x, y, cell), false);
+      }
       ctxInteract.setLineDash([]);
       drawPolyHandleStems(ctxInteract, editPolyPoints, cell, currentPolyHandleHot(), Math.max(2, cell * 0.08));
       editPolyPoints.forEach((p, i) => {
-        const isCloseTarget = i === 0 && closeHover;
-        const r = isCloseTarget ? Math.max(3.5, cell * 0.18) : (i === 0 ? Math.max(2.2, cell * 0.11) : Math.max(1.8, cell * 0.085));
+        if (i === 0) {
+          const baseR = closeHover ? Math.max(4.2, cell * 0.2) : Math.max(2.4, cell * 0.12);
+          drawPolyCloseAnchor(ctxInteract, p.x * cell, p.y * cell, baseR, closeHover);
+          return;
+        }
+        const r = Math.max(1.8, cell * 0.085);
         ctxInteract.beginPath();
         ctxInteract.arc(p.x * cell, p.y * cell, r, 0, Math.PI * 2);
-        ctxInteract.fillStyle = isCloseTarget ? "#00ff88" : (i === 0 ? "#ffe600" : "#ff6b9d");
+        ctxInteract.fillStyle = "#ff6b9d";
         ctxInteract.fill();
-        ctxInteract.strokeStyle = isCloseTarget ? "#181825" : "#fff";
-        ctxInteract.lineWidth = isCloseTarget ? 2 : 1;
+        ctxInteract.strokeStyle = "#fff";
+        ctxInteract.lineWidth = 1;
         ctxInteract.stroke();
       });
+      if (closeHover) kickPolyClosePulse();
       ctxInteract.restore();
     }
 
@@ -6145,12 +6927,18 @@ function updateHistoryButtons() {
         editSelectTool === "circle"
       );
       ctxInteract.save();
-      ctxInteract.beginPath();
-      ctxInteract.ellipse(cx * cell, cy * cell, Math.max(rx * cell, 1), Math.max(ry * cell, 1), 0, 0, Math.PI * 2);
-      ctxInteract.strokeStyle = "#ff6b9d";
       ctxInteract.lineWidth = Math.max(2, Math.floor(cell * 0.1));
       ctxInteract.setLineDash([6, 4]);
-      ctxInteract.stroke();
+      const erx = Math.max(rx * cell, 1);
+      const ery = Math.max(ry * cell, 1);
+      const eCirc = Math.PI * (3 * (erx + ery) - Math.sqrt((3 * erx + ery) * (erx + 3 * ery)));
+      const eN = Math.max(24, Math.min(160, Math.ceil(eCirc / Math.max(6, cell * 0.35))));
+      const ePts = [];
+      for (let i = 0; i < eN; i++) {
+        const t = (i / eN) * Math.PI * 2;
+        ePts.push({ x: cx * cell + Math.cos(t) * erx, y: cy * cell + Math.sin(t) * ery });
+      }
+      strokeAdaptivePolyline(ctxInteract, ePts, "#ff6b9d", (x, y) => sampleEditHexAtCanvas(x, y, cell), true);
       ctxInteract.restore();
     }
 
@@ -6383,9 +7171,8 @@ function updateHistoryButtons() {
   function updateSelectCount() {
     const selectToggle = document.getElementById("patternSizeToggle");
     if (selectToggle) {
-      const caption = selectedCells.size > 0 ? "取消選取" : "選取工具";
-      setToggleCaption(selectToggle, caption, currentSelectToolIconId());
-      selectToggle.classList.toggle("is-hot", selectedCells.size > 0);
+      setToggleCaption(selectToggle, "選取工具", currentSelectToolIconId());
+      selectToggle.classList.toggle("is-hot", editSelectTool !== "none");
     }
     const replaceBtn = document.getElementById("replaceThisColorBtn");
     if (replaceBtn) replaceBtn.disabled = selectedCells.size === 0;
@@ -6397,17 +7184,43 @@ function updateHistoryButtons() {
       editToggle.classList.toggle("is-hot", editPaintTool === "pencil" || editPaintTool === "eraser");
     }
   }
+
+  let hintBlinkTimer = 0;
+  function isHintTargetVisible(el) {
+    if (!el || el.hidden) return false;
+    return !el.closest("[hidden]");
+  }
+  function flashHintButtons(ids) {
+    const els = (ids || []).map((id) => document.getElementById(id)).filter(isHintTargetVisible);
+    if (!els.length) return;
+    els.forEach((el) => {
+      el.classList.remove("is-hint-blink");
+      void el.offsetWidth;
+      el.classList.add("is-hint-blink");
+    });
+    clearTimeout(hintBlinkTimer);
+    hintBlinkTimer = setTimeout(() => {
+      els.forEach((el) => el.classList.remove("is-hint-blink"));
+    }, 960);
+  }
+  function flashEditSelectHints() {
+    flashHintButtons(["selectAddBoxBtn", "selectCancelBtn"]);
+  }
+  function flashUploadSelectHints() {
+    flashHintButtons(["uploadSelectAddBtn", "uploadSelectCancelBtn"]);
+  }
   function clearSelection() {
     selectedCells.clear();
     editSelectParts = [];
     editScalePartIndex = -1;
+    editPolyClosedUndo = null;
     resetEditPoly();
     isMovingSelection = false;
     isMovingMarquee = false;
     moveOffset = { dx: 0, dy: 0 };
     updateSelectCount();
     renderInteractionLayer();
-    if (isMarqueeSelectTool() || editSelectTool === "wand") selectAddArmed = true;
+    if (canCombineEditSelection()) selectAddArmed = true;
     selectBoolMode = "add";
     selectMiniBarUserPos = null;
     editLastRectBounds = null;
@@ -6416,10 +7229,7 @@ function updateHistoryButtons() {
   const patternSizeToggleBtn = document.getElementById("patternSizeToggle");
   if (patternSizeToggleBtn) {
     patternSizeToggleBtn.addEventListener("click", () => {
-      if (!isEditMode) { setEditMode(true); return; }
-      if (!selectedCells.size) return;
-      clearSelection();
-      commitSelectionHistory("取消選取");
+      if (!isEditMode) setEditMode(true);
     });
   }
   const editToolsToggleBtn = document.getElementById("editToolsToggle");
@@ -6435,6 +7245,7 @@ function updateHistoryButtons() {
   }
 
   function applyReplaceColor() {
+    closePaletteDropdowns();
     if (selectedCells.size === 0) { alert("請先在圖紙上選取拼豆！"); return false; }
     selectedCells.forEach(key => {
       const [x, y] = key.split(",").map(Number);
@@ -6568,16 +7379,17 @@ function updateHistoryButtons() {
       Math.max(5, minSide * 0.32),
       Math.max(8, Math.min(16, cell * 0.42), selectionHandleDrawSize(cell, bounds) * 1.7)
     );
+    const ink = contrastStrokeColor("#ff3344", sampleEditHexAtCanvas(h.x, h.y, cell));
     ctx.save();
     ctx.fillStyle = "#ffffff";
-    ctx.strokeStyle = "#ff3344";
+    ctx.strokeStyle = ink;
     ctx.lineWidth = 1.6;
     ctx.beginPath();
     ctx.arc(h.x, h.y, r, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
-    ctx.strokeStyle = "#ff3344";
-    ctx.fillStyle = "#ff3344";
+    ctx.strokeStyle = ink;
+    ctx.fillStyle = ink;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.lineWidth = Math.max(1.5, r * 0.16);
@@ -6620,6 +7432,18 @@ function updateHistoryButtons() {
     const hitR = Math.min(Math.max(16, cellCss * 0.55), Math.max(8, minSide * 0.5));
     if (Math.hypot(cssX - h.x, cssY - h.y) <= hitR) return h;
     return null;
+  }
+
+  function beginEditMarqueeMove(col, row) {
+    isMovingMarquee = true;
+    moveStartCell = {
+      col: Math.max(0, Math.min(currentCols - 1, col)),
+      row: Math.max(0, Math.min(currentRows - 1, row))
+    };
+    moveOffset = { dx: 0, dy: 0 };
+    const inner = document.getElementById("mainCanvasInner");
+    if (inner) inner.classList.add("is-grabbing");
+    renderInteractionLayer();
   }
 
   function applyMarqueeMove(dx, dy) {
@@ -6680,17 +7504,20 @@ function updateHistoryButtons() {
     ];
   }
 
-  function hitTestSelectionHandle(e) {
+  function hitTestSelectionHandle(e, opts) {
     if (!canScaleSelection()) return null;
     ensureEditSelectParts();
     const parts = liveEditSelectParts();
     if (!parts.length) return null;
+    const ignoreHover = opts && opts.ignoreHover;
+    const multi = parts.length > 1 && !isScalingSelection && !ignoreHover;
     const rect = interactionCanvas.getBoundingClientRect();
     let clientX = e.clientX, clientY = e.clientY;
     if (e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
     const cssX = clientX - rect.left, cssY = clientY - rect.top;
     const cellCss = rect.width > 0 ? rect.width / currentCols : 1;
     for (let pi = parts.length - 1; pi >= 0; pi--) {
+      if (multi && pi !== hoverEditPartIndex) continue;
       const bounds = boundsOfCells(parts[pi]);
       if (!bounds) continue;
       const hitR = selectionHandleHitSize(cellCss, bounds);
@@ -6702,6 +7529,30 @@ function updateHistoryButtons() {
       }
     }
     return null;
+  }
+
+  function updateHoverEditPart(e) {
+    if (isBeadStage() || !isEditMode) return false;
+    ensureEditSelectParts();
+    const parts = liveEditSelectParts();
+    let next = -1;
+    if (parts.length === 1) next = 0;
+    else if (parts.length > 1) {
+      const { col, row } = getCanvasCoordsFromEvent(e);
+      if (col >= 0 && row >= 0 && col < currentCols && row < currentRows) {
+        const key = `${col},${row}`;
+        for (let i = parts.length - 1; i >= 0; i--) {
+          if (parts[i].has(key)) { next = i; break; }
+        }
+      }
+      if (next < 0) {
+        const h = hitTestSelectionHandle(e, { ignoreHover: true });
+        if (h && h.partIndex != null) next = h.partIndex;
+      }
+    }
+    if (next === hoverEditPartIndex) return false;
+    hoverEditPartIndex = next;
+    return true;
   }
 
   function boundsFromScaleHandle(id, col, row, start) {
@@ -6870,6 +7721,38 @@ function updateHistoryButtons() {
     return { col, row, fx, fy, clientX, clientY };
   }
 
+  let beadTouchHovering = false;
+  function isCoarsePointerEvent(e) {
+    if (e.pointerType === "touch" || e.pointerType === "pen") return true;
+    if (e.touches && e.touches.length > 0) return true;
+    if (e.changedTouches && e.changedTouches.length > 0) return true;
+    return false;
+  }
+  function positionBeadTooltip(clientX, clientY, coarse) {
+    const tooltip = document.getElementById("beadTooltip");
+    if (!tooltip) return;
+    tooltip.style.display = "block";
+    const host = isBeadFullscreen() ? beadFsElement() : null;
+    const ox = coarse ? 8 : 14;
+    const oy = coarse ? -58 : 14;
+    if (host) {
+      const r = host.getBoundingClientRect();
+      const tw = tooltip.offsetWidth || 148;
+      const th = tooltip.offsetHeight || 52;
+      tooltip.style.position = "absolute";
+      let left = clientX - r.left + (coarse ? -(tw / 2) : ox);
+      let top = clientY - r.top + oy;
+      left = Math.max(8, Math.min(r.width - tw - 8, left));
+      top = Math.max(8, Math.min(r.height - th - 8, top));
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
+    } else {
+      tooltip.style.position = "fixed";
+      tooltip.style.left = `${clientX + ox}px`;
+      tooltip.style.top = `${Math.max(8, clientY + oy)}px`;
+    }
+  }
+
   function isAnchorSelectTool() {
     return editSelectTool === "poly";
   }
@@ -6922,7 +7805,44 @@ function updateHistoryButtons() {
     syncAnchorMiniBar();
   }
 
+  function canUncloseAnchor() {
+    if (currentStage === "upload" && uploadTool === "poly" && uploadPolyClosedUndo && !(polyPoints && polyPoints.length)) return true;
+    if (isPatternStage() && !isBeadStage() && editSelectTool === "poly" && editPolyClosedUndo && !editPolyPoints.length) return true;
+    return false;
+  }
+
+  function undoClosedAnchor() {
+    if (currentStage === "upload" && uploadTool === "poly" && uploadPolyClosedUndo && !(polyPoints && polyPoints.length)) {
+      const pts = uploadPolyClosedUndo;
+      uploadPolyClosedUndo = null;
+      if (polyPolygons.length) polyPolygons.pop();
+      polyPoints = pts.map(snapshotAnchor);
+      polyPoints.op = pts.op === "subtract" ? "subtract" : "add";
+      polyPointRedo = [];
+      uploadPolyHover = null;
+      afterAnchorPointChange();
+      return true;
+    }
+    if (isPatternStage() && !isBeadStage() && editSelectTool === "poly" && editPolyClosedUndo && !editPolyPoints.length) {
+      const snap = editPolyClosedUndo;
+      editPolyClosedUndo = null;
+      if (snap.historyPushed && historyIndex > 0) {
+        historyIndex--;
+        updateHistoryButtons();
+      }
+      editPolyPoints = snap.points.map(snapshotAnchor);
+      editPolyRedo = [];
+      selectedCells = new Set(snap.selection || []);
+      editSelectParts = (snap.parts || []).map((arr) => new Set(arr));
+      updateSelectCount();
+      afterAnchorPointChange();
+      return true;
+    }
+    return false;
+  }
+
   function undoInProgressAnchor() {
+    if (undoClosedAnchor()) return true;
     const sess = currentAnchorSession();
     if (!sess || !sess.points.length) return false;
     sess.redo.push(snapshotAnchor(sess.points.pop()));
@@ -6933,6 +7853,7 @@ function updateHistoryButtons() {
       isUploadPolyDrag = false;
       uploadPolyDragIndex = -1;
       uploadPolyDragKind = null;
+      if (typeof resetUploadPolyMove === "function") resetUploadPolyMove();
     }
     afterAnchorPointChange();
     return true;
@@ -6947,6 +7868,8 @@ function updateHistoryButtons() {
   }
 
   function clearInProgressAnchors() {
+    editPolyClosedUndo = null;
+    uploadPolyClosedUndo = null;
     const sess = currentAnchorSession();
     if (!sess || (!sess.points.length && !sess.redo.length)) return false;
     sess.points.length = 0;
@@ -6961,6 +7884,7 @@ function updateHistoryButtons() {
       uploadPolyDragIndex = -1;
       uploadPolyDragKind = null;
       uploadPolyHover = null;
+      if (typeof resetUploadPolyMove === "function") resetUploadPolyMove();
     }
     afterAnchorPointChange();
     return true;
@@ -6974,6 +7898,7 @@ function updateHistoryButtons() {
     isUploadPolyDrag = false;
     uploadPolyDragIndex = -1;
     uploadPolyDragKind = null;
+    if (typeof resetUploadPolyMove === "function") resetUploadPolyMove();
     polyHandleHover = null;
     const overlayEl = document.getElementById("cropOverlayCanvas");
     if (overlayEl) {
@@ -7001,45 +7926,55 @@ function updateHistoryButtons() {
     return o1 * o2 < 0 && o3 * o4 < 0;
   }
 
-  function lineHitsBar(sx, sy, ex, ey, left, top, w, h) {
-    const pad = 6;
-    const L = left - pad, T = top - pad, R = left + w + pad, B = top + h + pad;
-    const len = Math.hypot(ex - sx, ey - sy) || 1;
-    const t = Math.min(0.35, 16 / len);
-    const ax = sx + (ex - sx) * t;
-    const ay = sy + (ey - sy) * t;
-    if (ax >= L && ax <= R && ay >= T && ay <= B) return true;
-    if (ex >= L && ex <= R && ey >= T && ey <= B) return true;
+  function rectHitsPoint(left, top, w, h, p, pad) {
+    if (!p) return false;
+    const g = pad == null ? 16 : pad;
+    return p.x >= left - g && p.x <= left + w + g && p.y >= top - g && p.y <= top + h + g;
+  }
+
+  function rectHitsSeg(left, top, w, h, a, b, pad) {
+    if (!a || !b) return false;
+    const g = pad == null ? 10 : pad;
+    const L = left - g, T = top - g, R = left + w + g, B = top + h + g;
+    if (a.x >= L && a.x <= R && a.y >= T && a.y <= B) return true;
+    if (b.x >= L && b.x <= R && b.y >= T && b.y <= B) return true;
     return (
-      segsIntersect(ax, ay, ex, ey, L, T, R, T) ||
-      segsIntersect(ax, ay, ex, ey, R, T, R, B) ||
-      segsIntersect(ax, ay, ex, ey, R, B, L, B) ||
-      segsIntersect(ax, ay, ex, ey, L, B, L, T)
+      segsIntersect(a.x, a.y, b.x, b.y, L, T, R, T) ||
+      segsIntersect(a.x, a.y, b.x, b.y, R, T, R, B) ||
+      segsIntersect(a.x, a.y, b.x, b.y, R, B, L, B) ||
+      segsIntersect(a.x, a.y, b.x, b.y, L, B, L, T)
     );
   }
 
-  function placeMiniBarOffSegments(bar, sx, sy, segs) {
-    const barW = bar.offsetWidth || 168;
-    const barH = bar.offsetHeight || 36;
-    const gap = 16;
+  function placeMiniBarOffPath(bar, last, pts, segs) {
+    const barW = bar.offsetWidth || 220;
+    const barH = bar.offsetHeight || 40;
+    const gap = 36;
+    const sx = last.x;
+    const sy = last.y;
     const raw = [
       { left: sx + gap, top: sy - gap - barH },
       { left: sx - gap - barW, top: sy - gap - barH },
-      { left: sx + gap, top: sy - barH / 2 },
-      { left: sx - gap - barW, top: sy - barH / 2 },
       { left: sx + gap, top: sy + gap },
       { left: sx - gap - barW, top: sy + gap },
+      { left: sx + gap + 52, top: sy - barH / 2 },
+      { left: sx - gap - barW - 52, top: sy - barH / 2 },
       { left: sx - barW / 2, top: sy - gap - barH },
-      { left: sx - barW / 2, top: sy + gap }
+      { left: sx - barW / 2, top: sy + gap },
+      { left: sx + gap + 88, top: sy - gap - barH },
+      { left: sx - gap - barW - 88, top: sy + gap },
+      { left: sx + gap + 88, top: sy + gap + 16 },
+      { left: sx - gap - barW - 88, top: sy - gap - barH }
     ];
-    let best = raw[0], bestScore = -Infinity;
+    let best = raw[0];
+    let bestScore = -Infinity;
     raw.forEach((c, i) => {
       const left = Math.max(8, Math.min(c.left, window.innerWidth - barW - 8));
       const top = Math.max(8, Math.min(c.top, window.innerHeight - barH - 8));
-      let score = -i;
-      const hit = (segs || []).some((p) => lineHitsBar(sx, sy, p.x, p.y, left, top, barW, barH));
-      if (!hit) score += 160;
-      score -= Math.hypot(left + barW / 2 - sx, top + barH / 2 - sy) * 0.04;
+      let score = 240 - i * 4;
+      if ((pts || []).some((p) => rectHitsPoint(left, top, barW, barH, p, 20))) score -= 420;
+      if ((segs || []).some((s) => rectHitsSeg(left, top, barW, barH, s[0], s[1], 12))) score -= 340;
+      score -= Math.hypot(left + barW / 2 - sx, top + barH / 2 - sy) * 0.025;
       if (score > bestScore) {
         bestScore = score;
         best = { left, top };
@@ -7081,31 +8016,60 @@ function updateHistoryButtons() {
     return { left, top };
   }
 
-  function placeSelectMiniBar(bar, sx, sy, extraGap) {
+  function clampBarInHost(host, left, top, barW, barH) {
+    const hr = host.getBoundingClientRect();
+    const pad = 6;
+    return {
+      left: Math.max(hr.left + pad, Math.min(left, hr.right - barW - pad)),
+      top: Math.max(hr.top + pad, Math.min(top, hr.bottom - barH - pad))
+    };
+  }
+
+  function barOverlapsAvoid(left, top, barW, barH, avoid, gap) {
+    if (!avoid) return false;
+    const g = gap == null ? 12 : gap;
+    return !(
+      left + barW < avoid.left - g ||
+      left > avoid.right + g ||
+      top + barH < avoid.top - g ||
+      top > avoid.bottom + g
+    );
+  }
+
+  function placeBarAwayFromAvoid(bar, host, sx, sy, extraGap, avoid) {
+    const gap = extraGap == null ? 28 : extraGap;
+    const barW = bar.offsetWidth || 220;
+    const barH = bar.offsetHeight || 36;
+    const hr = host.getBoundingClientRect();
+    const box = avoid || { left: sx - 10, top: sy - 10, right: sx + 10, bottom: sy + 10 };
+    const tries = [
+      { left: sx - barW / 2, top: box.top - gap - barH },
+      { left: sx - barW / 2, top: box.bottom + gap },
+      { left: box.right + gap, top: box.top },
+      { left: box.left - gap - barW, top: box.top },
+      { left: box.right + gap, top: (box.top + box.bottom) / 2 - barH / 2 },
+      { left: box.left - gap - barW, top: (box.top + box.bottom) / 2 - barH / 2 }
+    ];
+    let picked = null;
+    for (let i = 0; i < tries.length; i++) {
+      const c = clampBarInHost(host, tries[i].left, tries[i].top, barW, barH);
+      if (!barOverlapsAvoid(c.left, c.top, barW, barH, box, Math.max(12, gap * 0.55))) {
+        picked = c;
+        break;
+      }
+    }
+    if (!picked) picked = clampBarInHost(host, sx - barW / 2, box.top - gap - barH, barW, barH);
+    bar.style.left = `${Math.round(picked.left - hr.left)}px`;
+    bar.style.top = `${Math.round(picked.top - hr.top)}px`;
+  }
+
+  function placeSelectMiniBar(bar, sx, sy, extraGap, avoidRect) {
     const host = getSelectMiniBarHost();
     if (!host) {
       placeMiniBarAbove(bar, sx, sy, extraGap);
       return;
     }
-    if (selectMiniBarUserPos) {
-      applySelectMiniBarPos(
-        bar,
-        host.getBoundingClientRect().left + selectMiniBarUserPos.left,
-        host.getBoundingClientRect().top + selectMiniBarUserPos.top
-      );
-      return;
-    }
-    const gap = extraGap == null ? 8 : extraGap;
-    const barW = bar.offsetWidth || 220;
-    const barH = bar.offsetHeight || 36;
-    const hr = host.getBoundingClientRect();
-    let left = sx - hr.left - barW / 2;
-    let top = sy - hr.top - gap - barH;
-    if (top < 6) top = sy - hr.top + gap;
-    left = Math.max(6, Math.min(left, Math.max(6, hr.width - barW - 6)));
-    top = Math.max(6, Math.min(top, Math.max(6, hr.height - barH - 6)));
-    bar.style.left = `${Math.round(left)}px`;
-    bar.style.top = `${Math.round(top)}px`;
+    layoutStatusMiniBars();
   }
 
   function syncAnchorMiniBar() {
@@ -7118,6 +8082,7 @@ function updateHistoryButtons() {
       bar.hidden = true;
       anchorMiniBarUserPos = null;
       bar.classList.remove("is-dragging");
+      layoutStatusMiniBars();
       return;
     }
     bar.hidden = false;
@@ -7127,30 +8092,7 @@ function updateHistoryButtons() {
       cornerBtn.textContent = anchorNextCurve ? "銳角" : "曲線";
       cornerBtn.title = anchorNextCurve ? "將下一段改為銳角" : "將下一段改為曲線";
     }
-    const last = sess.points[sess.points.length - 1];
-    const overlayEl = document.getElementById("cropOverlayCanvas");
-    const canvasEl = sess.mode === "upload" ? overlayEl : interactionCanvas;
-    if (!canvasEl || !last) return;
-    const rect = canvasEl.getBoundingClientRect();
-    const toScreen = (p) => {
-      if (!p) return null;
-      if (sess.mode === "upload") {
-        const scaleX = rect.width / (overlayEl.width || 1);
-        const scaleY = rect.height / (overlayEl.height || 1);
-        return { x: rect.left + p.x * scaleX, y: rect.top + p.y * scaleY };
-      }
-      const cell = rect.width / (currentCols || 1);
-      return { x: rect.left + p.x * cell, y: rect.top + p.y * cell };
-    };
-    if (anchorMiniBarUserPos) {
-      applyAnchorMiniBarPos(bar, anchorMiniBarUserPos.left, anchorMiniBarUserPos.top);
-      return;
-    }
-    const lastScreen = toScreen(last);
-    if (!lastScreen) return;
-    const segs = [];
-    if (sess.points.length >= 2) segs.push(toScreen(sess.points[sess.points.length - 2]));
-    placeMiniBarOffSegments(bar, lastScreen.x, lastScreen.y, segs.filter(Boolean));
+    layoutStatusMiniBars();
   }
 
   function applyAnchorMiniBarPos(bar, left, top) {
@@ -7182,32 +8124,113 @@ function updateHistoryButtons() {
     return { left, top };
   }
 
-  function placeUploadSelectMiniBar(bar, sx, sy, extraGap) {
+  function statusMiniBarClientBox(bar) {
+    const r = bar.getBoundingClientRect();
+    return { left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width, height: r.height };
+  }
+
+  function statusMiniBarsOverlap(a, b, gap) {
+    const g = gap == null ? 8 : gap;
+    return !(a.right + g <= b.left || b.right + g <= a.left || a.bottom + g <= b.top || b.bottom + g <= a.top);
+  }
+
+  function statusMiniBarWorkHost() {
+    if (typeof currentStage === "string" && currentStage === "upload") return getUploadSelectBarHost();
+    return getSelectMiniBarHost() || getUploadSelectBarHost();
+  }
+
+  function layoutStatusMiniBars() {
+    const GAP = 8;
+    const selectBar = document.getElementById("selectMiniBar");
+    const uploadBar = document.getElementById("uploadSelectMiniBar");
+    const anchorBar = document.getElementById("anchorMiniBar");
+    const selectOn = !!(selectBar && !selectBar.hidden);
+    const uploadOn = !!(uploadBar && !uploadBar.hidden);
+    const anchorOn = !!(anchorBar && !anchorBar.hidden);
+    if (!selectOn && !uploadOn && !anchorOn) return;
+
+    const selBar = selectOn ? selectBar : (uploadOn ? uploadBar : null);
+    const selHost = selectOn ? getSelectMiniBarHost() : (uploadOn ? getUploadSelectBarHost() : null);
+    const selUserPos = selectOn ? selectMiniBarUserPos : (uploadOn ? uploadSelectMiniBarUserPos : null);
+    const applySelPos = selectOn ? applySelectMiniBarPos : applyUploadSelectMiniBarPos;
+    const selDragging = !!(
+      (selectOn && selectMiniBarDrag && selectMiniBarDrag.moved) ||
+      (uploadOn && uploadSelectMiniBarDrag && uploadSelectMiniBarDrag.moved)
+    );
+    const anchorDragging = !!(anchorMiniBarDrag && anchorMiniBarDrag.moved);
+
+    const workHost = selHost || statusMiniBarWorkHost();
+    let dockLeft = GAP;
+    let dockTop = GAP;
+    if (workHost) {
+      const hr = workHost.getBoundingClientRect();
+      const corner = workHost.querySelector(".frozen-corner");
+      const header = corner ? Math.max(corner.offsetWidth, corner.offsetHeight) : 0;
+      dockLeft = hr.left + header + GAP;
+      dockTop = hr.top + header + GAP;
+    }
+
+    const occupied = [];
+    function occupy(box) {
+      if (box) occupied.push(box);
+      return box;
+    }
+    function dodge(left, top, w, h) {
+      let x = left;
+      let y = top;
+      for (let i = 0; i < 12; i++) {
+        const box = { left: x, top: y, right: x + w, bottom: y + h, width: w, height: h };
+        const hit = occupied.find((p) => statusMiniBarsOverlap(box, p, GAP));
+        if (!hit) return { left: x, top: y };
+        y = hit.bottom + GAP;
+      }
+      return { left: x, top: y };
+    }
+
+    if (selBar && selHost && (selDragging || selUserPos)) {
+      if (selDragging) {
+        occupy(statusMiniBarClientBox(selBar));
+      } else {
+        const hr = selHost.getBoundingClientRect();
+        applySelPos(selBar, hr.left + selUserPos.left, hr.top + selUserPos.top);
+        occupy(statusMiniBarClientBox(selBar));
+      }
+    }
+    if (anchorOn && (anchorDragging || anchorMiniBarUserPos)) {
+      if (anchorDragging) {
+        occupy(statusMiniBarClientBox(anchorBar));
+      } else {
+        applyAnchorMiniBarPos(anchorBar, anchorMiniBarUserPos.left, anchorMiniBarUserPos.top);
+        occupy(statusMiniBarClientBox(anchorBar));
+      }
+    }
+    if (selBar && selHost && !selDragging && !selUserPos) {
+      const w = selBar.offsetWidth || 220;
+      const h = selBar.offsetHeight || 36;
+      const p = dodge(dockLeft, dockTop, w, h);
+      applySelPos(selBar, p.left, p.top);
+      occupy(statusMiniBarClientBox(selBar));
+    }
+    if (anchorOn && !anchorDragging && !anchorMiniBarUserPos) {
+      const w = anchorBar.offsetWidth || 168;
+      const h = anchorBar.offsetHeight || 36;
+      const p = dodge(dockLeft, dockTop, w, h);
+      applyAnchorMiniBarPos(anchorBar, p.left, p.top);
+    }
+  }
+
+  function placeUploadSelectMiniBar(bar, sx, sy, extraGap, avoidRect) {
     const host = getUploadSelectBarHost();
     if (!bar || !host) return;
-    if (uploadSelectMiniBarUserPos) {
-      applyUploadSelectMiniBarPos(
-        bar,
-        host.getBoundingClientRect().left + uploadSelectMiniBarUserPos.left,
-        host.getBoundingClientRect().top + uploadSelectMiniBarUserPos.top
-      );
-      return;
-    }
-    const gap = extraGap == null ? 8 : extraGap;
-    const barW = bar.offsetWidth || 220;
-    const barH = bar.offsetHeight || 36;
-    const hr = host.getBoundingClientRect();
-    let left = sx - hr.left - barW / 2;
-    let top = sy - hr.top - gap - barH;
-    if (top < 6) top = sy - hr.top + gap;
-    left = Math.max(6, Math.min(left, Math.max(6, hr.width - barW - 6)));
-    top = Math.max(6, Math.min(top, Math.max(6, hr.height - barH - 6)));
-    bar.style.left = `${Math.round(left)}px`;
-    bar.style.top = `${Math.round(top)}px`;
+    layoutStatusMiniBars();
   }
 
   function isMarqueeSelectTool() {
     return editSelectTool === "rect" || editSelectTool === "circle" || editSelectTool === "ellipse";
+  }
+
+  function canCombineEditSelection() {
+    return isMarqueeSelectTool() || editSelectTool === "wand" || isAnchorSelectTool();
   }
 
   function syncSelectMiniBar() {
@@ -7218,24 +8241,29 @@ function updateHistoryButtons() {
     const freeBtn = document.getElementById("selectScaleFreeBtn");
     if (!bar) return;
     const onEdit = isPatternStage() && !isBeadStage();
-    const showAdd = onEdit && (isMarqueeSelectTool() || editSelectTool === "wand") && selectedCells.size > 0;
+    const hasSel = onEdit && selectedCells.size > 0;
+    const showAdd = hasSel && canCombineEditSelection();
+    const showCancel = hasSel;
     const showScale = onEdit && canScaleSelection();
-    if (!showAdd && !showScale) {
+    if (!showAdd && !showScale && !showCancel) {
       bar.hidden = true;
       selectMiniBarUserPos = null;
       bar.classList.remove("is-dragging");
+      layoutStatusMiniBars();
       return;
     }
     bar.hidden = false;
     const addWrap = document.getElementById("selectAddWrap");
+    const cancelBtn = document.getElementById("selectCancelBtn");
     if (addWrap) addWrap.hidden = !showAdd;
+    if (cancelBtn) cancelBtn.hidden = !showCancel;
     if (addBtn) {
       addBtn.hidden = !showAdd;
       addBtn.classList.toggle("highlight", selectAddArmed && selectBoolMode !== "subtract");
       addBtn.textContent = "增加選匡";
       addBtn.title = selectAddArmed && selectBoolMode !== "subtract"
-        ? "再拖曳畫布新增一塊選匡"
-        : "點此後再拖曳，可新增選匡";
+        ? "再到圖紙上新增一塊選匡"
+        : "點此後再到圖紙上新增選匡";
     }
     const subtractBtn = document.getElementById("selectSubtractBoxBtn");
     if (subtractBtn) {
@@ -7253,14 +8281,7 @@ function updateHistoryButtons() {
       freeBtn.hidden = !showScale;
       freeBtn.classList.toggle("highlight", showScale && !scaleKeepRatio);
     }
-    const bounds = (isScalingSelection && scalePreviewBounds) ? scalePreviewBounds : getVisibleSelectionBounds();
-    if (!bounds || !interactionCanvas) return;
-    const rect = interactionCanvas.getBoundingClientRect();
-    const cellW = rect.width / (currentCols || 1);
-    const cellH = rect.height / (currentRows || 1);
-    const sx = rect.left + ((bounds.minX + bounds.maxX + 1) / 2) * cellW;
-    const sy = rect.top + bounds.minY * cellH;
-    placeSelectMiniBar(bar, sx, sy, 16);
+    layoutStatusMiniBars();
   }
 
   (function bindAnchorMiniBar() {
@@ -7298,6 +8319,7 @@ function updateHistoryButtons() {
       const endDrag = () => {
         bar.classList.remove("is-dragging");
         anchorMiniBarDrag = null;
+        layoutStatusMiniBars();
       };
       bar.addEventListener("pointerup", endDrag);
       bar.addEventListener("pointercancel", endDrag);
@@ -7333,6 +8355,7 @@ function updateHistoryButtons() {
       const endSelectDrag = () => {
         selectBar.classList.remove("is-dragging");
         selectMiniBarDrag = null;
+        layoutStatusMiniBars();
       };
       selectBar.addEventListener("pointerup", endSelectDrag);
       selectBar.addEventListener("pointercancel", endSelectDrag);
@@ -7353,7 +8376,7 @@ function updateHistoryButtons() {
     }
     function armEditAddSelection(mode) {
       const nextMode = mode === "subtract" ? "subtract" : "add";
-      if ((!isMarqueeSelectTool() && editSelectTool !== "wand") || !selectedCells.size) return;
+      if (!canCombineEditSelection() || !selectedCells.size) return;
       if (nextMode === "subtract") {
         selectAddArmed = true;
         selectBoolMode = "subtract";
@@ -7370,6 +8393,15 @@ function updateHistoryButtons() {
       addBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         armEditAddSelection("add");
+      });
+    }
+    const cancelBtn = document.getElementById("selectCancelBtn");
+    if (cancelBtn) {
+      cancelBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (!selectedCells.size) return;
+        clearSelection();
+        commitSelectionHistory("取消選取");
       });
     }
     const subtractBtn = document.getElementById("selectSubtractBoxBtn");
@@ -7438,6 +8470,7 @@ function updateHistoryButtons() {
       const endUploadDrag = () => {
         uploadSelBar.classList.remove("is-dragging");
         uploadSelectMiniBarDrag = null;
+        layoutStatusMiniBars();
       };
       uploadSelBar.addEventListener("pointerup", endUploadDrag);
       uploadSelBar.addEventListener("pointercancel", endUploadDrag);
@@ -7504,6 +8537,34 @@ function updateHistoryButtons() {
     }
   })();
 
+  (function bindExclusiveHoverMenus() {
+    const groups = [
+      { root: document.getElementById("editBar"), sel: ".pattern-size-toolbox" },
+      { root: document.getElementById("patternSizeMenu"), sel: ".wand-tool-wrap" },
+      { root: document.getElementById("imageToolboxMenu"), sel: ".wand-tool-wrap" },
+      { root: document.getElementById("selectMiniBar"), sel: ".upload-sel-subwrap" },
+      { root: document.getElementById("uploadSelectMiniBar"), sel: ".upload-sel-subwrap" },
+      { root: document.getElementById("editToolsMenu"), sel: ".select-sub-dock, .paint-brush-tools" }
+    ];
+    groups.forEach(({ root, sel }) => {
+      if (!root) return;
+      root.querySelectorAll(sel).forEach((wrap) => {
+        wrap.addEventListener("pointerenter", () => {
+          root.querySelectorAll(sel).forEach((other) => {
+            if (other === wrap) return;
+            other.classList.remove("is-menu-open");
+            const active = document.activeElement;
+            if (active && other.contains(active) && typeof active.blur === "function") active.blur();
+          });
+          wrap.classList.add("is-menu-open");
+        });
+        wrap.addEventListener("pointerleave", () => {
+          wrap.classList.remove("is-menu-open");
+        });
+      });
+    });
+  })();
+
   function isMoveSelectTool() {
     return editSelectTool === "movecopy";
   }
@@ -7514,11 +8575,17 @@ function updateHistoryButtons() {
       setAnchorPaused(false);
       return;
     }
+    if (!force && tool === "poly" && editSelectTool === "poly" && selectedCells.size > 0) {
+      syncSelectMiniBar();
+      flashEditSelectHints();
+      return;
+    }
     if (!force && editSelectTool === tool) tool = "none";
     editSelectTool = tool;
     if (!isAnchorSelectTool()) {
       resetEditPoly();
       editPolyRedo = [];
+      editPolyClosedUndo = null;
       anchorPaused = false;
       anchorNextCurve = false;
     }
@@ -7527,7 +8594,7 @@ function updateHistoryButtons() {
       moveOffset = { dx: 0, dy: 0 };
     }
     isMovingMarquee = false;
-    selectAddArmed = (isMarqueeSelectTool() || editSelectTool === "wand") && selectedCells.size === 0;
+    selectAddArmed = canCombineEditSelection() && selectedCells.size === 0;
     selectBoolMode = "add";
     if (editSelectTool !== "none") {
       setPipetteMode(false);
@@ -7556,6 +8623,9 @@ function updateHistoryButtons() {
     updateSelectCount();
     syncAnchorMiniBar();
     syncSelectMiniBar();
+    if (!force && editSelectTool === "poly" && selectedCells.size > 0 && !selectAddArmed) {
+      requestAnimationFrame(() => flashEditSelectHints());
+    }
   }
   setEditSelectTool("none", { force: true });
 
@@ -7692,6 +8762,9 @@ function updateHistoryButtons() {
 
   function closeEditPolygon() {
     if (editPolyPoints.length < 3) return;
+    const reopen = editPolyPoints.map(snapshotAnchor);
+    const prevSelection = Array.from(selectedCells);
+    const prevParts = editSelectParts.map((p) => Array.from(p));
     applyPendingCurve(editPolyPoints, editPolyPoints[0], 0.75);
     const outline = flattenEditPoly(editPolyPoints, true);
     const next = new Set();
@@ -7700,14 +8773,39 @@ function updateHistoryButtons() {
         if (pointInPolygon(x + 0.5, y + 0.5, outline)) next.add(`${x},${y}`);
       }
     }
-    selectedCells = next;
-    editSelectParts = next.size ? [new Set(next)] : [];
+    if (selectAddArmed && selectBoolMode === "subtract" && selectedCells.size) {
+      ensureEditSelectParts();
+      editSelectParts = editSelectParts.map((p) => {
+        const n = new Set();
+        p.forEach((k) => { if (!next.has(k)) n.add(k); });
+        return n;
+      }).filter((p) => p.size);
+      syncSelectedFromParts();
+    } else if (selectAddArmed && selectedCells.size > 0) {
+      ensureEditSelectParts();
+      if (next.size) editSelectParts.push(new Set(next));
+      syncSelectedFromParts();
+    } else {
+      selectedCells = next;
+      editSelectParts = next.size ? [new Set(next)] : [];
+    }
+    selectAddArmed = false;
+    selectBoolMode = "add";
+    const idxBefore = historyIndex;
+    const lenBefore = historyStack.length;
     resetEditPoly();
     updateSelectCount();
     commitSelectionHistory("錨點選取");
+    editPolyClosedUndo = {
+      points: reopen,
+      selection: prevSelection,
+      parts: prevParts,
+      historyPushed: historyIndex !== idxBefore || historyStack.length !== lenBefore
+    };
     renderInteractionLayer();
     updateGlobalHistoryButtons();
     syncAnchorMiniBar();
+    syncSelectMiniBar();
   }
 
   function selectionMatchesHistory() {
@@ -7915,24 +9013,22 @@ function updateHistoryButtons() {
       e.preventDefault();
       return;
     }
+    if (isBeadStage()) {
+      beadTouchHovering = true;
+      handlePointerMove(e);
+      return;
+    }
     if (isEditMode) { e.preventDefault(); handlePointerStart(e); }
   }, { passive: false });
 
   function handlePointerStart(e) {
     if (isBeadStage() || !isEditMode || patternGridData.length === 0) return;
     const { col, row, fx, fy } = getCanvasCoordsFromEvent(e);
+    updateHoverEditPart(e);
 
     const marqueeHandle = !selectAddArmed && hitTestMarqueeHandle(e);
     if (marqueeHandle) {
-      isMovingMarquee = true;
-      moveStartCell = {
-        col: Math.max(0, Math.min(currentCols - 1, col)),
-        row: Math.max(0, Math.min(currentRows - 1, row))
-      };
-      moveOffset = { dx: 0, dy: 0 };
-      const inner = document.getElementById("mainCanvasInner");
-      if (inner) inner.classList.add("is-grabbing");
-      renderInteractionLayer();
+      beginEditMarqueeMove(col, row);
       return;
     }
 
@@ -7966,6 +9062,14 @@ function updateHistoryButtons() {
 
     if (isAnchorSelectTool()) {
       if (anchorPaused) return;
+      if (!selectAddArmed && selectedCells.size && !editPolyPoints.length) {
+        if (selectedCells.has(`${col},${row}`)) {
+          beginEditMarqueeMove(col, row);
+          return;
+        }
+        flashEditSelectHints();
+        return;
+      }
       const handle = hitTestPolyHandle(editPolyPoints, fx, fy, 0.38);
       if (handle) {
         isPolyHandleDrag = true;
@@ -7985,6 +9089,7 @@ function updateHistoryButtons() {
       applyPendingCurve(editPolyPoints, nextPt, 0.75);
       editPolyPoints.push(nextPt);
       editPolyRedo.length = 0;
+      editPolyClosedUndo = null;
       editPolyHover = { x: fx, y: fy };
       isPolyHandleDrag = true;
       polyHandleAnchorIndex = editPolyPoints.length - 1;
@@ -7994,13 +9099,20 @@ function updateHistoryButtons() {
     }
 
     if (editSelectTool === "wand") {
+      if (!selectAddArmed && selectedCells.size) {
+        if (!selectedCells.has(`${col},${row}`)) flashEditSelectHints();
+        return;
+      }
       applyEditWandSelection(col, row);
       return;
     }
 
     if (isMoveSelectTool()) {
       const key = `${col},${row}`;
-      if (!selectedCells.size || !selectedCells.has(key)) return;
+      if (!selectedCells.size || !selectedCells.has(key)) {
+        if (selectedCells.size) flashEditSelectHints();
+        return;
+      }
       isMovingSelection = true;
       moveStartCell = { col, row };
       moveOffset = { dx: 0, dy: 0 };
@@ -8010,7 +9122,10 @@ function updateHistoryButtons() {
       return;
     }
 
-    if (!isMarqueeSelectTool() || !selectAddArmed) return;
+    if (!isMarqueeSelectTool() || !selectAddArmed) {
+      if (selectedCells.size && !selectedCells.has(`${col},${row}`)) flashEditSelectHints();
+      return;
+    }
 
     isMouseDown = true; dragStartCell = { col, row };
     marqueeDragMoved = false;
@@ -8090,12 +9205,36 @@ function updateHistoryButtons() {
   });
   interactionCanvas.addEventListener("touchmove", (e) => {
     if (e.touches.length >= 2 || pinchZooming) { e.preventDefault(); return; }
+    if (isBeadStage()) {
+      beadTouchHovering = true;
+      handlePointerMove(e);
+      return;
+    }
     if (isEditMode && (isMouseDown || isPainting || isPolyHandleDrag || isMovingSelection || isMovingMarquee || isScalingSelection || (isAnchorSelectTool() && editPolyPoints.length))) { e.preventDefault(); handlePointerMove(e); }
   }, { passive: false });
+  mainScroll.addEventListener("touchmove", (e) => {
+    if (!isBeadStage()) return;
+    beadTouchHovering = true;
+    handlePointerMove(e);
+  }, { passive: true });
+  window.addEventListener("touchend", () => {
+    if (!beadTouchHovering) return;
+    beadTouchHovering = false;
+    clearHover();
+  });
+  window.addEventListener("touchcancel", () => {
+    if (!beadTouchHovering) return;
+    beadTouchHovering = false;
+    clearHover();
+  });
 
   function handlePointerMove(e) {
     if (patternGridData.length === 0) return;
     const { col, row, fx, fy, clientX, clientY } = getCanvasCoordsFromEvent(e);
+
+    if (!isBeadStage() && isEditMode && !isScalingSelection && !isMovingMarquee && !isMovingSelection && !isPainting) {
+      if (updateHoverEditPart(e)) renderInteractionLayer();
+    }
 
     if (!isBeadStage() && isEditMode && isPainting && (editPaintTool === "pencil" || editPaintTool === "eraser")) {
       if (col >= 0 && col < currentCols && row >= 0 && row < currentRows) paintBrushAt(col, row);
@@ -8116,7 +9255,19 @@ function updateHistoryButtons() {
       if (m) interactionCanvas.style.cursor = "move";
       else {
         const h = hitTestSelectionHandle(e);
-        interactionCanvas.style.cursor = h ? h.cursor : "";
+        if (h) interactionCanvas.style.cursor = h.cursor;
+        else if (
+          isAnchorSelectTool() &&
+          !selectAddArmed &&
+          !editPolyPoints.length &&
+          selectedCells.size &&
+          col >= 0 && row >= 0 &&
+          selectedCells.has(`${col},${row}`)
+        ) {
+          interactionCanvas.style.cursor = "move";
+        } else {
+          interactionCanvas.style.cursor = "";
+        }
       }
     }
 
@@ -8139,7 +9290,9 @@ function updateHistoryButtons() {
     } else if (!isBeadStage() && isEditMode && isAnchorSelectTool() && editPolyPoints.length && !anchorPaused) {
       editPolyHover = { x: fx, y: fy };
       polyHandleHover = hitTestPolyHandle(editPolyPoints, fx, fy, 0.32, 0.14);
-      if (interactionCanvas) interactionCanvas.style.cursor = polyHandleHover ? "pointer" : "";
+      if (interactionCanvas) {
+        interactionCanvas.style.cursor = (polyHandleHover || isHoveringPolyCloseAnchor()) ? "pointer" : "";
+      }
       renderInteractionLayer();
     }
 
@@ -8178,44 +9331,54 @@ function updateHistoryButtons() {
         }
         updateSelectCount();
         renderInteractionLayer();
-      }
-
-      if (!hoveredCell || hoveredCell.col !== col || hoveredCell.row !== row) {
+        if (!hoveredCell || hoveredCell.col !== col || hoveredCell.row !== row) {
+          hoveredCell = { col, row };
+          renderHeaders();
+        }
+      } else if (!hoveredCell || hoveredCell.col !== col || hoveredCell.row !== row) {
         hoveredCell = { col, row };
-        renderInteractionLayer();
-        renderHeaders();
+        scheduleHoverLayerRedraw();
       }
 
       const bead = patternGridData[row][col];
       const tooltip = document.getElementById("beadTooltip");
-      tooltip.style.display = "block"; tooltip.style.left = `${clientX + 14}px`; tooltip.style.top = `${clientY + 14}px`;
+      if (!tooltip) return;
       if (bead) {
         tooltip.innerHTML = `<div class="tip-coord">📍 X: ${col + 1}, Y: ${row + 1}</div>
           <div class="tip-color"><span class="tip-swatch" style="background: ${bead.hex}"></span><span>色號: <strong>${bead.code}</strong></span></div>
-          ${isPipetteMode ? '<div style="color:#0088ff; margin-top:2px;">💧 點擊吸取此色</div>' : ''}
-          ${!isPipetteMode && editPaintTool === "pencil" ? '<div style="color:#ff6b9d; margin-top:2px;">畫筆：拖曳上色</div>' : ''}
-          ${!isPipetteMode && editPaintTool === "eraser" ? '<div style="color:#ff6b9d; margin-top:2px;">橡皮擦：拖曳清除</div>' : ''}
-          ${!isPipetteMode && editSelectTool === "circle" ? '<div style="color:#ff6b9d; margin-top:2px;">圓形選取：從圓心拖曳</div>' : ''}
-          ${!isPipetteMode && editSelectTool === "ellipse" ? '<div style="color:#ff6b9d; margin-top:2px;">橢圓形選取：從圓心拖曳</div>' : ''}
-          ${!isPipetteMode && editSelectTool === "wand" ? '<div style="color:#ff6b9d; margin-top:2px;">魔術棒：點選同一顏色的連續色塊</div>' : ''}
-          ${!isPipetteMode && editSelectTool === "poly" ? '<div style="color:#ff6b9d; margin-top:2px;">錨點：點一下直線，按住拖曳拉曲線，可再拖黃色控制點</div>' : ''}
-          ${!isPipetteMode && editSelectTool === "movecopy" ? '<div style="color:#ff6b9d; margin-top:2px;">移動複製：拖曳複製選取的拼豆</div>' : ''}`;
+          ${!isBeadStage() && isPipetteMode ? '<div style="color:#0088ff; margin-top:2px;">💧 點擊吸取此色</div>' : ''}
+          ${!isBeadStage() && !isPipetteMode && editPaintTool === "pencil" ? '<div style="color:#ff6b9d; margin-top:2px;">畫筆：拖曳上色</div>' : ''}
+          ${!isBeadStage() && !isPipetteMode && editPaintTool === "eraser" ? '<div style="color:#ff6b9d; margin-top:2px;">橡皮擦：拖曳清除</div>' : ''}
+          ${!isBeadStage() && !isPipetteMode && editSelectTool === "circle" ? '<div style="color:#ff6b9d; margin-top:2px;">圓形選取：從圓心拖曳</div>' : ''}
+          ${!isBeadStage() && !isPipetteMode && editSelectTool === "ellipse" ? '<div style="color:#ff6b9d; margin-top:2px;">橢圓形選取：從圓心拖曳</div>' : ''}
+          ${!isBeadStage() && !isPipetteMode && editSelectTool === "wand" ? '<div style="color:#ff6b9d; margin-top:2px;">魔術棒：點選同一顏色的連續色塊</div>' : ''}
+          ${!isBeadStage() && !isPipetteMode && editSelectTool === "poly" ? '<div style="color:#ff6b9d; margin-top:2px;">錨點：點一下直線，按住拖曳拉曲線，可再拖黃色控制點</div>' : ''}
+          ${!isBeadStage() && !isPipetteMode && editSelectTool === "movecopy" ? '<div style="color:#ff6b9d; margin-top:2px;">移動複製：拖曳複製選取的拼豆</div>' : ''}`;
       } else {
         tooltip.innerHTML = `<div class="tip-coord">📍 X: ${col + 1}, Y: ${row + 1}</div><div style="color:#a6adc8;">(空白透明)</div>`;
       }
+      positionBeadTooltip(clientX, clientY, isCoarsePointerEvent(e) || beadTouchHovering);
       return;
     }
     clearHover();
   }
 
-  interactionCanvas.addEventListener("mouseleave", clearHover);
+  interactionCanvas.addEventListener("mouseleave", (e) => {
+    if (beadTouchHovering) return;
+    clearHover();
+  });
   function clearHover() {
     let dirty = hoveredCell !== null;
     if (hoveredCell !== null) hoveredCell = null;
     if (editPolyHover) { editPolyHover = null; dirty = true; }
     if (polyHandleHover) { polyHandleHover = null; dirty = true; }
+    if (hoverEditPartIndex >= 0 && liveEditSelectParts().length > 1) {
+      hoverEditPartIndex = -1;
+      dirty = true;
+    }
     if (dirty) { renderInteractionLayer(); renderHeaders(); }
-    document.getElementById("beadTooltip").style.display = "none";
+    const tip = document.getElementById("beadTooltip");
+    if (tip) tip.style.display = "none";
   }
 
   window.addEventListener("keydown", (e) => {
@@ -8226,7 +9389,9 @@ function updateHistoryButtons() {
       closeEditPolygon();
     } else if (e.key === "Escape" && editPolyPoints.length) {
       resetEditPoly();
+      editPolyClosedUndo = null;
       renderInteractionLayer();
+      updateGlobalHistoryButtons();
     } else if ((e.metaKey || e.ctrlKey) && (e.key === "c" || e.key === "C")) {
       e.preventDefault();
       copySelection();
@@ -8312,15 +9477,20 @@ function updateHistoryButtons() {
     else adjustOrigZoom(delta);
   }
   function setFloatingZoom(scale) {
-    if (isPatternStage()) setCanvasZoom(scale);
-    else setOrigZoom(scale);
+    if (isPatternStage()) {
+      setCanvasZoom(scale);
+      if (Math.abs(scale - 1) < 0.001) centerPatternInView();
+    } else {
+      setOrigZoom(scale);
+      if (Math.abs(scale - 1) < 0.001) centerOrigInView();
+    }
   }
   function fitFloatingZoom() {
     if (isPatternStage()) fitCanvasToWindow();
     else fitOrigToWindow();
   }
   function setOrigZoom(scale) {
-    origZoom = Math.min(4.0, Math.max(0.05, scale));
+    origZoom = Math.min(MAX_VIEW_ZOOM, Math.max(MIN_VIEW_ZOOM, scale));
     const wrap = document.getElementById("origZoomWrapper");
     const frame = document.getElementById("origZoomFrame");
     const img = document.getElementById("originalImg");
@@ -8337,6 +9507,7 @@ function updateHistoryButtons() {
     } else {
       syncAnchorMiniBar();
     }
+    if (typeof updateMinimap === "function") updateMinimap();
   }
   function adjustOrigZoom(delta) { setOrigZoom(origZoom + delta); }
   function fitOrigToWindow() {
@@ -8344,13 +9515,13 @@ function updateHistoryButtons() {
     if (!img.complete || img.naturalWidth === 0) return;
     const vp = document.getElementById("origViewport");
     const scale = Math.min((vp.clientWidth - 48) / img.naturalWidth, (vp.clientHeight - 48) / img.naturalHeight, 1.0);
-    setOrigZoom(Math.max(0.05, scale));
+    setOrigZoom(Math.max(MIN_VIEW_ZOOM, scale));
   }
   document.getElementById("origZoomSlider").addEventListener("input", (e) => {
     setFloatingZoom(parseInt(e.target.value, 10) / 100);
   });
   function setCanvasZoom(scale) {
-    canvasZoom = Math.min(4.0, Math.max(0.05, scale));
+    canvasZoom = Math.min(MAX_VIEW_ZOOM, Math.max(MIN_VIEW_ZOOM, scale));
     if (isPatternStage()) syncFloatingZoomBar();
     resizeCanvases();
     renderBasePattern();
@@ -8386,7 +9557,7 @@ function updateHistoryButtons() {
     const scroll = mainScroll;
     const rect = scroll.getBoundingClientRect();
     const oldZoom = canvasZoom;
-    const zoom = Math.min(4.0, Math.max(0.05, nextZoom));
+    const zoom = Math.min(MAX_VIEW_ZOOM, Math.max(MIN_VIEW_ZOOM, nextZoom));
     if (oldZoom <= 0) { canvasZoom = zoom; applyCanvasZoomCssOnly(); return; }
     const relX = clientX - rect.left;
     const relY = clientY - rect.top;
@@ -8564,10 +9735,12 @@ function updateHistoryButtons() {
   document.getElementById("beadShowCodes")?.addEventListener("change", () => { renderBasePattern(); });
   document.getElementById("beadUsageBtn")?.addEventListener("click", (e) => {
     e.stopPropagation();
+    closePaletteDropdowns();
     toggleBeadUsagePanel();
   });
   document.getElementById("beadFsBtn")?.addEventListener("click", (e) => {
     e.stopPropagation();
+    closePaletteDropdowns();
     toggleBeadFullscreen();
   });
   document.getElementById("beadFsExitBtn")?.addEventListener("click", (e) => {
@@ -8646,14 +9819,25 @@ function updateHistoryButtons() {
     return { items, total };
   }
 
+  function readExportGridStep(raw, fallback) {
+    const n = parseInt(String(raw == null ? "" : raw).replace(/\D/g, ""), 10);
+    if (!Number.isFinite(n) || n < 1) return fallback;
+    return Math.min(99, n);
+  }
   function exportBeadPatternPng(grid, cols, rows, opts) {
     if (!grid || !cols || !rows) return;
     const cell = Math.max(12, Math.min(48, parseInt(opts.cell, 10) || 24));
     const showCodes = !!opts.showCodes;
+    const darkTheme = opts.bgTheme !== "light";
+    const emptyFill = darkTheme ? "#3f4154" : "#d8d8e0";
+    const paperFill = darkTheme ? "#181825" : "#ffffff";
+    const showGrid = !!opts.showGrid;
+    const stepX = readExportGridStep(opts.gridStepX, 5);
+    const stepY = readExportGridStep(opts.gridStepY, 5);
     const headerSize = Math.max(28, Math.floor(cell * 1.1));
     const usage = collectGridColorUsage(grid, cols, rows);
     const usagePad = 22;
-    const usageTitleH = 64;
+    const usageTitleH = 118;
     const usageSwatch = 32;
     const usageItemW = 230;
     const usageItemH = 42;
@@ -8670,7 +9854,8 @@ function updateHistoryButtons() {
     const expCanvas = document.createElement("canvas");
     expCanvas.width = fullW; expCanvas.height = fullH;
     const expCtx = expCanvas.getContext("2d", { alpha: false });
-    expCtx.fillStyle = "#ffffff"; expCtx.fillRect(0, 0, fullW, fullH);
+    expCtx.fillStyle = paperFill; expCtx.fillRect(0, 0, fullW, fullH);
+    expCtx.fillStyle = emptyFill; expCtx.fillRect(headerSize, headerSize, cols * cell, rows * cell);
 
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
@@ -8688,28 +9873,17 @@ function updateHistoryButtons() {
       }
     }
 
-    expCtx.beginPath();
-    for (let x = 0; x <= cols; x++) {
-      const pX = headerSize + x * cell; expCtx.moveTo(pX, headerSize); expCtx.lineTo(pX, gridH);
-    }
-    for (let y = 0; y <= rows; y++) {
-      const pY = headerSize + y * cell; expCtx.moveTo(headerSize, pY); expCtx.lineTo(gridW, pY);
-    }
-    expCtx.strokeStyle = "rgba(0,0,0,0.12)"; expCtx.lineWidth = 0.8; expCtx.stroke();
-
-    if (opts.drawGuide && gridGuideVisible) {
-      const stepX = readGridGuideStep("gridGuideX");
-      const stepY = readGridGuideStep("gridGuideY");
+    if (showGrid) {
       expCtx.beginPath();
       for (let x = stepX; x < cols; x += stepX) {
-        const pX = headerSize + x * cell; expCtx.moveTo(pX, headerSize); expCtx.lineTo(pX, gridH);
+        const pX = headerSize + x * cell; expCtx.moveTo(pX + 0.5, headerSize); expCtx.lineTo(pX + 0.5, gridH);
       }
-      expCtx.strokeStyle = "#ff3344"; expCtx.lineWidth = 1.2; expCtx.stroke();
-      expCtx.beginPath(); expCtx.setLineDash([4, 3]);
       for (let y = stepY; y < rows; y += stepY) {
-        const pY = headerSize + y * cell; expCtx.moveTo(headerSize, pY); expCtx.lineTo(gridW, pY);
+        const pY = headerSize + y * cell; expCtx.moveTo(headerSize, pY + 0.5); expCtx.lineTo(gridW, pY + 0.5);
       }
-      expCtx.stroke(); expCtx.setLineDash([]);
+      expCtx.strokeStyle = darkTheme ? "rgba(255,230,0,0.72)" : "rgba(17,17,27,0.38)";
+      expCtx.lineWidth = 1.2;
+      expCtx.stroke();
     }
 
     expCtx.fillStyle = "#1e1e2e"; expCtx.fillRect(0, 0, headerSize, headerSize);
@@ -8733,16 +9907,34 @@ function updateHistoryButtons() {
     }
 
     const ly = gridH;
-    expCtx.fillStyle = "#f4f4f8";
+    const fileName = String(opts.filename || "bead-pattern").replace(/\.png$/i, "");
+    const widthCm = Math.round(cols * 0.266);
+    const heightCm = Math.round(rows * 0.266);
+    const infoMaxW = Math.max(80, fullW - usagePad * 2);
+    const fitLine = (text) => {
+      if (expCtx.measureText(text).width <= infoMaxW) return text;
+      let lo = 0, hi = text.length;
+      while (lo < hi) {
+        const mid = Math.ceil((lo + hi) / 2);
+        if (expCtx.measureText(text.slice(0, mid) + "…").width <= infoMaxW) lo = mid;
+        else hi = mid - 1;
+      }
+      return text.slice(0, lo) + "…";
+    };
+    expCtx.fillStyle = darkTheme ? "#1e1e2e" : "#f4f4f8";
     expCtx.fillRect(0, ly, fullW, usageH);
-    expCtx.fillStyle = "#1e1e2e";
+    expCtx.fillStyle = darkTheme ? "#cdd6f4" : "#1e1e2e";
     expCtx.font = "bold 22px sans-serif";
     expCtx.textAlign = "left";
     expCtx.textBaseline = "top";
     expCtx.fillText("顏色數量", usagePad, ly + usagePad);
-    expCtx.font = "18px sans-serif";
-    expCtx.fillStyle = "#585b70";
-    expCtx.fillText(`共 ${usage.items.length} 色 · 總計 ${usage.total} 顆`, usagePad, ly + usagePad + 30);
+    expCtx.font = "17px sans-serif";
+    expCtx.fillStyle = darkTheme ? "#a6adc8" : "#313244";
+    expCtx.fillText(fitLine(`檔名：${fileName}`), usagePad, ly + usagePad + 32);
+    expCtx.fillText(fitLine(`圖紙寬度：${cols} 格    大小：${cols} × ${rows} 格（${widthCm} × ${heightCm} cm）`), usagePad, ly + usagePad + 56);
+    expCtx.font = "16px sans-serif";
+    expCtx.fillStyle = darkTheme ? "#7f849c" : "#585b70";
+    expCtx.fillText(`共 ${usage.items.length} 色 · 總計 ${usage.total} 顆`, usagePad, ly + usagePad + 80);
     usage.items.forEach((it, i) => {
       const col = i % usagePerRow;
       const row = Math.floor(i / usagePerRow);
@@ -8755,12 +9947,12 @@ function updateHistoryButtons() {
       expCtx.lineWidth = 1.5;
       expCtx.strokeRect(x + 0.5, swY + 0.5, usageSwatch - 1, usageSwatch - 1);
       const midY = y + usageItemH / 2;
-      expCtx.fillStyle = "#1e1e2e";
+      expCtx.fillStyle = darkTheme ? "#cdd6f4" : "#1e1e2e";
       expCtx.font = "bold 18px monospace";
       expCtx.textAlign = "left";
       expCtx.textBaseline = "middle";
       expCtx.fillText(it.code, x + usageSwatch + 12, midY);
-      expCtx.fillStyle = "#6c6f85";
+      expCtx.fillStyle = darkTheme ? "#a6adc8" : "#6c6f85";
       expCtx.font = "18px sans-serif";
       expCtx.textAlign = "right";
       expCtx.fillText(`${it.count} 顆`, x + usageItemW - 4, midY);
@@ -8781,6 +9973,10 @@ function updateHistoryButtons() {
   let isUploadPolyDrag = false;
   let uploadPolyDragIndex = -1;
   let uploadPolyDragKind = null;
+  let isMovingUploadPoly = false;
+  let uploadPolyMoveIndex = -1;
+  let uploadPolyMoveStart = null;
+  let uploadPolyMoveOrigin = null;
   let rectStart = null, rectCurrent = null;
   let isDrawingRect = false;
   let isMovingRect = false;
@@ -8998,6 +10194,7 @@ function updateHistoryButtons() {
   const mCtx = offscreenMask.getContext("2d");
   const sCtx = offscreenStroke.getContext("2d");
   const aCtx = offscreenAnts.getContext("2d");
+  let uploadStaticDirty = true;
 
   function triggerFileInput(e) {
     if (uploadTool !== 'none' || e.target.tagName.toLowerCase() === 'button') return;
@@ -9008,6 +10205,7 @@ function updateHistoryButtons() {
   origViewport.addEventListener("scroll", () => {
     syncAnchorMiniBar();
     if (typeof syncUploadSelectMiniBar === "function") syncUploadSelectMiniBar();
+    if (typeof scheduleMinimapViewport === "function") scheduleMinimapViewport();
   }, { passive: true });
   origViewport.addEventListener("dragover", (e) => { e.preventDefault(); origViewport.classList.add("drag-over"); });
   origViewport.addEventListener("dragleave", () => { origViewport.classList.remove("drag-over"); });
@@ -9258,10 +10456,47 @@ function updateHistoryButtons() {
     return null;
   }
 
+  function liveUploadShapeIndex() {
+    return (uploadMarquees || []).length;
+  }
+
+  function countUploadHandleShapes() {
+    let n = (uploadMarquees || []).filter((s) => s && s.tool !== "poly").length;
+    const live = liveUploadShape();
+    if (live && live.tool !== "poly" && isShapeComplete(live)) n++;
+    return n;
+  }
+
+  function updateHoverUploadShape(x, y) {
+    const hits = uploadShapesAtPoint(x, y);
+    let next = hits.length ? hits[0] : -1;
+    let covered = hits.length > 1 ? hits[1] : -1;
+    if (next < 0) {
+      const liveHit = hitTestHandleOnBounds(x, y, getUploadMarqueeBounds());
+      if (liveHit) next = liveUploadShapeIndex();
+      else {
+        for (let i = (uploadMarquees || []).length - 1; i >= 0; i--) {
+          const h = hitTestHandleOnBounds(x, y, getShapeBounds(uploadMarquees[i]));
+          if (h) { next = i; break; }
+        }
+      }
+    }
+    if (covered < 0 && next >= 0 && next < collectUploadShapes().length - 1) covered = next;
+    if (next === hoverUploadShapeIndex && covered === hoverUploadCoveredIndex) return false;
+    hoverUploadShapeIndex = next;
+    hoverUploadCoveredIndex = covered;
+    return true;
+  }
+
   function hitTestAnyUploadHandle(x, y) {
-    const liveHit = hitTestHandleOnBounds(x, y, getUploadMarqueeBounds());
-    if (liveHit) return { extra: -1, handle: liveHit };
+    const multi = countUploadHandleShapes() > 1 && !isScalingRect;
+    const liveIndex = liveUploadShapeIndex();
+    if (!multi || hoverUploadShapeIndex === liveIndex) {
+      const liveHit = hitTestHandleOnBounds(x, y, getUploadMarqueeBounds());
+      if (liveHit) return { extra: -1, handle: liveHit };
+    }
     for (let i = (uploadMarquees || []).length - 1; i >= 0; i--) {
+      if (multi && hoverUploadShapeIndex !== i) continue;
       const h = hitTestHandleOnBounds(x, y, getShapeBounds(uploadMarquees[i]));
       if (h) return { extra: i, handle: h };
     }
@@ -9412,17 +10647,166 @@ function updateHistoryButtons() {
     return isShapeComplete(shape);
   }
 
-  function strokeUploadShape(ctx, shape, viewScale) {
+  function ensureUploadSamplePixels() {
+    const src = currentImage && currentImage.src;
+    if (!src) {
+      uploadSamplePixels = null;
+      uploadSampleSrc = "";
+      return;
+    }
+    if (uploadSampleSrc === src && uploadSamplePixels) return;
+    uploadSampleSrc = src;
+    try {
+      const c = document.createElement("canvas");
+      c.width = currentImage.width;
+      c.height = currentImage.height;
+      const cctx = c.getContext("2d", { willReadFrequently: true });
+      cctx.drawImage(currentImage, 0, 0);
+      uploadSamplePixels = { w: c.width, h: c.height, data: cctx.getImageData(0, 0, c.width, c.height).data };
+    } catch (err) {
+      uploadSamplePixels = null;
+    }
+  }
+
+  function sampleUploadHex(x, y) {
+    if (!uploadSamplePixels) return null;
+    const ix = Math.max(0, Math.min(uploadSamplePixels.w - 1, Math.round(x)));
+    const iy = Math.max(0, Math.min(uploadSamplePixels.h - 1, Math.round(y)));
+    const i = (iy * uploadSamplePixels.w + ix) * 4;
+    const d = uploadSamplePixels.data;
+    if (d[i + 3] < 16) return "#11111b";
+    return rgbToCss({ r: d[i], g: d[i + 1], b: d[i + 2] });
+  }
+
+  function flattenRoundRectOutline(r, rad, step) {
+    const pts = [];
+    const pushLine = (x1, y1, x2, y2) => {
+      const len = Math.hypot(x2 - x1, y2 - y1);
+      const n = Math.max(1, Math.ceil(len / step));
+      for (let i = 0; i < n; i++) {
+        const t = i / n;
+        pts.push({ x: x1 + (x2 - x1) * t, y: y1 + (y2 - y1) * t });
+      }
+    };
+    const pushArc = (cx, cy, a0, a1) => {
+      const arc = Math.abs(a1 - a0) * Math.max(rad, 1);
+      const n = Math.max(2, Math.ceil(arc / step));
+      for (let i = 0; i < n; i++) {
+        const t = a0 + (a1 - a0) * (i / n);
+        pts.push({ x: cx + Math.cos(t) * rad, y: cy + Math.sin(t) * rad });
+      }
+    };
+    if (rad <= 0.5) {
+      pushLine(r.x, r.y, r.x + r.w, r.y);
+      pushLine(r.x + r.w, r.y, r.x + r.w, r.y + r.h);
+      pushLine(r.x + r.w, r.y + r.h, r.x, r.y + r.h);
+      pushLine(r.x, r.y + r.h, r.x, r.y);
+      return pts;
+    }
+    pushLine(r.x + rad, r.y, r.x + r.w - rad, r.y);
+    pushArc(r.x + r.w - rad, r.y + rad, -Math.PI / 2, 0);
+    pushLine(r.x + r.w, r.y + rad, r.x + r.w, r.y + r.h - rad);
+    pushArc(r.x + r.w - rad, r.y + r.h - rad, 0, Math.PI / 2);
+    pushLine(r.x + r.w - rad, r.y + r.h, r.x + rad, r.y + r.h);
+    pushArc(r.x + rad, r.y + r.h - rad, Math.PI / 2, Math.PI);
+    pushLine(r.x, r.y + r.h - rad, r.x, r.y + rad);
+    pushArc(r.x + rad, r.y + rad, Math.PI, Math.PI * 1.5);
+    return pts;
+  }
+
+  function flattenUploadShape(shape, step) {
+    step = Math.max(4, step || 8);
+    if (!shape) return [];
+    if (shape.tool === "poly") {
+      return flattenEditPoly(shape.polygon || [], true);
+    }
+    if (isUploadBoxTool(shape.tool)) {
+      const r = getShapeRect(shape);
+      if (!r) return [];
+      return flattenRoundRectOutline(r, shapeCornerRadius(shape), step);
+    }
+    const o = getShapeOval(shape);
+    if (!o) return [];
+    const circ = Math.PI * (3 * (o.rx + o.ry) - Math.sqrt((3 * o.rx + o.ry) * (o.rx + 3 * o.ry)));
+    const n = Math.max(24, Math.min(180, Math.ceil(circ / step)));
+    const pts = [];
+    for (let i = 0; i < n; i++) {
+      const t = (i / n) * Math.PI * 2;
+      pts.push({ x: o.cx + Math.cos(t) * o.rx, y: o.cy + Math.sin(t) * o.ry });
+    }
+    return pts;
+  }
+
+  function strokeUploadShape(ctx, shape, viewScale, simple) {
+    strokeUploadShapeBox(ctx, shape, viewScale, false);
+  }
+
+  function pointNearRectEdge(x, y, b, tol) {
+    if (!b) return false;
+    const pad = tol || 6;
+    if (x < b.x - pad || y < b.y - pad || x > b.x + b.w + pad || y > b.y + b.h + pad) return false;
+    return (
+      Math.abs(x - b.x) <= pad ||
+      Math.abs(x - (b.x + b.w)) <= pad ||
+      Math.abs(y - b.y) <= pad ||
+      Math.abs(y - (b.y + b.h)) <= pad
+    );
+  }
+
+  function shapeContainsUploadPoint(shape, x, y) {
+    if (!shape) return false;
+    if (shape.tool === "poly") {
+      const pts = shape.polygon;
+      if (!pts || pts.length < 3) return false;
+      return pointInPolygon(x, y, flattenEditPoly(pts, true));
+    }
+    return pointInShape(shape, x, y);
+  }
+
+  function uploadShapesAtPoint(x, y) {
+    const shapes = collectUploadShapes();
+    const viewScale = 1 / (origZoom || 1);
+    const tol = Math.max(6, 8 * viewScale);
+    const hits = [];
+    for (let i = shapes.length - 1; i >= 0; i--) {
+      const s = shapes[i];
+      if (!isUploadShapeFilled(s)) continue;
+      if (shapeContainsUploadPoint(s, x, y) || pointNearRectEdge(x, y, getShapeBounds(s), tol)) hits.push(i);
+    }
+    return hits;
+  }
+
+  function raiseUploadShapeToFront(index) {
+    const nMarq = (uploadMarquees || []).length;
+    const hasLive = !!liveUploadShape();
+    if (index < 0) return -1;
+    if (index < nMarq) {
+      const s = uploadMarquees.splice(index, 1)[0];
+      if (hasLive) commitLiveUploadMarquee();
+      uploadMarquees.push(s);
+      return uploadMarquees.length - 1;
+    }
+    if (hasLive && index === nMarq) return index;
+    const polyStart = nMarq + (hasLive ? 1 : 0);
+    const pi = index - polyStart;
+    if (pi >= 0 && pi < (polyPolygons || []).length) {
+      const p = polyPolygons.splice(pi, 1)[0];
+      polyPolygons.push(p);
+      return collectUploadShapes().length - 1;
+    }
+    return index;
+  }
+
+  function strokeUploadShapeBox(ctx, shape, viewScale, highlight) {
+    const b = getShapeBounds(shape);
+    if (!b || b.w < 2 || b.h < 2) return;
     ctx.save();
-    ctx.strokeStyle = shape.op === "subtract" ? "#41ccff" : "#ff3344";
-    ctx.lineWidth = Math.max(1.8, 3 * viewScale);
-    ctx.lineJoin = shape.tool === "poly" ? "round" : "miter";
+    ctx.setLineDash([]);
+    ctx.lineJoin = "miter";
     ctx.lineCap = "butt";
-    ctx.miterLimit = 3;
-    ctx.setLineDash([Math.round(6 * viewScale), Math.round(6 * viewScale)]);
-    ctx.lineDashOffset = -marchingAntsOffset * viewScale;
-    pathUploadShape(ctx, shape);
-    ctx.stroke();
+    ctx.lineWidth = highlight ? Math.max(2.6, 4 * viewScale) : Math.max(1.7, 2.6 * viewScale);
+    ctx.strokeStyle = highlight ? "#ffe600" : (shape.op === "subtract" ? "#45475a" : "#ff3344");
+    ctx.strokeRect(b.x + 0.5, b.y + 0.5, Math.max(1, b.w - 1), Math.max(1, b.h - 1));
     ctx.restore();
   }
 
@@ -9432,7 +10816,7 @@ function updateHistoryButtons() {
     const hs = Math.max(4, 5 * viewScale);
     getRectScaleHandles(b).forEach((h) => {
       ctx.fillStyle = "#ffffff";
-      ctx.strokeStyle = "#ff3344";
+      ctx.strokeStyle = contrastStrokeColor("#ff3344", sampleUploadHex(h.x, h.y));
       ctx.lineWidth = Math.max(1, 1.4 * viewScale);
       ctx.fillRect(h.x - hs, h.y - hs, hs * 2, hs * 2);
       ctx.strokeRect(h.x - hs, h.y - hs, hs * 2, hs * 2);
@@ -9457,15 +10841,30 @@ function updateHistoryButtons() {
 
   function drawUploadSelectionMask(ctx, shapes, ox, oy) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    shapes.forEach((s) => {
-      if (!isUploadShapeFilled(s)) return;
-      ctx.save();
-      ctx.globalCompositeOperation = s.op === "subtract" ? "destination-out" : "source-over";
-      ctx.fillStyle = "#ffffff";
-      pathUploadShape(ctx, s, ox, oy);
-      ctx.fill(s.tool === "poly" ? "nonzero" : "nonzero");
-      ctx.restore();
+    const filled = (shapes || []).filter(isUploadShapeFilled);
+    const paint = (list, op) => {
+      list.forEach((s) => {
+        ctx.save();
+        ctx.globalCompositeOperation = op;
+        ctx.fillStyle = "#ffffff";
+        pathUploadShape(ctx, s, ox, oy);
+        ctx.fill(s.tool === "poly" ? "nonzero" : "nonzero");
+        ctx.restore();
+      });
+    };
+    paint(filled.filter((s) => s.op !== "subtract"), "source-over");
+    paint(filled.filter((s) => s.op === "subtract"), "destination-out");
+  }
+
+  function fillUploadSubtractShade(dest, shapes) {
+    dest.save();
+    dest.fillStyle = "rgba(0, 0, 0, 0.72)";
+    (shapes || []).forEach((s) => {
+      if (!isUploadShapeFilled(s) || s.op !== "subtract") return;
+      pathUploadShape(dest, s);
+      dest.fill(s.tool === "poly" ? "nonzero" : "nonzero");
     });
+    dest.restore();
   }
 
   function drawUploadIntersectionTint(dest, shapes) {
@@ -9549,37 +10948,77 @@ function updateHistoryButtons() {
     const subs = filled.filter((s) => s.op === "subtract");
     if (adds.length < 2 && !subs.length) return;
     if (adds.length >= 2) {
-      fillUploadShapesHatch(dest, adds.slice(1), "rgba(255, 210, 48, 0.92)", viewScale);
+      fillUploadShapesHatch(dest, !subs.length ? adds : adds.slice(1), "rgba(255, 210, 48, 0.92)", viewScale);
     }
     if (subs.length) {
       fillUploadShapesHatch(dest, subs, "rgba(65, 204, 255, 0.95)", viewScale);
     }
   }
 
-  function drawUploadMarquee() {
+  function drawUploadMarquee(opts) {
+    const antsOnly = !!(opts && opts.antsOnly);
     ctxCrop.clearRect(0, 0, cropOverlay.width, cropOverlay.height);
     const shapes = collectUploadShapes();
     if (!shapes.length) {
+      uploadStaticDirty = true;
       syncUploadSelectMiniBar();
       return;
     }
     const viewScale = 1 / (origZoom || 1);
-    ctxCrop.fillStyle = "rgba(0, 0, 0, 0.55)";
-    ctxCrop.fillRect(0, 0, cropOverlay.width, cropOverlay.height);
-    const mask = document.createElement("canvas");
-    mask.width = cropOverlay.width;
-    mask.height = cropOverlay.height;
-    drawUploadSelectionMask(mask.getContext("2d"), shapes, 0, 0);
-    ctxCrop.save();
-    ctxCrop.globalCompositeOperation = "destination-out";
-    ctxCrop.drawImage(mask, 0, 0);
-    ctxCrop.restore();
-    drawUploadIntersectionTint(ctxCrop, shapes);
-    drawUploadBoolHatch(ctxCrop, shapes, viewScale);
-    shapes.forEach((s) => strokeUploadShape(ctxCrop, s, viewScale));
+    const W = cropOverlay.width;
+    const H = cropOverlay.height;
+    if (offscreenStroke.width !== W || offscreenStroke.height !== H) {
+      offscreenStroke.width = W;
+      offscreenStroke.height = H;
+      uploadStaticDirty = true;
+    }
+    if (offscreenAnts.width !== W || offscreenAnts.height !== H) {
+      offscreenAnts.width = W;
+      offscreenAnts.height = H;
+    }
+    if (!antsOnly) uploadStaticDirty = true;
+    if (uploadStaticDirty) {
+      sCtx.clearRect(0, 0, W, H);
+      sCtx.fillStyle = "rgba(0, 0, 0, 0.55)";
+      sCtx.fillRect(0, 0, W, H);
+      drawUploadSelectionMask(aCtx, shapes, 0, 0);
+      sCtx.save();
+      sCtx.globalCompositeOperation = "destination-out";
+      sCtx.drawImage(offscreenAnts, 0, 0);
+      sCtx.restore();
+      fillUploadSubtractShade(sCtx, shapes);
+      uploadStaticDirty = false;
+    }
+    ctxCrop.drawImage(offscreenStroke, 0, 0);
+    const filledIdx = [];
+    shapes.forEach((s, i) => { if (isUploadShapeFilled(s)) filledIdx.push(i); });
+    let boxIdx = -1;
+    if (filledIdx.length <= 1) {
+      boxIdx = filledIdx[0] != null ? filledIdx[0] : -1;
+    } else if (isScalingRect || isMovingRect) {
+      boxIdx = uploadEditExtraIndex >= 0 ? uploadEditExtraIndex : liveUploadShapeIndex();
+    } else {
+      boxIdx = hoverUploadCoveredIndex >= 0 ? hoverUploadCoveredIndex : hoverUploadShapeIndex;
+    }
+    shapes.forEach((s, i) => {
+      if (i !== boxIdx || !isUploadShapeFilled(s)) return;
+      const highlight = filledIdx.length > 1 && (
+        i === hoverUploadCoveredIndex || (i === hoverUploadShapeIndex && i < shapes.length - 1)
+      );
+      strokeUploadShapeBox(ctxCrop, s, viewScale, highlight);
+    });
     if (!uploadHideMarqueeHandles && isUploadMarqueeTool() && !isDrawingRect) {
-      shapes.forEach((s) => {
-        if (s.tool === "poly") return;
+      const handleable = [];
+      shapes.forEach((s, i) => {
+        if (s && s.tool !== "poly") handleable.push({ s, i });
+      });
+      const multi = handleable.length > 1;
+      const scaleIdx = isScalingRect
+        ? (uploadEditExtraIndex >= 0 ? uploadEditExtraIndex : liveUploadShapeIndex())
+        : -1;
+      handleable.forEach(({ s, i }) => {
+        if (isScalingRect && i !== scaleIdx) return;
+        if (!isScalingRect && multi && i !== hoverUploadShapeIndex) return;
         drawUploadShapeHandles(ctxCrop, s, viewScale);
       });
     }
@@ -9748,8 +11187,10 @@ function updateHistoryButtons() {
     const nextMode = mode === "subtract" ? "subtract" : "add";
     if (uploadTool === "poly") {
       if (nextMode === "add" && polyPoints.length >= 3) {
+        const reopen = polyPoints.map(snapshotAnchor);
         applyPendingCurve(polyPoints, polyPoints[0], 28);
         commitClosedPolygon(polyPoints);
+        uploadPolyClosedUndo = reopen;
         polyPoints = [];
         polyPointRedo = [];
         uploadPolyHover = null;
@@ -9796,16 +11237,10 @@ function updateHistoryButtons() {
       bar.hidden = true;
       uploadSelectMiniBarUserPos = null;
       bar.classList.remove("is-dragging");
+      layoutStatusMiniBars();
       return;
     }
     bar.hidden = false;
-    const overlayEl = document.getElementById("cropOverlayCanvas");
-    if (!overlayEl) return;
-    const rect = overlayEl.getBoundingClientRect();
-    const scaleX = rect.width / (overlayEl.width || 1);
-    const scaleY = rect.height / (overlayEl.height || 1);
-    let sx = rect.left + rect.width / 2;
-    let sy = rect.top + 24;
     const addWrap = document.getElementById("uploadSelectAddWrap");
     const addBtn = document.getElementById("uploadSelectAddBtn");
     const scaleWrap = document.getElementById("uploadSelectScaleWrap");
@@ -9837,18 +11272,7 @@ function updateHistoryButtons() {
       freeBtn.hidden = !showMarquee;
       freeBtn.classList.toggle("highlight", showMarquee && !uploadScaleKeepRatio);
     }
-    if (showMarquee) {
-      const b = getUploadUnionBounds() || getUploadMarqueeBounds();
-      if (b) {
-        sx = rect.left + (b.x + b.w / 2) * scaleX;
-        sy = rect.top + b.y * scaleY;
-      }
-    } else if (polyPoints.length) {
-      const last = polyPoints[polyPoints.length - 1];
-      sx = rect.left + last.x * scaleX;
-      sy = rect.top + last.y * scaleY;
-    }
-    placeUploadSelectMiniBar(bar, sx, sy, 16);
+    layoutStatusMiniBars();
   }
 
   function syncUploadToolHighlights() {
@@ -9894,10 +11318,20 @@ function updateHistoryButtons() {
   }
 
   function switchUploadMarqueeTool(nextTool) {
+    const keepArmed = uploadSelAddArmed;
+    const keepMode = uploadBoolMode === "subtract" ? "subtract" : "add";
     uploadSelBeforeDraw = snapshotUploadMarquee();
     commitLiveUploadMarquee();
+    if (uploadTool === "poly" && nextTool !== "poly") {
+      polyPoints = [];
+      polyPointRedo = [];
+      uploadPolyHover = null;
+      isUploadPolyDrag = false;
+      resetUploadPolyMove();
+    }
     uploadTool = nextTool;
-    uploadSelAddArmed = true;
+    uploadSelAddArmed = keepArmed;
+    uploadBoolMode = keepMode;
     uploadEditExtraIndex = -1;
     isDrawingRect = false;
     isMovingRect = false;
@@ -9909,12 +11343,16 @@ function updateHistoryButtons() {
     cropOverlay.classList.toggle("is-paused", false);
     cropOverlay.style.cursor = nextTool === "poly" && anchorPaused ? "default" : "crosshair";
     syncUploadToolHighlights();
-    if (polyPolygons.length > 0) startMarchingAnts();
+    stopMarchingAnts();
     if (nextTool === "poly") drawPolySelection();
     else drawUploadMarquee();
     updateCropConfirmBar();
     updateGlobalHistoryButtons();
     syncAnchorMiniBar();
+    syncUploadSelectMiniBar();
+    if (nextTool === "poly" && hasAnyUploadSelection() && !uploadSelAddArmed) {
+      requestAnimationFrame(() => flashUploadSelectHints());
+    }
   }
 
   function convertUploadBoxTool(nextTool) {
@@ -9940,9 +11378,19 @@ function updateHistoryButtons() {
       setAnchorPaused(false);
       return;
     }
-    if (isUploadCombineTool(uploadTool) && isUploadCombineTool(tool) && tool !== uploadTool && hasAnyUploadSelection()) {
-      switchUploadMarqueeTool(tool);
-      return;
+    const hadSel = hasAnyUploadSelection();
+    if (isUploadCombineTool(tool) && (isUploadCombineTool(uploadTool) || hadSel)) {
+      if (tool === uploadTool && (hadSel || uploadSelAddArmed)) {
+        if (tool === "poly" && hadSel && !uploadSelAddArmed) {
+          syncUploadSelectMiniBar();
+          flashUploadSelectHints();
+        }
+        return;
+      }
+      if (tool !== uploadTool) {
+        switchUploadMarqueeTool(tool);
+        return;
+      }
     }
     uploadTool = (uploadTool === tool) ? 'none' : tool;
     anchorPaused = false;
@@ -9953,9 +11401,11 @@ function updateHistoryButtons() {
     polyPoints = [];
     polyPolygons = [];
     polyPointRedo = [];
+    uploadPolyClosedUndo = null;
     isUploadPolyDrag = false;
     uploadPolyDragIndex = -1;
     uploadPolyDragKind = null;
+    resetUploadPolyMove();
     rectStart = null;
     rectCurrent = null;
     isDrawingRect = false;
@@ -9990,14 +11440,7 @@ function updateHistoryButtons() {
   }
 
   function startMarchingAnts() {
-    if (antsAnimId) return;
-    function animate() {
-      marchingAntsOffset = (marchingAntsOffset + 0.5) % 12;
-      if (uploadTool === "poly" || polyPoints.length > 0) drawPolySelection();
-      else drawUploadMarquee();
-      antsAnimId = requestAnimationFrame(animate);
-    }
-    antsAnimId = requestAnimationFrame(animate);
+    stopMarchingAnts();
   }
 
   function stopMarchingAnts() {
@@ -10135,6 +11578,7 @@ function updateHistoryButtons() {
     const clickTolerance = Math.max(8, 10 * strokeScale);
 
     if (isUploadMarqueeTool()) {
+      updateHoverUploadShape(x, y);
       const handleHit = !uploadSelAddArmed && hitTestAnyUploadHandle(x, y);
       if (handleHit) {
         const extra = handleHit.extra;
@@ -10149,6 +11593,22 @@ function updateHistoryButtons() {
         rectScaleOrigin = r ? { x: r.x, y: r.y, w: r.w, h: r.h } : null;
         cropOverlay.style.cursor = handle.cursor;
         return;
+      }
+      if (!uploadSelAddArmed) {
+        const stackHits = uploadShapesAtPoint(x, y);
+        if (stackHits.length > 1) {
+          const newIdx = raiseUploadShapeToFront(stackHits[1]);
+          hoverUploadShapeIndex = newIdx;
+          hoverUploadCoveredIndex = -1;
+          drawUploadMarquee();
+          return;
+        }
+        if (stackHits.length === 1 && stackHits[0] < collectUploadShapes().length - 1) {
+          const newIdx = raiseUploadShapeToFront(stackHits[0]);
+          hoverUploadShapeIndex = newIdx;
+          hoverUploadCoveredIndex = -1;
+          drawUploadMarquee();
+        }
       }
       const shapeHit = !uploadSelAddArmed && hitTestAnyUploadShape(x, y);
       if (shapeHit) {
@@ -10176,7 +11636,10 @@ function updateHistoryButtons() {
           rectMoveOffset = { x: x - rectStart.x, y: y - rectStart.y };
         }
       } else {
-        if (!uploadSelAddArmed && hasAnyUploadSelection()) return;
+        if (!uploadSelAddArmed && hasAnyUploadSelection()) {
+          flashUploadSelectHints();
+          return;
+        }
         uploadSelBeforeDraw = snapshotUploadMarquee();
         if (uploadSelAddArmed && hasLiveUploadMarquee()) {
           uploadMarquees.push(cloneUploadShape(liveUploadShape()));
@@ -10204,8 +11667,10 @@ function updateHistoryButtons() {
         if (polyPoints.length >= 3) {
           const startP = polyPoints[0];
           if (Math.hypot(x - startP.x, y - startP.y) <= clickTolerance) {
+            const reopen = polyPoints.map(snapshotAnchor);
             applyPendingCurve(polyPoints, polyPoints[0], 28);
             commitClosedPolygon(polyPoints);
+            uploadPolyClosedUndo = reopen;
             polyPoints = [];
             polyPointRedo = [];
             uploadPolyHover = null;
@@ -10228,10 +11693,23 @@ function updateHistoryButtons() {
         }
       }
 
+      if (!uploadSelAddArmed && !polyPoints.length) {
+        const hit = closedUploadPolyIndexAt(x, y);
+        if (hit >= 0) {
+          isMovingUploadPoly = true;
+          uploadPolyMoveIndex = hit;
+          uploadPolyMoveStart = { x, y };
+          uploadPolyMoveOrigin = clonePolyPoints(polyPolygons[hit]);
+          cropOverlay.style.cursor = "move";
+          return;
+        }
+      }
+
       const nextPt = { x, y, hIn: null, hOut: null };
       applyPendingCurve(polyPoints, nextPt, 28);
       polyPoints.push(nextPt);
       polyPointRedo.length = 0;
+      uploadPolyClosedUndo = null;
       isUploadPolyDrag = true;
       uploadPolyDragIndex = polyPoints.length - 1;
       uploadPolyDragKind = "new";
@@ -10257,14 +11735,56 @@ function updateHistoryButtons() {
     cloned.op = uploadBoolMode === "subtract" ? "subtract" : "add";
     polyPolygons.push(cloned);
   }
+  function resetUploadPolyMove() {
+    isMovingUploadPoly = false;
+    uploadPolyMoveIndex = -1;
+    uploadPolyMoveStart = null;
+    uploadPolyMoveOrigin = null;
+  }
+  function closedUploadPolyIndexAt(x, y) {
+    const viewScale = 1 / (origZoom || 1);
+    const tol = Math.max(6, 8 * viewScale);
+    for (let i = (polyPolygons || []).length - 1; i >= 0; i--) {
+      const pts = polyPolygons[i];
+      if (!pts || pts.length < 3) continue;
+      const shape = { tool: "poly", polygon: pts, op: pts.op };
+      if (shapeContainsUploadPoint(shape, x, y) || pointNearRectEdge(x, y, getShapeBounds(shape), tol)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+  function clampPolyOffset(pts, dx, dy) {
+    const acc = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
+    expandPolyBounds(pts, acc);
+    if (!Number.isFinite(acc.minX)) return { dx: 0, dy: 0 };
+    const w = cropOverlay.width;
+    const h = cropOverlay.height;
+    if (acc.minX + dx < 0) dx = -acc.minX;
+    if (acc.minY + dy < 0) dy = -acc.minY;
+    if (acc.maxX + dx > w) dx = w - acc.maxX;
+    if (acc.maxY + dy > h) dy = h - acc.maxY;
+    return { dx, dy };
+  }
+  function applyClosedPolyDrag(x, y) {
+    if (!isMovingUploadPoly || uploadPolyMoveIndex < 0 || !uploadPolyMoveOrigin || !uploadPolyMoveStart) return;
+    const next = clampPolyOffset(
+      uploadPolyMoveOrigin,
+      x - uploadPolyMoveStart.x,
+      y - uploadPolyMoveStart.y
+    );
+    polyPolygons[uploadPolyMoveIndex] = offsetPolyPoints(uploadPolyMoveOrigin, next.dx, next.dy);
+    drawPolySelection();
+  }
   function offsetPolyPoints(pts, dx, dy) {
-    return clonePolyPoints(pts).map((p) => {
+    const next = clonePolyPoints(pts);
+    next.forEach((p) => {
       p.x += dx;
       p.y += dy;
       if (p.hIn) { p.hIn.x += dx; p.hIn.y += dy; }
       if (p.hOut) { p.hOut.x += dx; p.hOut.y += dy; }
-      return p;
     });
+    return next;
   }
   function expandPolyBounds(polygon, acc) {
     (polygon || []).forEach((p) => {
@@ -10296,25 +11816,38 @@ function updateHistoryButtons() {
   }
 
   cropOverlay.addEventListener("mousemove", (e) => {
-    if (uploadTool === "poly" && isUploadPolyDrag) {
-      const { x, y } = getCropPreciseCoords(e);
-      updateUploadPolyDrag(x, y);
-      return;
-    }
     if (uploadTool === "poly") {
-      if (!anchorPaused && polyPoints.length) {
-        const { x, y } = getCropPreciseCoords(e);
+      const { x, y } = getCropPreciseCoords(e);
+      if (isMovingUploadPoly) {
+        applyClosedPolyDrag(x, y);
+        cropOverlay.style.cursor = "move";
+        return;
+      }
+      if (isUploadPolyDrag) {
+        updateUploadPolyDrag(x, y);
+        return;
+      }
+      if (anchorPaused) {
+        cropOverlay.style.cursor = "default";
+        return;
+      }
+      if (polyPoints.length) {
         const strokeScale = 1 / (origZoom || 1);
         const clickTolerance = Math.max(8, 10 * strokeScale);
         uploadPolyHover = { x, y };
         polyHandleHover = hitTestPolyHandle(polyPoints, x, y, clickTolerance, clickTolerance * 0.45);
-        cropOverlay.style.cursor = polyHandleHover ? "pointer" : (anchorPaused ? "default" : "crosshair");
+        cropOverlay.style.cursor = (polyHandleHover || isHoveringUploadPolyClose()) ? "pointer" : "crosshair";
         drawPolySelection();
+      } else {
+        cropOverlay.style.cursor = (!uploadSelAddArmed && closedUploadPolyIndexAt(x, y) >= 0) ? "move" : "crosshair";
       }
       return;
     }
     if (!isUploadMarqueeTool()) return;
     const { x, y } = getCropPreciseCoords(e);
+    if (!isScalingRect && !isMovingRect && !isDrawingRect) {
+      if (updateHoverUploadShape(x, y)) drawUploadMarquee();
+    }
     if (isScalingRect) {
       if (uploadEditExtraIndex >= 0 && uploadMarquees[uploadEditExtraIndex]) {
         applyShapeScale(uploadMarquees[uploadEditExtraIndex], x, y, rectScaleHandle, rectScaleOrigin);
@@ -10343,14 +11876,26 @@ function updateHistoryButtons() {
   });
 
   cropOverlay.addEventListener("mouseleave", () => {
-    if (uploadTool !== "poly") return;
-    if (!uploadPolyHover && !polyHandleHover) return;
-    uploadPolyHover = null;
-    polyHandleHover = null;
-    drawPolySelection();
+    if (uploadTool === "poly") {
+      if (!uploadPolyHover && !polyHandleHover) return;
+      uploadPolyHover = null;
+      polyHandleHover = null;
+      drawPolySelection();
+      return;
+    }
+    if (isUploadMarqueeTool() && (hoverUploadShapeIndex >= 0 || hoverUploadCoveredIndex >= 0) && !isDrawingRect && !isMovingRect && !isScalingRect) {
+      hoverUploadShapeIndex = -1;
+      hoverUploadCoveredIndex = -1;
+      drawUploadMarquee();
+    }
   });
 
   window.addEventListener("mousemove", (e) => {
+    if (uploadTool === "poly" && isMovingUploadPoly) {
+      const { x, y } = getCropPreciseCoords(e);
+      applyClosedPolyDrag(x, y);
+      return;
+    }
     if (uploadTool === "poly" && isUploadPolyDrag) {
       const { x, y } = getCropPreciseCoords(e);
       updateUploadPolyDrag(x, y);
@@ -10384,6 +11929,12 @@ function updateHistoryButtons() {
 
   window.addEventListener("mouseup", () => {
     if (uploadTool === "poly") {
+      if (isMovingUploadPoly) {
+        resetUploadPolyMove();
+        drawPolySelection();
+        updateCropConfirmBar();
+        updateGlobalHistoryButtons();
+      }
       isUploadPolyDrag = false;
       uploadPolyDragIndex = -1;
       uploadPolyDragKind = null;
@@ -10442,55 +11993,70 @@ function updateHistoryButtons() {
     drawUploadMarquee();
   }
 
-  function drawPolySelection() {
-    drawUploadMarquee();
+  function drawPolySelection(opts) {
+    drawUploadMarquee(opts);
 
     const viewScale = 1 / (origZoom || 1);
     const lineWidthVal = Math.max(1.8, 3 * viewScale);
-    const dashVal = [Math.round(6 * viewScale), Math.round(6 * viewScale)];
     const nodeRadius = Math.max(2, 2.8 * viewScale);
 
     if (polyPoints.length > 0) {
       ctxCrop.save();
       ctxCrop.globalCompositeOperation = "source-over";
       ctxCrop.globalAlpha = 1.0;
-      ctxCrop.beginPath();
-      tracePolyPath(ctxCrop, polyPoints, false, 1);
-      if (uploadPolyHover && !isUploadPolyDrag && !anchorPaused) {
-        const last = polyPoints[polyPoints.length - 1];
-        if (anchorNextCurve) {
-          const h = pendingCurveHandle(last, uploadPolyHover, 28);
-          ctxCrop.bezierCurveTo(h.x, h.y, uploadPolyHover.x, uploadPolyHover.y, uploadPolyHover.x, uploadPolyHover.y);
+      ctxCrop.lineWidth = lineWidthVal;
+      ctxCrop.setLineDash([]);
+      if (polyPoints.length >= 3) {
+        ctxCrop.beginPath();
+        tracePolyPath(ctxCrop, polyPoints, true, 1);
+        if (uploadBoolMode === "subtract") {
+          ctxCrop.fillStyle = "rgba(0, 0, 0, 0.72)";
+          ctxCrop.fill("nonzero");
         } else {
-          ctxCrop.lineTo(uploadPolyHover.x, uploadPolyHover.y);
+          ctxCrop.save();
+          ctxCrop.globalCompositeOperation = "destination-out";
+          ctxCrop.fillStyle = "#000000";
+          ctxCrop.fill("nonzero");
+          ctxCrop.restore();
         }
       }
-      ctxCrop.strokeStyle = "#ff3344";
-      ctxCrop.lineWidth = lineWidthVal;
-      ctxCrop.setLineDash(dashVal);
-      ctxCrop.stroke();
+      const closeHover = isHoveringUploadPolyClose();
+      const livePts = flattenEditPoly(polyPoints, false);
+      if (closeHover) {
+        livePts.push({ x: polyPoints[0].x, y: polyPoints[0].y });
+      } else if (uploadPolyHover && !isUploadPolyDrag && !anchorPaused) {
+        livePts.push({ x: uploadPolyHover.x, y: uploadPolyHover.y });
+      }
+      if (livePts.length >= 2) {
+        ctxCrop.strokeStyle = closeHover ? "#00ff88" : "#ffe600";
+        ctxCrop.lineWidth = closeHover ? lineWidthVal * 1.25 : lineWidthVal;
+        ctxCrop.beginPath();
+        ctxCrop.moveTo(livePts[0].x, livePts[0].y);
+        for (let i = 1; i < livePts.length; i++) ctxCrop.lineTo(livePts[i].x, livePts[i].y);
+        ctxCrop.stroke();
+      }
       drawPolyHandleStems(ctxCrop, polyPoints, 1, currentPolyHandleHot(), Math.max(2, 2.6 * viewScale));
 
       polyPoints.forEach((p, idx) => {
-        const isStartNode = (idx === 0);
-        const canClose = (isStartNode && polyPoints.length >= 3);
-        const r = canClose ? nodeRadius * 1.35 : nodeRadius;
-
+        if (idx === 0) {
+          const baseR = closeHover ? nodeRadius * 1.7 : nodeRadius;
+          drawPolyCloseAnchor(ctxCrop, p.x, p.y, baseR, closeHover);
+          return;
+        }
         ctxCrop.beginPath();
-        ctxCrop.arc(p.x, p.y, r, 0, Math.PI * 2);
-        ctxCrop.fillStyle = canClose ? "#00ff88" : "#ffe600";
+        ctxCrop.arc(p.x, p.y, nodeRadius, 0, Math.PI * 2);
+        ctxCrop.fillStyle = "#ffe600";
         ctxCrop.fill();
-
         ctxCrop.lineWidth = Math.max(1, 1.5 * viewScale);
         ctxCrop.strokeStyle = "#181825";
         ctxCrop.stroke();
-
         ctxCrop.beginPath();
-        ctxCrop.arc(p.x, p.y, r + Math.max(1, 1.2 * viewScale), 0, Math.PI * 2);
+        ctxCrop.arc(p.x, p.y, nodeRadius + Math.max(1, 1.2 * viewScale), 0, Math.PI * 2);
         ctxCrop.lineWidth = Math.max(0.8, 1 * viewScale);
         ctxCrop.strokeStyle = "#ffffff";
         ctxCrop.stroke();
       });
+      if (closeHover) kickPolyClosePulse();
       ctxCrop.restore();
     }
     syncAnchorMiniBar();
@@ -10522,6 +12088,7 @@ function updateHistoryButtons() {
       commitClosedPolygon(polyPoints);
       polyPoints = [];
       uploadPolyHover = null;
+      uploadPolyClosedUndo = null;
     }
 
     const uploadShapes = collectUploadShapes().filter(isUploadShapeFilled);
@@ -10847,15 +12414,38 @@ function updateHistoryButtons() {
   let libraryDbPromise = null;
 
   function emptyLibraryData() {
-    return { folders: [], items: [], inventory: {} };
+    return { folders: [], items: [], inventory: { [brandSeriesId(DEFAULT_BEAD_BRAND)]: {} } };
   }
-  function normalizeInventory(raw) {
+  function normalizeFlatStock(raw) {
     const out = {};
     if (!raw || typeof raw !== "object" || Array.isArray(raw)) return out;
     Object.keys(raw).forEach((code) => {
       const n = parseInt(raw[code], 10);
       if (Number.isFinite(n) && n > 0) out[code] = n;
     });
+    return out;
+  }
+  function mergeFlatStock(a, b) {
+    const out = { ...(a || {}) };
+    Object.keys(b || {}).forEach((code) => {
+      out[code] = Math.max(out[code] || 0, b[code] || 0);
+    });
+    return out;
+  }
+  function inventoryLooksNested(raw) {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return false;
+    return Object.keys(raw).some((key) => raw[key] && typeof raw[key] === "object" && !Array.isArray(raw[key]));
+  }
+  function normalizeInventory(raw) {
+    const seriesDefault = brandSeriesId(DEFAULT_BEAD_BRAND);
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return { [seriesDefault]: {} };
+    const nested = inventoryLooksNested(raw) ? raw : { [seriesDefault]: raw };
+    const out = {};
+    Object.keys(nested).forEach((key) => {
+      const series = brandSeriesId(key);
+      out[series] = mergeFlatStock(out[series], normalizeFlatStock(nested[key]));
+    });
+    if (!out[seriesDefault]) out[seriesDefault] = {};
     return out;
   }
   function normalizeLibraryItem(it) {
@@ -11057,22 +12647,37 @@ function updateHistoryButtons() {
 
   let beadStockFamily = "yellow";
   let beadStockSaveTimer = 0;
-  function getBeadInventory() {
-    if (!libraryCache.inventory || typeof libraryCache.inventory !== "object") libraryCache.inventory = {};
+  function getBeadInventoryMap() {
+    libraryCache.inventory = normalizeInventory(libraryCache.inventory);
     return libraryCache.inventory;
   }
-  function countLibraryColorUsage() {
+  function getBeadInventory(brandId) {
+    const all = getBeadInventoryMap();
+    const id = brandSeriesId(brandId || stockBrandId || DEFAULT_BEAD_BRAND);
+    if (!all[id] || typeof all[id] !== "object" || Array.isArray(all[id])) all[id] = {};
+    return all[id];
+  }
+  function paletteForStockBrand(brandId) {
+    return (getBeadBrand(brandId).colors || BEAD_PALETTE).slice();
+  }
+  function colorsForStockBrand(brandId) {
+    return paletteForStockBrand(brandId);
+  }
+  function countLibraryColorUsage(palette) {
+    const allowed = palette ? new Set(palette.map((b) => b.code)) : null;
     const used = {};
     getLibraryItems().forEach((item) => {
       if (item.codes) {
         String(item.codes).split(/[,\n]/).forEach((code) => {
-          if (code) used[code] = (used[code] || 0) + 1;
+          if (!code || (allowed && !allowed.has(code))) return;
+          used[code] = (used[code] || 0) + 1;
         });
         return;
       }
       inflateLibraryGrid(item).forEach((row) => {
         (row || []).forEach((cell) => {
-          if (cell?.code) used[cell.code] = (used[cell.code] || 0) + 1;
+          if (!cell?.code || (allowed && !allowed.has(cell.code))) return;
+          used[cell.code] = (used[cell.code] || 0) + 1;
         });
       });
     });
@@ -11082,7 +12687,7 @@ function updateHistoryButtons() {
     return idbPutLibrary({
       folders: libraryCache.folders || [],
       items: libraryCache.items || [],
-      inventory: getBeadInventory()
+      inventory: getBeadInventoryMap()
     }).catch((e) => console.error(e));
   }
   function schedulePersistBeadInventory() {
@@ -11112,25 +12717,33 @@ function updateHistoryButtons() {
       leftEl.classList.toggle("is-ok", left >= 0);
     }
   }
-  function updateBeadStockSummary(usedMap) {
+  function updateBeadStockSummary(usedMap, palette) {
     const el = document.getElementById("beadStockSummary");
     if (!el) return;
     const inv = getBeadInventory();
+    const seriesId = brandSeriesId(stockBrandId);
+    const codes = new Set((palette || colorsForBrandSeries(seriesId)).map((b) => b.code));
     let stockTotal = 0, usedTotal = 0;
-    Object.values(inv).forEach((n) => { stockTotal += n; });
-    Object.values(usedMap).forEach((n) => { usedTotal += n; });
+    codes.forEach((code) => {
+      stockTotal += inv[code] || 0;
+      usedTotal += usedMap[code] || 0;
+    });
     const leftTotal = stockTotal - usedTotal;
-    el.textContent = `已填庫存 ${stockTotal} 顆 · 收藏圖紙已用 ${usedTotal} 顆 · 剩餘 ${leftTotal} 顆`;
+    el.textContent = `${brandSeriesLabel(seriesId)}：已填庫存 ${stockTotal} 顆 · 收藏圖紙已用 ${usedTotal} 顆 · 剩餘 ${leftTotal} 顆`;
   }
   function renderBeadStockPanel() {
     const panel = document.getElementById("beadStockPanel");
     const tabs = document.getElementById("beadStockTabs");
     const list = document.getElementById("beadStockList");
     if (!panel || !tabs || !list || !panel.classList.contains("is-open")) return;
-    const usedMap = countLibraryColorUsage();
+    const brandSelect = document.getElementById("beadStockBrandSelect");
+    if (brandSelect && brandSelect.value !== stockBrandId) brandSelect.value = stockBrandId;
+    const palette = colorsForStockBrand();
+    const seriesColors = colorsForBrandSeries(brandSeriesId(stockBrandId));
+    const usedMap = countLibraryColorUsage(seriesColors);
     const inv = getBeadInventory();
     const groups = new Map(PALETTE_FAMILIES.map((f) => [f.id, []]));
-    BEAD_PALETTE.forEach((bead) => {
+    palette.forEach((bead) => {
       groups.get(beadFamilyId(bead.code)).push(bead);
     });
     groups.forEach((beads) => beads.sort((a, b) => {
@@ -11176,11 +12789,11 @@ function updateHistoryButtons() {
         const n = setBeadStockQty(bead.code, qty.value);
         if (qty.value !== (n ? String(n) : "")) qty.value = n ? String(n) : "";
         updateBeadStockRow(row, n, used);
-        updateBeadStockSummary(usedMap);
+        updateBeadStockSummary(usedMap, seriesColors);
       });
       list.appendChild(row);
     });
-    updateBeadStockSummary(usedMap);
+    updateBeadStockSummary(usedMap, seriesColors);
   }
   function toggleBeadStockPanel() {
     const panel = document.getElementById("beadStockPanel");
@@ -11286,7 +12899,18 @@ function updateHistoryButtons() {
       const showCodes = document.getElementById("appModalShowCodes");
       const sizeEl = document.getElementById("appModalGridSize");
       const sizeVal = document.getElementById("appModalGridSizeVal");
+      const showGrid = document.getElementById("appModalShowGrid");
+      const stepX = document.getElementById("appModalGridStepX");
+      const stepY = document.getElementById("appModalGridStepY");
+      const theme = opts.bgTheme === "light" ? "light" : "dark";
+      document.querySelectorAll("input[name='appModalBgTheme']").forEach((el) => {
+        el.checked = el.value === theme;
+      });
       if (showCodes) showCodes.checked = !!opts.showCodes;
+      if (showGrid) showGrid.checked = opts.showGrid !== false;
+      if (stepX) stepX.value = String(opts.gridStepX || (typeof readGridGuideStep === "function" ? readGridGuideStep("gridGuideX") : 5));
+      if (stepY) stepY.value = String(opts.gridStepY || (typeof readGridGuideStep === "function" ? readGridGuideStep("gridGuideY") : 5));
+      syncAppModalGridStepState();
       if (sizeEl) {
         sizeEl.value = String(opts.gridSize || 24);
         if (sizeVal) sizeVal.textContent = `${sizeEl.value} px`;
@@ -11331,7 +12955,11 @@ function updateHistoryButtons() {
     if (downloadField && downloadField.style.display !== "none") {
       downloadOpts = {
         showCodes: !!document.getElementById("appModalShowCodes")?.checked,
-        cell: parseInt(document.getElementById("appModalGridSize")?.value, 10) || 24
+        cell: parseInt(document.getElementById("appModalGridSize")?.value, 10) || 24,
+        bgTheme: document.querySelector("input[name='appModalBgTheme']:checked")?.value === "light" ? "light" : "dark",
+        showGrid: !!document.getElementById("appModalShowGrid")?.checked,
+        gridStepX: readExportGridStep(document.getElementById("appModalGridStepX")?.value, 5),
+        gridStepY: readExportGridStep(document.getElementById("appModalGridStepY")?.value, 5)
       };
     }
     closeAppModal();
@@ -11350,10 +12978,16 @@ function updateHistoryButtons() {
     if (e.key === "Escape") closeAppModal();
   });
 
+  function syncAppModalGridStepState() {
+    const wrap = document.getElementById("appModalGridStepWrap");
+    const on = !!document.getElementById("appModalShowGrid")?.checked;
+    if (wrap) wrap.classList.toggle("is-off", !on);
+  }
   document.getElementById("appModalGridSize")?.addEventListener("input", (e) => {
     const val = document.getElementById("appModalGridSizeVal");
     if (val) val.textContent = `${e.target.value} px`;
   });
+  document.getElementById("appModalShowGrid")?.addEventListener("change", syncAppModalGridStepState);
 
   function buildLibraryItemPayload({ id, title, folderId }) {
     const src = fullPatternBackup || { grid: patternGridData, cols: currentCols, rows: currentRows };
@@ -11585,6 +13219,7 @@ function updateHistoryButtons() {
       title: "下載圖紙",
       showName: false,
       showDownload: true,
+      altLabel: "",
       gridSize: item.sliders?.gridSize || 24,
       showCodes: !!item.sliders?.showLabels,
       okLabel: "確認下載",
@@ -11597,6 +13232,10 @@ function updateHistoryButtons() {
         exportBeadPatternPng(grid, item.cols, item.rows, {
           cell: downloadOpts?.cell || 24,
           showCodes: !!downloadOpts?.showCodes,
+          bgTheme: downloadOpts?.bgTheme || "dark",
+          showGrid: !!downloadOpts?.showGrid,
+          gridStepX: downloadOpts?.gridStepX || 5,
+          gridStepY: downloadOpts?.gridStepY || 5,
           filename: item.title || "bead-pattern"
         });
       }
