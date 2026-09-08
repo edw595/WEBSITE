@@ -2525,6 +2525,8 @@ body.stage-upload.has-upload-image .image-toolbox {
     .main-canvas-inner.pipette-mode { cursor: copy; }
     .main-canvas-inner.paint-pencil-mode { cursor: crosshair; }
     .main-canvas-inner.paint-eraser-mode { cursor: cell; }
+    .main-canvas-inner.select-brush-mode { cursor: none; }
+    .main-canvas-inner.select-brush-mode #interactionCanvas { cursor: none; }
     .layered-canvas { position: absolute; top: 0; left: 0; pointer-events: none; image-rendering: pixelated; image-rendering: crisp-edges; }
     #interactionCanvas { pointer-events: auto; }
     .main-canvas-wrapper { position: relative; }
@@ -3042,7 +3044,7 @@ body.stage-upload.has-upload-image .image-toolbox {
         <rect x="5" y="3" width="1" height="1" fill="#FFFFFF"/>
       </svg>
       染上拼豆之路
-      <span class="app-version" id="appVersion" title="網站版本">v208</span>
+      <span class="app-version" id="appVersion" title="網站版本">v209</span>
     </h1>
   </div>
 </header>
@@ -4981,6 +4983,7 @@ function updateGlobalHistoryButtons() {
   let uploadSelectBrushSize = 1;
   let isUploadBrushing = false;
   let uploadBrushLive = null;
+  let uploadBrushHover = null;
   let polyPoints = [];
   let polyPolygons = [];
   let polyPointRedo = [];
@@ -8440,10 +8443,21 @@ function updateHistoryButtons() {
         ctxInteract.fillStyle = isSelBrush ? "rgba(255, 107, 157, 0.22)" : "rgba(255, 51, 68, 0.22)";
         ctxInteract.fillRect(posX, posY, posX2 - posX, posY2 - posY);
         ctxInteract.strokeStyle = isSelBrush ? "#ff6b9d" : "#ff3344";
-        ctxInteract.lineWidth = 2;
+        ctxInteract.lineWidth = Math.max(2, Math.floor(cell * 0.1));
         ctxInteract.setLineDash([4, 3]);
         ctxInteract.strokeRect(posX + 1, posY + 1, posX2 - posX - 2, posY2 - posY - 2);
         ctxInteract.setLineDash([]);
+        if (isSelBrush) {
+          const cx = (posX + posX2) / 2;
+          const cy = (posY + posY2) / 2;
+          const tick = Math.max(3, Math.min(8, cell * 0.35));
+          ctxInteract.beginPath();
+          ctxInteract.moveTo(cx - tick, cy);
+          ctxInteract.lineTo(cx + tick, cy);
+          ctxInteract.moveTo(cx, cy - tick);
+          ctxInteract.lineTo(cx, cy + tick);
+          ctxInteract.stroke();
+        }
       } else if (!(isAnchorSelectTool() && editPolyPoints.length)) {
         const hX = Math.round(hoveredCell.col * cell), hY = Math.round(hoveredCell.row * cell);
         const hW = Math.round((hoveredCell.col + 1) * cell) - hX, hH = Math.round((hoveredCell.row + 1) * cell) - hY;
@@ -10347,6 +10361,7 @@ function updateHistoryButtons() {
     const inner = document.getElementById("mainCanvasInner");
     if (inner) {
       inner.classList.toggle("select-move-mode", isMoveSelectTool());
+      inner.classList.toggle("select-brush-mode", editSelectTool === "brush");
       inner.classList.remove("is-grabbing");
     }
     renderInteractionLayer();
@@ -11018,6 +11033,8 @@ function updateHistoryButtons() {
           selectedCells.has(`${col},${row}`)
         ) {
           interactionCanvas.style.cursor = "move";
+        } else if (editSelectTool === "brush") {
+          interactionCanvas.style.cursor = "none";
         } else {
           interactionCanvas.style.cursor = "";
         }
@@ -11700,6 +11717,7 @@ function updateHistoryButtons() {
       uploadSelectBrushSize = Math.max(1, parseInt(e.target.value, 10) || 1);
       const val = document.getElementById("uploadSelectBrushSizeVal");
       if (val) val.textContent = String(uploadSelectBrushSize);
+      if (uploadTool === "brush") drawUploadMarquee();
     });
   }
   const BEAD_WIDTH_MARKS = [52, 78, 104, 120];
@@ -12767,6 +12785,7 @@ function updateHistoryButtons() {
     uploadMarquees = [];
     uploadBrushLive = null;
     isUploadBrushing = false;
+    uploadBrushHover = null;
     uploadSelAddArmed = false;
     uploadBoolMode = "add";
     uploadLiveOp = "add";
@@ -13264,6 +13283,7 @@ function updateHistoryButtons() {
     const shapes = collectUploadShapes();
     if (!shapes.length) {
       uploadStaticDirty = true;
+      drawUploadBrushHoverPreview();
       syncUploadSelectMiniBar();
       return;
     }
@@ -13325,7 +13345,37 @@ function updateHistoryButtons() {
         drawUploadShapeHandles(ctxCrop, s, viewScale);
       });
     }
+    drawUploadBrushHoverPreview();
     syncUploadSelectMiniBar();
+  }
+
+  function drawUploadBrushHoverPreview() {
+    if (uploadTool !== "brush" || !uploadBrushHover) return;
+    const r = uploadBrushRadius();
+    const x = uploadBrushHover.x;
+    const y = uploadBrushHover.y;
+    const viewScale = 1 / (origZoom || 1);
+    const lw = Math.max(1.5, 2 * viewScale);
+    const tick = Math.max(3, 5 * viewScale);
+    ctxCrop.save();
+    ctxCrop.globalCompositeOperation = "source-over";
+    ctxCrop.globalAlpha = 1;
+    ctxCrop.strokeStyle = "#ff6b9d";
+    ctxCrop.fillStyle = "rgba(255, 107, 157, 0.16)";
+    ctxCrop.lineWidth = lw;
+    ctxCrop.setLineDash([4 * viewScale, 3 * viewScale]);
+    ctxCrop.beginPath();
+    ctxCrop.arc(x, y, r, 0, Math.PI * 2);
+    ctxCrop.fill();
+    ctxCrop.stroke();
+    ctxCrop.setLineDash([]);
+    ctxCrop.beginPath();
+    ctxCrop.moveTo(x - tick, y);
+    ctxCrop.lineTo(x + tick, y);
+    ctxCrop.moveTo(x, y - tick);
+    ctxCrop.lineTo(x, y + tick);
+    ctxCrop.stroke();
+    ctxCrop.restore();
   }
 
   function drawOvalSelection() {
@@ -13650,7 +13700,7 @@ function updateHistoryButtons() {
     commitUploadMarqueeHistory();
     cropOverlay.classList.toggle("active", true);
     cropOverlay.classList.toggle("is-paused", false);
-    cropOverlay.style.cursor = nextTool === "poly" && anchorPaused ? "default" : "crosshair";
+    cropOverlay.style.cursor = nextTool === "poly" && anchorPaused ? "default" : (nextTool === "brush" ? "none" : "crosshair");
     syncUploadToolHighlights();
     stopMarchingAnts();
     if (nextTool === "poly") drawPolySelection();
@@ -13728,6 +13778,7 @@ function updateHistoryButtons() {
     uploadMarquees = [];
     uploadBrushLive = null;
     isUploadBrushing = false;
+    uploadBrushHover = null;
     uploadSelAddArmed = false;
     uploadBoolMode = "add";
     uploadLiveOp = "add";
@@ -13739,7 +13790,7 @@ function updateHistoryButtons() {
     
     cropOverlay.classList.toggle("active", uploadTool !== 'none');
     cropOverlay.classList.toggle("is-paused", false);
-    cropOverlay.style.cursor = (isUploadMarqueeTool() || uploadTool === 'poly' || uploadTool === 'brush') ? "crosshair" : "";
+    cropOverlay.style.cursor = (isUploadMarqueeTool() || uploadTool === 'poly') ? "crosshair" : (uploadTool === "brush" ? "none" : "");
     
     syncUploadToolHighlights();
     updateCropConfirmBar();
@@ -14168,12 +14219,11 @@ function updateHistoryButtons() {
   cropOverlay.addEventListener("mousemove", (e) => {
     if (shouldSuppressMouseAfterTouch(e)) return;
     if (uploadTool === "brush") {
-      if (!isUploadBrushing) {
-        cropOverlay.style.cursor = "crosshair";
-        return;
-      }
       const { x, y } = getCropPreciseCoords(e);
-      paintUploadBrushAt(x, y);
+      uploadBrushHover = { x, y };
+      cropOverlay.style.cursor = "none";
+      if (isUploadBrushing) paintUploadBrushAt(x, y);
+      else drawUploadMarquee();
       return;
     }
     if (uploadTool === "poly") {
@@ -14236,6 +14286,13 @@ function updateHistoryButtons() {
   });
 
   cropOverlay.addEventListener("mouseleave", () => {
+    if (uploadTool === "brush") {
+      if (uploadBrushHover) {
+        uploadBrushHover = null;
+        drawUploadMarquee();
+      }
+      return;
+    }
     if (uploadTool === "poly") {
       if (!uploadPolyHover && !polyHandleHover) return;
       uploadPolyHover = null;
@@ -14254,6 +14311,7 @@ function updateHistoryButtons() {
     if (shouldSuppressMouseAfterTouch(e)) return;
     if (uploadTool === "brush" && isUploadBrushing) {
       const { x, y } = getCropPreciseCoords(e);
+      uploadBrushHover = { x, y };
       paintUploadBrushAt(x, y);
       return;
     }
