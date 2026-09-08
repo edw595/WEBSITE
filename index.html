@@ -18,6 +18,7 @@
       --title-red: #ff3344;
       --title-red-shadow: #990011;
       --highlight-active: #ffe600;
+      --pattern-paper: #181825;
       --accent-blue: #0088ff;
       --sidebar-w: 360px;
       --header-size: 32px;
@@ -235,10 +236,10 @@ body.stage-edit .floating-zoom-stack {
 }
 .floating-zoom-bar.is-over-content:hover {
   width: auto;
-  height: auto;
+  height: 38px;
   min-width: 0;
   max-width: 720px;
-  padding: 8px 12px;
+  padding: 0 10px;
   background: rgba(30, 30, 46, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -567,7 +568,9 @@ body.stage-upload.has-upload-image .image-toolbox {
   height: 8px;
 }
 .wand-tool-wrap:hover .wand-tolerance-menu,
-.wand-tool-wrap.is-menu-open .wand-tolerance-menu {
+.wand-tool-wrap.is-menu-open .wand-tolerance-menu,
+#editBrushSelectWrap:has(#editBrushSelectBtn.highlight) .wand-tolerance-menu,
+#brushCropWrap:has(#brushCropBtn.highlight) .wand-tolerance-menu {
   display: flex;
 }
 .wand-tolerance-menu label {
@@ -791,6 +794,30 @@ body.stage-upload.has-upload-image .image-toolbox {
     .library-folder-chip:hover { border-color: var(--title-red); color: #fff; }
     .library-folder-chip.is-on { background: var(--title-red); color: #fff; border-color: #fff; }
     .library-folder-chip.is-add { border-style: dashed; color: var(--highlight-active); }
+    .library-folder-chip.is-pickable {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding-left: 8px;
+    }
+    .library-folder-check {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #fff;
+      border-radius: 4px;
+      background: rgba(17, 17, 27, 0.55);
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 900;
+      pointer-events: none;
+    }
+    .library-folder-chip.is-picked { border-color: var(--title-red); box-shadow: 0 0 0 1px var(--title-red); }
+    .library-folder-chip.is-picked .library-folder-check { background: var(--title-red); border-color: #fff; }
+    .library-folder-chip.is-picked .library-folder-check::after { content: "✓"; line-height: 1; }
     .library-card {
       background: #181825;
       border: 1.5px solid var(--border-dark);
@@ -832,6 +859,8 @@ body.stage-upload.has-upload-image .image-toolbox {
       background: #11111b;
       display: block;
       cursor: pointer;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
     }
     .library-card img:hover { outline: 2px solid var(--highlight-active); outline-offset: -2px; }
     .library-card.is-pickable img:hover { outline-color: var(--title-red); }
@@ -864,6 +893,31 @@ body.stage-upload.has-upload-image .image-toolbox {
       font-size: 0.78rem;
       flex-shrink: 0;
     }
+    #beadStockBtn.bead-stock-btn {
+      border: 2px solid #fff;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.85), 0 0 16px rgba(255, 255, 255, 0.35);
+    }
+    #beadStockBtn.bead-stock-btn.highlight {
+      border-color: #fff;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.95), 0 0 18px rgba(255, 230, 0, 0.28);
+    }
+    .bead-stock-icons {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      margin-right: 2px;
+    }
+    .pixel-bead-icon {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      display: block;
+      image-rendering: pixelated;
+      overflow: visible;
+    }
+    .pixel-bead-icon.is-purple { color: #9a7aad; }
+    .pixel-bead-icon.is-blue { color: #6a96c4; }
+    .pixel-bead-icon.is-green { color: #6eae7a; }
     .bead-stock-panel {
       display: none;
       flex-direction: column;
@@ -1040,6 +1094,8 @@ body.stage-upload.has-upload-image .image-toolbox {
       gap: 12px;
     }
     .app-modal-card h3 { font-size: 1rem; font-weight: 900; color: var(--text-main); }
+    .app-modal-message { font-size: 0.86rem; font-weight: 700; color: var(--text-sub); line-height: 1.6; }
+    .app-modal-message[hidden] { display: none !important; }
     .app-modal-field { display: flex; flex-direction: column; gap: 6px; font-size: 0.8rem; font-weight: 800; color: var(--text-sub); }
     .app-modal-field input,
     .app-modal-field select {
@@ -1081,7 +1137,7 @@ body.stage-upload.has-upload-image .image-toolbox {
       margin-left: 12px;
       background: rgba(42, 43, 60, 0.95);
       backdrop-filter: blur(12px);
-      border: 2px solid var(--border-dark);
+      border: 2px solid rgba(255, 51, 68, 0.72);
       border-radius: 16px;
       padding: 16px 18px 24px;
       transition: width 0.3125s ease, padding 0.3125s ease, margin 0.3125s ease, opacity 0.25s ease;
@@ -1094,7 +1150,18 @@ body.stage-upload.has-upload-image .image-toolbox {
       height: 520px;
       max-height: 520px;
       min-height: 0;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 0 10px rgba(255, 51, 68, 0.42), 0 0 18px rgba(255, 51, 68, 0.2), 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+    @media (min-width: 769px) {
+      body.stage-edit .sidebar:not(.collapsed),
+      body.stage-bead .sidebar:not(.collapsed) {
+        position: sticky;
+        top: calc(var(--top-nav-h) + var(--sub-nav-h) + 8px);
+        z-index: 90;
+        align-self: flex-start;
+        height: auto;
+        max-height: calc(100dvh - var(--top-nav-h) - var(--sub-nav-h) - 16px);
+      }
     }
 
     .sidebar.collapsed {
@@ -1177,8 +1244,69 @@ body.stage-upload.has-upload-image .image-toolbox {
     .section-divider { border: none; border-top: 1px dashed var(--border-dark); margin: 8px 0; }
     .section-heading { font-size: 0.85rem; font-weight: 900; color: var(--highlight-active); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
     .form-group { margin-bottom: 10px; }
+    #lockRegionColorBtn {
+      width: 100%;
+      justify-content: center;
+      margin-top: 8px;
+    }
+    #lockRegionColorBtn.is-on {
+      background: var(--title-red);
+      color: #fff;
+      border-color: #fff;
+    }
+    .lock-color-hint {
+      margin: 6px 0 0;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #ffe600;
+      line-height: 1.35;
+    }
     label { display: block; font-weight: 700; font-size: 0.82rem; margin-bottom: 5px; color: var(--text-sub); }
     input[type="file"], input[type="range"], select { width: 100%; accent-color: var(--title-red); }
+    .range-step-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+    }
+    .range-step-row input[type="range"] {
+      flex: 1;
+      min-width: 0;
+      width: auto;
+    }
+    .range-step-btn {
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #313244;
+      border: 1.5px solid var(--border-dark);
+      border-radius: 6px;
+      color: var(--highlight-active);
+      font-size: 0.7rem;
+      font-weight: 900;
+      line-height: 1;
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 1px 1px 0 #1e1e2e;
+    }
+    .range-step-btn:hover:not(:disabled) {
+      border-color: var(--title-red);
+      color: #fff;
+      background: #45475a;
+    }
+    .range-step-btn:active:not(:disabled) { transform: translateY(1px); }
+    .range-step-btn:disabled { opacity: 0.35; cursor: default; box-shadow: none; }
+    .wand-tolerance-menu .range-step-btn,
+    .brush-size-pop .range-step-btn {
+      width: 22px;
+      height: 22px;
+      font-size: 0.6rem;
+    }
+    .brush-size-pop .range-step-row { width: auto; flex: 1; min-width: 0; }
     select { background: #1e1e2e; color: var(--text-main); border: 1.5px solid var(--border-dark); border-radius: 8px; padding: 8px 10px; font-weight: 700; font-size: 0.82rem; cursor: pointer; }
     .range-val { font-size: 0.8rem; color: var(--highlight-active); float: right; font-weight: 900; font-family: 'Silkscreen', monospace; }
     .range-size-chips {
@@ -1216,6 +1344,9 @@ body.stage-upload.has-upload-image .image-toolbox {
       border: 1.5px solid var(--border-dark);
       border-radius: 12px;
       background: #232433;
+      position: relative;
+      z-index: 3;
+      touch-action: manipulation;
     }
     .switch-copy { min-width: 0; }
     .switch-title { font-size: 0.9rem; font-weight: 900; color: var(--text-main); line-height: 1.2; cursor: pointer; display: block; margin-bottom: 0; }
@@ -1349,6 +1480,65 @@ body.stage-upload.has-upload-image .image-toolbox {
     #editViewHeader #patternDimensions { flex-shrink: 0; white-space: nowrap; }
     #editViewHeader .floating-zoom-row { flex-wrap: nowrap; }
     #editViewHeader .grid-guide-dock { align-self: center; }
+    #editViewHeader .edit-header-tools {
+      height: 38px;
+      min-height: 38px;
+      max-height: 38px;
+      flex-wrap: nowrap;
+      align-items: center;
+    }
+    #editViewHeader .edit-header-zoom-slot {
+      height: 38px;
+      max-height: 38px;
+      align-items: center;
+      overflow: hidden;
+    }
+    #editViewHeader .floating-zoom-bar,
+    #editViewHeader .floating-zoom-bar.is-over-content,
+    #editViewHeader .floating-zoom-bar.is-over-content:hover,
+    #editViewHeader .floating-zoom-bar.is-over-content:not(:hover) {
+      height: 38px !important;
+      min-height: 38px !important;
+      max-height: 38px !important;
+      padding: 0 10px !important;
+      gap: 6px;
+      box-sizing: border-box;
+      align-items: center;
+      overflow: hidden;
+    }
+    #editViewHeader .floating-zoom-bar .zoom-icon-btn {
+      width: 28px;
+      height: 28px;
+      min-height: 28px;
+    }
+    #editViewHeader .floating-zoom-bar .zoom-btn {
+      height: 28px;
+      min-height: 28px;
+      max-height: 28px;
+      padding-top: 0;
+      padding-bottom: 0;
+      box-sizing: border-box;
+      line-height: 1;
+    }
+    #editViewHeader .floating-zoom-bar .bar-btn-label { display: none; }
+    #editViewHeader .floating-zoom-bar .zoom-level-text {
+      font-size: 0.72rem;
+      min-width: 36px;
+      line-height: 1;
+    }
+    #editViewHeader .floating-zoom-bar input[type="range"] {
+      height: 18px;
+      width: 84px;
+    }
+    #editViewHeader .floating-zoom-peek {
+      width: 28px;
+      height: 28px;
+    }
+    #editViewHeader .grid-guide-capsule {
+      height: 38px;
+      max-height: 38px;
+      box-sizing: border-box;
+    }
     #editViewHeader .floating-zoom-bar,
     #editViewHeader .global-history-bar {
       position: static;
@@ -1372,30 +1562,8 @@ body.stage-upload.has-upload-image .image-toolbox {
       margin: 0 0 12px;
       z-index: 50;
     }
-    body.stage-upload .upload-tools-row {
+    body.stage-upload.has-upload-image .upload-tools-row {
       display: flex;
-    }
-    body.stage-upload:not(.has-upload-image) .upload-toolbar-slot {
-      display: none;
-    }
-    .upload-load-btn {
-      background: var(--highlight-active);
-      color: #11111b;
-      border: 1px solid #ffffff;
-      border-radius: 6px;
-      padding: 6px 12px;
-      font-size: 0.8rem;
-      font-weight: 800;
-      cursor: pointer;
-      flex-shrink: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      box-shadow: none;
-    }
-    .upload-load-btn:hover {
-      background: #fff46a;
     }
     .upload-toolbar-slot {
       display: flex;
@@ -1444,6 +1612,31 @@ body.stage-upload.has-upload-image .image-toolbox {
       color: #fff;
       border-color: #fff;
     }
+    .split-tile-row .zoom-btn.is-preview {
+      background: #45475a;
+      border-color: #ffe600;
+      color: #ffe600;
+      box-shadow: 0 0 10px rgba(255, 230, 0, 0.45);
+    }
+    .split-tile-hint {
+      position: absolute;
+      z-index: 46;
+      left: 8px;
+      top: 8px;
+      max-width: calc(100% - 16px);
+      background: rgba(17, 17, 27, 0.94);
+      color: #ffe600;
+      border: 2px solid #ffe600;
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      line-height: 1.35;
+      text-align: center;
+      pointer-events: none;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+    }
+    .split-tile-hint[hidden] { display: none !important; }
     .split-size-label {
       font-size: 0.78rem;
       font-weight: 800;
@@ -1475,6 +1668,53 @@ body.stage-upload.has-upload-image .image-toolbox {
     .split-tile-row { max-height: 140px; overflow-y: auto; }
     body.stage-bead #splitPatternBtn { display: inline-flex; }
     #splitPatternBtn { display: none; }
+    #splitPatternBtn.zoom-btn {
+      border: 2px solid #fff;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 18px rgba(255, 230, 0, 0.4);
+    }
+    .edit-action-pill {
+      display: inline-flex;
+      align-items: stretch;
+      height: 38px;
+      border-radius: 999px;
+      overflow: visible;
+      flex-shrink: 0;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+    }
+    .edit-action-pill .zoom-btn {
+      height: 38px;
+      min-height: 38px;
+      box-sizing: border-box;
+    }
+    .edit-action-pill #floatingSidebarTrigger.zoom-btn,
+    .edit-action-pill #floatingSidebarTrigger.zoom-btn.highlight,
+    .edit-action-pill #floatingSidebarTrigger.zoom-btn:hover {
+      position: relative;
+      z-index: 2;
+      border: 2px solid var(--title-red);
+      border-radius: 999px 0 0 999px;
+      background: transparent;
+      color: #fff;
+      box-shadow: 0 0 12px rgba(255, 51, 68, 0.85);
+    }
+    .edit-action-pill #floatingSidebarTrigger.zoom-btn.pattern-editor-trigger.is-open {
+      background: rgba(255, 51, 68, 0.12);
+      box-shadow: 0 0 14px rgba(255, 51, 68, 0.95);
+    }
+    .edit-action-pill #saveLibraryBtn.zoom-btn,
+    .edit-action-pill #saveLibraryBtn.zoom-btn.highlight,
+    .edit-action-pill #saveLibraryBtn.zoom-btn:hover {
+      position: relative;
+      z-index: 1;
+      border: 2px solid #fff;
+      border-left: none;
+      border-radius: 0 999px 999px 0;
+      background: transparent;
+      color: #fff;
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
+    }
     body.stage-bead #saveLibraryBtn { display: none; }
     .zoom-toolbar { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
     .zoom-btn { background: #313244; border: 1px solid var(--border-dark); border-radius: 6px; padding: 5px 9px; font-size: 0.78rem; font-weight: 700; cursor: pointer; color: var(--text-main); transition: 0.15s; display: inline-flex; align-items: center; gap: 4px; user-select: none; }
@@ -1489,7 +1729,7 @@ body.stage-upload.has-upload-image .image-toolbox {
     .zoom-btn:disabled { opacity: 0.4; cursor: default; box-shadow: none; }
     .zoom-btn.highlight { background: #45475a; border-color: var(--highlight-active); color: var(--highlight-active); }
     .zoom-btn.active-edit { background: var(--title-red); border-color: #fff; color: #FFFFFF; box-shadow: 0 0 10px rgba(255, 51, 68, 0.6); }
-    .zoom-btn.pattern-editor-trigger.is-open { background: var(--title-red); border-color: #fff; color: #fff; box-shadow: 0 0 10px rgba(255, 51, 68, 0.6); }
+    .zoom-btn.pattern-editor-trigger.is-open { color: #fff; }
     .zoom-btn.active-compare { background: #9c27b0; border-color: #ffffff; color: #ffffff; box-shadow: 0 0 10px rgba(156, 39, 176, 0.7); }
     .zoom-btn.active-pipette { background: var(--accent-blue); border-color: #ffffff; color: #ffffff; box-shadow: 0 0 10px rgba(0, 136, 255, 0.7); }
     .zoom-level-text { font-size: 0.78rem; font-weight: 700; color: var(--highlight-active); min-width: 42px; text-align: center; font-family: 'Silkscreen', monospace; }
@@ -1518,6 +1758,23 @@ body.stage-upload.has-upload-image .image-toolbox {
       border-radius: 0;
     }
     .edit-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; position: relative; }
+    .edit-status-slot {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+    .edit-status-slot:empty { display: none; }
+    .edit-status-slot .anchor-mini-bar {
+      position: relative;
+      left: auto !important;
+      top: auto !important;
+      z-index: 8;
+      cursor: default;
+      touch-action: manipulation;
+    }
+    .edit-status-slot .anchor-mini-bar-handle { display: none; }
     .pattern-size-toolbox {
       position: relative;
       display: inline-flex;
@@ -1657,6 +1914,134 @@ body.stage-upload.has-upload-image .image-toolbox {
       transform: none;
     }
 
+    .paper-bg-picker {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .paper-bg-trigger {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #313244;
+      border: 1.5px solid var(--border-dark);
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-weight: 800;
+      font-size: 0.8rem;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+    .paper-bg-trigger:hover { border-color: var(--title-red); }
+    .paper-bg-caret { font-size: 0.75rem; color: var(--text-sub); }
+    .paper-bg-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      min-width: 100%;
+      background: #1e1e2e;
+      border: 2px solid var(--border-dark);
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      z-index: 160;
+      padding: 6px;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .paper-bg-picker.is-open .paper-bg-menu { display: flex; }
+    .paper-bg-menu button {
+      background: #313244;
+      border: 1.5px solid transparent;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-weight: 800;
+      font-size: 0.8rem;
+      color: var(--text-main);
+      cursor: pointer;
+      text-align: left;
+    }
+    .paper-bg-menu button:hover,
+    .paper-bg-menu button.is-on {
+      border-color: var(--title-red);
+    }
+    .paper-bg-menu button.is-on {
+      background: rgba(255, 51, 68, 0.16);
+    }
+    #uploadPaperBgPicker { display: none; }
+    body.stage-upload #uploadPaperBgPicker { display: inline-flex; }
+    body.stage-upload #uploadPaperBgPicker .paper-bg-trigger {
+      height: 32px;
+      white-space: nowrap;
+    }
+    body.paper-bg-light { --upload-empty-bg: #e8e4d8; }
+    body.paper-bg-mid { --upload-empty-bg: #6c7086; }
+    body.paper-bg-dark { --upload-empty-bg: #1e1e2e; }
+    body.paper-bg-light #origPlaceholder { color: #45475a; }
+    body.paper-bg-mid #origPlaceholder { color: #e8e4d8; }
+    .upload-hourglass {
+      display: none;
+      position: absolute;
+      inset: 0;
+      z-index: 46;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 14px;
+      background: rgba(17, 17, 27, 0.72);
+      pointer-events: none;
+    }
+    .upload-hourglass.is-on { display: flex; }
+    .px-hg-wrap {
+      width: 64px;
+      height: 64px;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      animation: px-hg-flip 1.8s steps(1, end) infinite;
+    }
+    .px-hg {
+      width: 64px;
+      height: 64px;
+      display: block;
+      overflow: visible;
+    }
+    .px-hg-top {
+      transform-box: fill-box;
+      transform-origin: center bottom;
+      animation: px-hg-drain 0.9s steps(4, end) infinite;
+    }
+    .px-hg-bot {
+      transform-box: fill-box;
+      transform-origin: center top;
+      animation: px-hg-fill 0.9s steps(4, end) infinite;
+    }
+    .px-hg-stream {
+      animation: px-hg-blink 0.22s steps(2, end) infinite;
+    }
+    .px-hg-caption {
+      font-family: 'Silkscreen', 'Press Start 2P', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      color: var(--highlight-active);
+      text-shadow: 2px 2px 0 #11111b;
+    }
+    @keyframes px-hg-drain {
+      0% { opacity: 1; transform: scaleY(1); }
+      100% { opacity: 0.25; transform: scaleY(0.18); }
+    }
+    @keyframes px-hg-fill {
+      0% { opacity: 0.25; transform: scaleY(0.18); }
+      100% { opacity: 1; transform: scaleY(1); }
+    }
+    @keyframes px-hg-flip {
+      0%, 49% { transform: rotate(0deg); }
+      50%, 100% { transform: rotate(180deg); }
+    }
+    @keyframes px-hg-blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
     .custom-palette-picker { position: relative; display: inline-block; }
     .palette-trigger-btn { display: flex; align-items: center; gap: 6px; background: #313244; border: 1.5px solid var(--border-dark); border-radius: 8px; padding: 5px 10px; font-weight: 800; font-size: 0.8rem; color: var(--text-main); cursor: pointer; transition: 0.15s; }
     .palette-trigger-btn:hover { border-color: var(--title-red); }
@@ -1771,6 +2156,19 @@ body.stage-upload.has-upload-image .image-toolbox {
       pointer-events: auto;
     }
     body.has-upload-image .orig-upload-hit { display: none; }
+    #imageInput.visually-hidden-file {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
     .poly-confirm-bar {
       display: none;
       position: absolute;
@@ -1855,11 +2253,25 @@ body.stage-upload.has-upload-image .image-toolbox {
       border-color: rgba(120, 255, 170, 0.85);
       color: #eafff2;
     }
+    .upload-load-btn {
+      box-sizing: border-box;
+      background: #ffe600;
+      color: #11111b;
+      border-color: #ffffff;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    .upload-load-btn:hover {
+      background: #fff46a;
+      border-color: #ffffff;
+      color: #11111b;
+    }
     .orig-viewport {
       min-height: 420px;
       max-height: 70vh;
       height: auto;
-      background: #181825;
+      background-color: var(--upload-empty-bg, #1e1e2e);
       border-radius: 12px;
       border: 2px dashed var(--border-dark);
       overflow: auto;
@@ -1882,6 +2294,11 @@ body.stage-upload.has-upload-image .image-toolbox {
       display: block;
       padding: 0;
       text-align: left;
+      cursor: pointer;
+    }
+    body.has-upload-image #origZoomFrame,
+    body.has-upload-image #originalImg,
+    body.has-upload-image #cropOverlayCanvas {
       cursor: default;
     }
     .orig-zoom-sizer {
@@ -2066,7 +2483,7 @@ body.stage-upload.has-upload-image .image-toolbox {
       z-index: 32;
     }
 
-    .grid-frozen-container { position: relative; height: 520px; background: #181825; border-radius: 12px; border: 1px solid var(--border-dark); overflow: hidden; touch-action: pan-x pan-y; }
+    .grid-frozen-container { position: relative; height: 520px; background: var(--pattern-paper); border-radius: 12px; border: 1px solid var(--border-dark); overflow: hidden; touch-action: pan-x pan-y; }
     .frozen-corner { position: absolute; top: 0; left: 0; width: var(--header-size); height: var(--header-size); background: #1e1e2e; border-right: 2px solid var(--border-dark); border-bottom: 2px solid var(--border-dark); z-index: 30; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 900; color: var(--text-sub); font-family: 'Silkscreen', monospace; }
     .frozen-top-wrapper { position: absolute; top: 0; left: var(--header-size); right: 0; height: var(--header-size); overflow: hidden; background: #1e1e2e; border-bottom: 2px solid var(--border-dark); z-index: 20; }
     .frozen-left-wrapper { position: absolute; top: var(--header-size); left: 0; bottom: 0; width: var(--header-size); overflow: hidden; background: #1e1e2e; border-right: 2px solid var(--border-dark); z-index: 20; }
@@ -2076,7 +2493,7 @@ body.stage-upload.has-upload-image .image-toolbox {
       height: 100%;
       image-rendering: auto;
     }
-    .frozen-main-scroll { position: absolute; top: var(--header-size); left: var(--header-size); right: 0; bottom: 0; overflow: auto; background: #181825; -webkit-overflow-scrolling: touch; z-index: 10; }
+    .frozen-main-scroll { position: absolute; top: var(--header-size); left: var(--header-size); right: 0; bottom: 0; overflow: auto; background: var(--pattern-paper); -webkit-overflow-scrolling: touch; z-index: 10; }
     .axis-hover-badge {
       position: absolute;
       z-index: 40;
@@ -2271,10 +2688,17 @@ body.stage-upload.has-upload-image .image-toolbox {
     }
     .bead-fs-exit {
       display: none;
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      z-index: 80;
+      width: 38px;
+      height: 38px;
+      min-width: 38px;
+      padding: 0;
+      align-items: center;
+      justify-content: center;
+    }
+    .bead-fs-exit svg {
+      width: 18px;
+      height: 18px;
+      display: block;
     }
     .grid-frozen-container:fullscreen,
     .grid-frozen-container:-webkit-full-screen,
@@ -2284,7 +2708,7 @@ body.stage-upload.has-upload-image .image-toolbox {
       height: 100dvh;
       border-radius: 0;
       border: none;
-      background: #181825;
+      background: var(--pattern-paper);
     }
     .grid-frozen-container.is-bead-fs {
       position: fixed;
@@ -2313,13 +2737,21 @@ body.stage-upload.has-upload-image .image-toolbox {
     }
     .palette-dropdown-menu.drop-up { top: auto; bottom: calc(100% + 6px); }
     .color-filter-btn-group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-    .all-colors-btn { background: #313244; border: 1.5px solid var(--border-dark); color: var(--text-main); border-radius: 8px; padding: 6px 14px; font-size: 0.8rem; font-weight: 900; cursor: pointer; transition: all 0.15s ease; height: 38px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
-    .all-colors-btn:hover { background: #45475a; color: #fff; }
-    .all-colors-btn.active { background: var(--title-red); color: #fff; border-color: #fff; box-shadow: 0 0 10px rgba(255, 51, 68, 0.6); }
+    .all-colors-btn { background: transparent; border: 1.5px solid var(--title-red); color: var(--title-red); border-radius: 999px; padding: 6px 14px; font-size: 0.8rem; font-weight: 900; cursor: pointer; transition: all 0.15s ease; height: 38px; display: inline-flex; align-items: center; justify-content: center; box-shadow: none; }
+    .all-colors-btn:hover { background: transparent; color: #ff6673; border-color: #ff6673; }
+    .all-colors-btn.active { background: transparent; color: var(--title-red); border-color: var(--title-red); box-shadow: none; }
     .color-filter-btn { width: 38px; height: 38px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.2); cursor: pointer; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.68rem; font-weight: 900; font-family: 'Silkscreen', monospace; transition: all 0.18s ease; position: relative; box-shadow: 0 2px 6px rgba(0,0,0,0.35); user-select: none; }
     .color-filter-btn:hover { transform: translateY(-2px) scale(1.08); border-color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
     .color-filter-btn.active { transform: translateY(-3px) scale(1.15); border-color: #ffffff; outline: 3px solid var(--highlight-active); box-shadow: 0 0 14px var(--highlight-active); z-index: 10; }
     .color-filter-btn.dimmed { opacity: 0.35; filter: grayscale(40%); }
+    @keyframes solo-color-flash {
+      0%, 100% { box-shadow: 0 2px 6px rgba(0,0,0,0.35); }
+      40% { box-shadow: 0 0 0 3px #ffe600, 0 0 16px rgba(255, 230, 0, 0.85); }
+    }
+    .color-filter-btn.is-flashing {
+      animation: solo-color-flash 0.28s ease 2;
+      z-index: 11;
+    }
 
     #virtualPointer {
       display: none;
@@ -2349,9 +2781,53 @@ body.stage-upload.has-upload-image .image-toolbox {
     #beadTooltip .tip-swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; border: 1px solid #fff; }
 
     .stats-card { margin-top: 14px; border-top: 2px dashed var(--border-dark); padding-top: 12px; }
-    .stats-title { font-size: 0.9rem; font-weight: 900; margin-bottom: 8px; color: var(--text-main); }
+    .stats-title { font-size: 0.9rem; font-weight: 900; margin-bottom: 8px; color: var(--text-main); display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .stats-title .color-list-actions { margin-top: 0; margin-left: auto; }
+    .stats-title-main {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0 2px;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+    .stats-total-metrics {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0 0.35em;
+      max-width: 100%;
+    }
+    .stats-metric { white-space: nowrap; }
+    .stats-metric #totalColors,
+    .stats-metric #totalBeads { color: var(--highlight-active); font-family: 'Silkscreen', monospace; }
     .color-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 6px; max-height: 200px; overflow-y: auto; padding-right: 4px; }
-    .color-item { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; border: 1px solid var(--border-dark); border-radius: 6px; padding: 5px 6px; background: #1e1e2e; }
+    .color-item, .color-item-btn { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; border: 1px solid var(--border-dark); border-radius: 6px; padding: 5px 6px; background: #1e1e2e; }
+    .color-item-btn { width: 100%; text-align: left; color: inherit; font: inherit; cursor: pointer; }
+    .color-item-btn.is-picked { border-color: var(--highlight-active); box-shadow: 0 0 0 1px var(--highlight-active); }
+    .color-check { width: 14px; height: 14px; flex-shrink: 0; accent-color: var(--highlight-active); }
+    .stats-title .color-list-actions { margin-top: 0; margin-left: auto; align-items: flex-start; }
+    .color-list-actions { display: flex; gap: 8px; margin-top: 8px; }
+    .color-merge-col {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+      min-width: 0;
+    }
+    .color-merge-targets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      max-width: min(220px, 46vw);
+    }
+    .color-merge-targets[hidden] { display: none !important; }
+    .color-merge-targets .color-merge-label {
+      width: 100%;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--text-sub);
+    }
     .color-swatch { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.2); flex-shrink: 0; }
     .empty-state { color: #6c7086; font-size: 0.85rem; font-weight: 700; text-align: center; padding: 40px; margin: auto; }
     #origPlaceholder {
@@ -2391,11 +2867,9 @@ body.stage-upload.has-upload-image .image-toolbox {
         align-items: stretch;
         gap: 8px;
       }
-      .upload-load-btn {
-        width: 100%;
-        padding: 10px 14px;
-        font-size: 0.88rem;
-        border-radius: 10px;
+      .poly-confirm-upload-btn:hover,
+      .upload-load-btn:hover {
+        transform: none;
       }
       .upload-toolbar-slot {
         flex: 1 1 100%;
@@ -2568,7 +3042,7 @@ body.stage-upload.has-upload-image .image-toolbox {
         <rect x="5" y="3" width="1" height="1" fill="#FFFFFF"/>
       </svg>
       染上拼豆之路
-      <span class="app-version" id="appVersion" title="網站版本">v177</span>
+      <span class="app-version" id="appVersion" title="網站版本">v208</span>
     </h1>
   </div>
 </header>
@@ -2604,10 +3078,9 @@ body.stage-upload.has-upload-image .image-toolbox {
             <span class="badge" id="origDimensions">尚未載入</span>
           </div>
         </div>
-        <input type="file" id="imageInput" accept="image/*,image/heic,image/heif,.heic,.heif" hidden />
+        <input type="file" id="imageInput" class="visually-hidden-file" accept="image/*,image/heic,image/heif,.heic,.heif" tabindex="-1" />
 
         <div class="upload-tools-row" id="uploadToolsRow">
-        <button type="button" class="upload-load-btn" id="uploadLoadBtn">載入圖片</button>
         <div class="image-toolbox" id="imageToolbox">
           <button type="button" class="image-toolbox-toggle" id="imageToolboxToggle">圖片裁剪工具</button>
           <div class="image-toolbox-menu" id="imageToolboxMenu">
@@ -2631,6 +3104,16 @@ body.stage-upload.has-upload-image .image-toolbox {
                   <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="8" rx="6.3" ry="4" fill="none" stroke="#ff6b9d" stroke-width="1.45" stroke-dasharray="2.2 1.7"/></svg>
                   橢圓形選取
                 </button>
+              </div>
+            </div>
+            <div class="wand-tool-wrap" id="brushCropWrap">
+              <button class="zoom-btn" id="brushCropBtn" onclick="setUploadTool('brush')">
+                <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="#ff6b9d" stroke-width="1.45" stroke-dasharray="2.1 1.6" d="M11.4 1.7 14.3 4.6 6.4 12.5 3.2 13.2l.7-3.2z"/><path fill="#ff6b9d" d="M11.5 3.4 12.6 4.5 5.9 11.2 4.8 10.1z"/></svg>
+                畫筆選取
+              </button>
+              <div class="wand-tolerance-menu" id="brushCropMenu" onclick="event.stopPropagation()">
+                <label>畫筆大小 <span id="uploadSelectBrushSizeVal">1</span></label>
+                <input type="range" id="uploadSelectBrushSize" min="1" max="9" value="1" />
               </div>
             </div>
             <button class="zoom-btn" id="polyCropBtn" onclick="setUploadTool('poly')">
@@ -2658,6 +3141,7 @@ body.stage-upload.has-upload-image .image-toolbox {
 
         <div class="orig-viewport-wrap">
           <div class="poly-confirm-bar" id="polyConfirmBar">
+            <label class="poly-confirm-upload-btn upload-load-btn" id="uploadLoadBtn" for="imageInput">載入圖片</label>
             <button type="button" class="poly-confirm-upload-btn" id="confirmUploadBtn" title="確認上傳" onclick="event.stopPropagation(); confirmUpload();">確認上傳</button>
             <div class="poly-confirm-row" id="polyConfirmRow">
               <button type="button" class="poly-confirm-btn ok" id="applyCropBtn" title="確認" onclick="event.stopPropagation(); applyCurrentSelection();">✓</button>
@@ -2696,8 +3180,33 @@ body.stage-upload.has-upload-image .image-toolbox {
             <div class="empty-state" id="origPlaceholder">
               “請將要上傳的圖片拖曳進來”<br>或“點我上傳”
             </div>
-          <div class="upload-hint-banner" id="uploadHintBanner" style="display: none;">💡 更換圖片請按上方「載入圖片」</div>
+          <div class="upload-hint-banner" id="uploadHintBanner" style="display: none;">💡 更換圖片請按「載入圖片」或點圖片外的空白處</div>
         </div>
+          <div class="upload-hourglass" id="uploadHourglass" hidden aria-live="polite" aria-hidden="true">
+            <div class="px-hg-wrap">
+              <svg class="px-hg" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+                <rect x="2" y="1" width="12" height="2" fill="#cdd6f4"/>
+                <rect x="2" y="13" width="12" height="2" fill="#cdd6f4"/>
+                <rect x="2" y="3" width="2" height="10" fill="#a6adc8"/>
+                <rect x="12" y="3" width="2" height="10" fill="#a6adc8"/>
+                <rect x="4" y="3" width="2" height="2" fill="#89b4fa"/>
+                <rect x="10" y="3" width="2" height="2" fill="#89b4fa"/>
+                <rect x="4" y="11" width="2" height="2" fill="#89b4fa"/>
+                <rect x="10" y="11" width="2" height="2" fill="#89b4fa"/>
+                <g class="px-hg-top">
+                  <rect x="5" y="3" width="6" height="2" fill="#f9e2af"/>
+                  <rect x="6" y="5" width="4" height="2" fill="#fab387"/>
+                  <rect x="7" y="7" width="2" height="1" fill="#ffe600"/>
+                </g>
+                <rect class="px-hg-stream" x="7" y="8" width="2" height="2" fill="#ffe600"/>
+                <g class="px-hg-bot">
+                  <rect x="7" y="10" width="2" height="1" fill="#f9e2af"/>
+                  <rect x="6" y="11" width="4" height="2" fill="#fab387"/>
+                </g>
+              </svg>
+            </div>
+            <span class="px-hg-caption">載入中</span>
+          </div>
         </div>
       </div>
     </div>
@@ -2763,11 +3272,10 @@ body.stage-upload.has-upload-image .image-toolbox {
             <span class="badge" id="patternDimensions">0 × 0 格 (0 × 0 cm)</span>
           </div>
           <div class="zoom-toolbar">
-            <button type="button" class="zoom-btn highlight pattern-editor-trigger" id="floatingSidebarTrigger" title="圖紙設定">
-              <span>⚙️</span>
-              <span>圖紙設定</span>
-            </button>
-            <button class="zoom-btn highlight" id="saveLibraryBtn" onclick="saveCurrentPatternToLibrary()">✔ 完成編輯</button>
+            <div class="edit-action-pill" role="group" aria-label="圖紙設定與完成編輯">
+              <button type="button" class="zoom-btn pattern-editor-trigger" id="floatingSidebarTrigger" title="圖紙設定">圖紙設定</button>
+              <button type="button" class="zoom-btn" id="saveLibraryBtn" onclick="saveCurrentPatternToLibrary()">✔ 完成編輯</button>
+            </div>
             <button class="zoom-btn highlight" type="button" id="splitPatternBtn">拆解圖紙</button>
           </div>
         </div>
@@ -2813,6 +3321,16 @@ body.stage-upload.has-upload-image .image-toolbox {
                       <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="8" rx="6.3" ry="4" fill="none" stroke="#ff6b9d" stroke-width="1.45" stroke-dasharray="2.2 1.7"/></svg>
                       橢圓形選取
                     </button>
+                  </div>
+                </div>
+                <div class="wand-tool-wrap" id="editBrushSelectWrap">
+                  <button class="zoom-btn" type="button" id="editBrushSelectBtn" onclick="setEditSelectTool('brush')">
+                    <svg class="tool-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="#ff6b9d" stroke-width="1.45" stroke-dasharray="2.1 1.6" d="M11.4 1.7 14.3 4.6 6.4 12.5 3.2 13.2l.7-3.2z"/><path fill="#ff6b9d" d="M11.5 3.4 12.6 4.5 5.9 11.2 4.8 10.1z"/></svg>
+                    畫筆選取
+                  </button>
+                  <div class="wand-tolerance-menu" id="editBrushSelectMenu" onclick="event.stopPropagation()">
+                    <label>畫筆大小 <span id="editSelectBrushSizeVal">1</span></label>
+                    <input type="range" id="editSelectBrushSize" min="1" max="9" value="1" />
                   </div>
                 </div>
                 <button class="zoom-btn" type="button" id="editPolySelectBtn" onclick="setEditSelectTool('poly')">
@@ -2891,6 +3409,18 @@ body.stage-upload.has-upload-image .image-toolbox {
               </button>
               <div class="palette-dropdown-menu" id="paletteDropdownMenu"></div>
             </div>
+            <div class="paper-bg-picker" id="paperBgPicker">
+              <button type="button" class="paper-bg-trigger" id="paperBgTrigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="paperBgMenu">
+                背景顏色
+                <span class="paper-bg-caret">▼</span>
+              </button>
+              <div class="paper-bg-menu" id="paperBgMenu" role="listbox">
+                <button type="button" role="option" data-paper-bg="light">淺</button>
+                <button type="button" role="option" data-paper-bg="mid">中</button>
+                <button type="button" role="option" data-paper-bg="dark" aria-selected="true">深</button>
+              </div>
+            </div>
+            <div class="edit-status-slot" id="editStatusSlot"></div>
           </div>
         </div>
 
@@ -2898,6 +3428,11 @@ body.stage-upload.has-upload-image .image-toolbox {
         <div class="edit-grid-row">
         <div class="grid-frozen-container" id="gridFrozenContainer">
           <div class="bead-fs-tools" id="beadFsTools">
+            <button type="button" class="zoom-btn highlight bead-fs-exit" id="beadFsExitBtn" hidden title="取消全屏" aria-label="取消全屏">
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" d="M6 2.2v3.8H2.2M10 2.2v3.8h3.8M6 13.8V10H2.2M10 13.8V10h3.8"/>
+              </svg>
+            </button>
             <div class="bead-fs-grid-slot" id="beadFsGridSlot"></div>
             <div class="bead-fs-color-dock" id="beadFsColorDock" hidden>
               <div class="bead-fs-color-capsule" role="button" tabindex="0" aria-label="圖紙色號" aria-expanded="false">
@@ -2913,8 +3448,8 @@ body.stage-upload.has-upload-image .image-toolbox {
               <div class="bead-fs-color-extras" id="beadFsPaletteItems"></div>
             </div>
           </div>
-          <button type="button" class="zoom-btn highlight bead-fs-exit" id="beadFsExitBtn" hidden>取消全屏</button>
           <div id="beadTooltip"></div>
+          <div class="split-tile-hint" id="splitTileHint" hidden>再點一次數字，進入此區塊</div>
           <div class="frozen-corner">XY</div>
           <div class="frozen-top-wrapper" id="topHeaderWrapper">
             <canvas id="topHeaderCanvas"></canvas>
@@ -2975,6 +3510,8 @@ body.stage-upload.has-upload-image .image-toolbox {
             <div class="form-group">
               <label>顏色數量 <span class="range-val" id="maxColorsVal">0 色</span></label>
               <input type="range" id="maxColors" min="0" max="291" value="0" />
+              <button type="button" class="zoom-btn" id="lockRegionColorBtn">固定區塊內顏色</button>
+              <p class="lock-color-hint" id="lockRegionColorHint" hidden></p>
             </div>
 
             <div class="form-group">
@@ -3043,7 +3580,16 @@ body.stage-upload.has-upload-image .image-toolbox {
             </details>
 
             <div class="stats-card" id="statsCard" style="display: none;">
-              <div class="stats-title">材料清單 (總計: <span id="totalBeads" style="color:var(--highlight-active); font-family:'Silkscreen';">0</span> 顆)</div>
+              <div class="stats-title">
+                <span class="stats-title-main">總計（<span class="stats-total-metrics"><span class="stats-metric"><span id="totalColors">0</span> 色</span><span class="stats-metric"><span id="totalBeads">0</span> 顆</span></span>）</span>
+                <div class="color-list-actions">
+                  <div class="color-merge-col">
+                    <button type="button" class="zoom-btn" id="colorListMergeBtn">合併</button>
+                    <div class="color-merge-targets" id="colorMergeTargets" hidden></div>
+                  </div>
+                  <button type="button" class="zoom-btn" id="colorListDeleteBtn">刪除</button>
+                </div>
+              </div>
               <div class="color-list" id="colorList"></div>
             </div>
           </div>
@@ -3091,7 +3637,59 @@ body.stage-upload.has-upload-image .image-toolbox {
       <div class="view-card">
         <div class="view-header">
           <div class="view-title">⭐ 圖紙收藏庫 <span class="library-title-hint">（點擊縮圖進入 拼豆模式）</span>
-            <button type="button" class="zoom-btn" id="beadStockBtn">拼豆顏色庫存</button>
+            <button type="button" class="zoom-btn bead-stock-btn" id="beadStockBtn">
+              <span class="bead-stock-icons" aria-hidden="true">
+                <svg class="pixel-bead-icon is-purple" viewBox="0 0 8 8" shape-rendering="crispEdges">
+                  <rect x="2" y="0" width="4" height="1" fill="currentColor"/>
+                  <rect x="1" y="1" width="6" height="1" fill="currentColor"/>
+                  <rect x="0" y="2" width="3" height="1" fill="currentColor"/>
+                  <rect x="5" y="2" width="3" height="1" fill="currentColor"/>
+                  <rect x="0" y="3" width="2" height="2" fill="currentColor"/>
+                  <rect x="6" y="3" width="2" height="2" fill="currentColor"/>
+                  <rect x="0" y="5" width="3" height="1" fill="currentColor"/>
+                  <rect x="5" y="5" width="3" height="1" fill="currentColor"/>
+                  <rect x="1" y="6" width="6" height="1" fill="currentColor"/>
+                  <rect x="2" y="7" width="4" height="1" fill="currentColor"/>
+                  <rect x="3" y="2" width="2" height="1" fill="#11111b"/>
+                  <rect x="2" y="3" width="4" height="2" fill="#11111b"/>
+                  <rect x="3" y="5" width="2" height="1" fill="#11111b"/>
+                  <rect x="2" y="2" width="1" height="1" fill="#c8b8d4"/>
+                </svg>
+                <svg class="pixel-bead-icon is-blue" viewBox="0 0 8 8" shape-rendering="crispEdges">
+                  <rect x="2" y="0" width="4" height="1" fill="currentColor"/>
+                  <rect x="1" y="1" width="6" height="1" fill="currentColor"/>
+                  <rect x="0" y="2" width="3" height="1" fill="currentColor"/>
+                  <rect x="5" y="2" width="3" height="1" fill="currentColor"/>
+                  <rect x="0" y="3" width="2" height="2" fill="currentColor"/>
+                  <rect x="6" y="3" width="2" height="2" fill="currentColor"/>
+                  <rect x="0" y="5" width="3" height="1" fill="currentColor"/>
+                  <rect x="5" y="5" width="3" height="1" fill="currentColor"/>
+                  <rect x="1" y="6" width="6" height="1" fill="currentColor"/>
+                  <rect x="2" y="7" width="4" height="1" fill="currentColor"/>
+                  <rect x="3" y="2" width="2" height="1" fill="#11111b"/>
+                  <rect x="2" y="3" width="4" height="2" fill="#11111b"/>
+                  <rect x="3" y="5" width="2" height="1" fill="#11111b"/>
+                  <rect x="2" y="2" width="1" height="1" fill="#b8cce0"/>
+                </svg>
+                <svg class="pixel-bead-icon is-green" viewBox="0 0 8 8" shape-rendering="crispEdges">
+                  <rect x="2" y="0" width="4" height="1" fill="currentColor"/>
+                  <rect x="1" y="1" width="6" height="1" fill="currentColor"/>
+                  <rect x="0" y="2" width="3" height="1" fill="currentColor"/>
+                  <rect x="5" y="2" width="3" height="1" fill="currentColor"/>
+                  <rect x="0" y="3" width="2" height="2" fill="currentColor"/>
+                  <rect x="6" y="3" width="2" height="2" fill="currentColor"/>
+                  <rect x="0" y="5" width="3" height="1" fill="currentColor"/>
+                  <rect x="5" y="5" width="3" height="1" fill="currentColor"/>
+                  <rect x="1" y="6" width="6" height="1" fill="currentColor"/>
+                  <rect x="2" y="7" width="4" height="1" fill="currentColor"/>
+                  <rect x="3" y="2" width="2" height="1" fill="#11111b"/>
+                  <rect x="2" y="3" width="4" height="2" fill="#11111b"/>
+                  <rect x="3" y="5" width="2" height="1" fill="#11111b"/>
+                  <rect x="2" y="2" width="1" height="1" fill="#b8d4bc"/>
+                </svg>
+              </span>
+              拼豆顏色庫存
+            </button>
           </div>
           <div class="library-header-actions">
             <button type="button" class="zoom-btn" id="libraryNewFolderBtn">＋ 新增資料夾</button>
@@ -3166,6 +3764,17 @@ body.stage-upload.has-upload-image .image-toolbox {
   </div>
   <div class="history-select-wrap" id="historySelectWrap">
   <div class="global-history-bar" id="globalHistoryBar">
+    <div class="paper-bg-picker" id="uploadPaperBgPicker">
+      <button type="button" class="paper-bg-trigger" id="uploadPaperBgTrigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="uploadPaperBgMenu">
+        背景顏色
+        <span class="paper-bg-caret">▼</span>
+      </button>
+      <div class="paper-bg-menu" id="uploadPaperBgMenu" role="listbox">
+        <button type="button" role="option" data-paper-bg="light">淺</button>
+        <button type="button" role="option" data-paper-bg="mid">中</button>
+        <button type="button" role="option" data-paper-bg="dark" aria-selected="true">深</button>
+      </div>
+    </div>
     <button class="zoom-btn" id="globalUndoBtn" onclick="handleGlobalUndo()" disabled title="上一步 (Ctrl+Z)">
       <span>↩</span><span class="bar-btn-label"> 上一步</span>
     </button>
@@ -3192,6 +3801,7 @@ body.stage-upload.has-upload-image .image-toolbox {
   <div class="app-modal-backdrop" id="appModalBackdrop"></div>
   <div class="app-modal-card" role="dialog" aria-modal="true">
     <h3 id="appModalTitle">儲存圖紙</h3>
+    <p class="app-modal-message" id="appModalMessage" hidden></p>
     <label class="app-modal-field" id="appModalNameField">
       <span id="appModalNameLabel">檔名</span>
       <input type="text" id="appModalNameInput" maxlength="60" autocomplete="off" />
@@ -3289,15 +3899,99 @@ body.stage-upload.has-upload-image .image-toolbox {
     const btn = document.getElementById("uploadLoadBtn");
     if (!btn || btn.dataset.bound === "1") return;
     btn.dataset.bound = "1";
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      openImageFilePicker();
-    });
+    const resetInput = () => {
+      const input = document.getElementById("imageInput");
+      if (input) input.value = "";
+    };
+    btn.addEventListener("pointerdown", resetInput);
+    btn.addEventListener("click", (e) => e.stopPropagation());
   }
   bindStageNavClicks();
   bindImageInput();
   bindUploadLoadBtn();
+
+  const EMPTY_CELL_COLORS = { light: "#e8e4d8", mid: "#6c7086", dark: "#1e1e2e" };
+  function paperBgMode() {
+    const mode = (document.body && document.body.dataset.paperBg) || "dark";
+    return (mode === "light" || mode === "mid") ? mode : "dark";
+  }
+  function emptyCellColor() {
+    return EMPTY_CELL_COLORS[paperBgMode()] || EMPTY_CELL_COLORS.dark;
+  }
+  function emptyCellRgb() {
+    const hex = emptyCellColor().slice(1);
+    const n = parseInt(hex, 16);
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+  }
+  function patternPaperColor() {
+    return "#181825";
+  }
+  function setPaperBgMenuOpen(pickerEl, open) {
+    document.querySelectorAll(".paper-bg-picker").forEach((p) => {
+      const isOpen = !!(open && p === pickerEl);
+      p.classList.toggle("is-open", isOpen);
+      const t = p.querySelector(".paper-bg-trigger");
+      if (t) t.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+  }
+  function applyPaperBg(mode, opts) {
+    const next = (mode === "light" || mode === "mid") ? mode : "dark";
+    document.body.dataset.paperBg = next;
+    document.body.classList.remove("paper-bg-light", "paper-bg-mid", "paper-bg-dark");
+    document.body.classList.add("paper-bg-" + next);
+    const emptyHex = EMPTY_CELL_COLORS[next];
+    document.body.style.setProperty("--upload-empty-bg", emptyHex);
+    const origVp = document.getElementById("origViewport");
+    if (origVp) origVp.style.backgroundColor = emptyHex;
+    document.querySelectorAll(".paper-bg-menu [data-paper-bg]").forEach((btn) => {
+      const on = btn.dataset.paperBg === next;
+      btn.classList.toggle("is-on", on);
+      btn.setAttribute("aria-selected", on ? "true" : "false");
+    });
+    if (!opts || opts.save !== false) {
+      try { localStorage.setItem("beadPaperBg", next); } catch (_) {}
+    }
+    if (opts && opts.skipRender) return;
+    try {
+      if (typeof patternGridData !== "undefined" && patternGridData && patternGridData.length) {
+        if (typeof renderBasePattern === "function") renderBasePattern();
+        if (typeof renderInteractionLayer === "function") renderInteractionLayer();
+      }
+    } catch (_) {}
+  }
+  function bindPaperBgSelect() {
+    let stored = "dark";
+    try { stored = localStorage.getItem("beadPaperBg") || "dark"; } catch (_) {}
+    applyPaperBg(stored, { skipRender: true, save: false });
+    document.querySelectorAll(".paper-bg-picker").forEach((picker) => {
+      if (picker.dataset.bound === "1") return;
+      picker.dataset.bound = "1";
+      const trigger = picker.querySelector(".paper-bg-trigger");
+      const menu = picker.querySelector(".paper-bg-menu");
+      if (!trigger || !menu) return;
+      trigger.addEventListener("click", (e) => {
+        e.stopPropagation();
+        setPaperBgMenuOpen(picker, !picker.classList.contains("is-open"));
+      });
+      menu.querySelectorAll("[data-paper-bg]").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          applyPaperBg(btn.dataset.paperBg);
+          setPaperBgMenuOpen(picker, false);
+        });
+      });
+    });
+    if (!document.documentElement.dataset.paperBgDocBound) {
+      document.documentElement.dataset.paperBgDocBound = "1";
+      document.addEventListener("pointerdown", (e) => {
+        document.querySelectorAll(".paper-bg-picker.is-open").forEach((picker) => {
+          if (picker.contains(e.target)) return;
+          setPaperBgMenuOpen(picker, false);
+        });
+      });
+    }
+  }
+  bindPaperBgSelect();
 
   function isMobileView() { return window.innerWidth <= 768; }
 
@@ -3311,11 +4005,9 @@ body.stage-upload.has-upload-image .image-toolbox {
   function openSidebar(pin = false) {
     if (!isPatternStage()) return;
     sidebar.classList.remove("collapsed");
-    if (pin) {
-      editorPanelPinned = true;
-      floatingSidebarTrigger.classList.add("is-open");
-      cancelEditorPanelClose();
-    }
+    editorPanelPinned = true;
+    if (floatingSidebarTrigger) floatingSidebarTrigger.classList.add("is-open");
+    cancelEditorPanelClose();
   }
 
   function closeSidebar() {
@@ -3350,24 +4042,11 @@ body.stage-upload.has-upload-image .image-toolbox {
   }
 
   if (floatingSidebarTrigger) {
-    floatingSidebarTrigger.addEventListener("mouseenter", () => {
-      cancelEditorPanelClose();
-      openSidebar(false);
-    });
-    floatingSidebarTrigger.addEventListener("mouseleave", scheduleEditorPanelClose);
     floatingSidebarTrigger.addEventListener("click", (e) => {
       e.preventDefault();
-      if (editorPanelPinned && !sidebar.classList.contains("collapsed")) {
-        closeSidebar();
-      } else {
-        openSidebar(true);
-      }
+      if (!sidebar.classList.contains("collapsed")) closeSidebar();
+      else openSidebar(true);
     });
-  }
-  if (sidebarOverlay) sidebarOverlay.addEventListener("click", closeSidebar);
-  if (sidebar) {
-    sidebar.addEventListener("mouseenter", cancelEditorPanelClose);
-    sidebar.addEventListener("mouseleave", scheduleEditorPanelClose);
   }
 
   window.addEventListener("resize", () => {
@@ -3644,12 +4323,24 @@ body.stage-upload.has-upload-image .image-toolbox {
     if (stage !== "library") {
       libraryPickMode = null;
       if (typeof libraryPickedIds !== "undefined" && libraryPickedIds) libraryPickedIds.clear();
+      if (typeof libraryPickedFolderIds !== "undefined" && libraryPickedFolderIds) libraryPickedFolderIds.clear();
       if (typeof syncLibraryHeaderActions === "function") syncLibraryHeaderActions();
     }
     if (stage === "library") {
       if (typeof renderLibraryGrid === "function") renderLibraryGrid();
     } else if (stage === "upload") {
       if (typeof updateMinimap === "function") updateMinimap();
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (currentStage !== "upload") return;
+          const vp = document.getElementById("origViewport");
+          if (vp && vp.clientWidth >= 40 && vp.clientHeight >= 40) {
+            if (origZoom <= MIN_VIEW_ZOOM + 0.005 && lastGoodOrigZoom > 0.05) setOrigZoom(lastGoodOrigZoom);
+            else if (typeof setOrigZoom === "function") setOrigZoom(origZoom > 0.05 ? origZoom : lastGoodOrigZoom);
+          }
+          if (typeof syncFloatingZoomBar === "function") syncFloatingZoomBar();
+        });
+      });
     } else if (isPatternStage(stage)) {
       if (stage === "bead" && typeof clearSelection === "function") clearSelection();
       requestAnimationFrame(() => {
@@ -3673,6 +4364,7 @@ body.stage-upload.has-upload-image .image-toolbox {
     if (typeof syncSelectMiniBar === "function") syncSelectMiniBar();
     if (typeof syncFloatingDockFrost === "function") requestAnimationFrame(syncFloatingDockFrost);
     if (typeof restoreVirtualPointerIfCompact === "function") restoreVirtualPointerIfCompact();
+    if (typeof syncAutoDetectEnabled === "function") syncAutoDetectEnabled();
     } catch (_) {}
   }
 
@@ -3767,6 +4459,29 @@ body.stage-upload.has-upload-image .image-toolbox {
   function labDist2(a, b) {
     const dL = a.L - b.L, da = a.a - b.a, db = a.b - b.b;
     return dL * dL + da * da + db * db;
+  }
+
+  function colorFamilyKey(bead) {
+    if (!bead) return "x";
+    if (isDarkInkBead(bead)) return "ink";
+    if (isHighlightBead(bead)) return "hi";
+    const rgb = parseCssRgb(bead.hex);
+    if (!rgb) return "x";
+    const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+    if (hsl.s < 0.16) {
+      if (hsl.l < 0.22) return "ink";
+      if (hsl.l > 0.84) return "hi";
+      return "gray";
+    }
+    const h = hsl.h;
+    if (h >= 345 || h < 18) return "red";
+    if (h < 45) return "orange";
+    if (h < 78) return "yellow";
+    if (h < 155) return "green";
+    if (h < 200) return "cyan";
+    if (h < 255) return "blue";
+    if (h < 305) return "purple";
+    return "pink";
   }
 
   function parseCssRgb(color) {
@@ -4205,6 +4920,8 @@ function updateGlobalHistoryButtons() {
   let baseCellSize = 24;
   let canvasZoom = 1.0;
   let origZoom = 1.0;
+  let lastGoodOrigZoom = 1.0;
+  let ignoreZoomSlider = false;
   const MIN_VIEW_ZOOM = 0.01;
   const MAX_VIEW_ZOOM = 4.0;
   let hoveredCell = null;
@@ -4224,7 +4941,14 @@ function updateGlobalHistoryButtons() {
 
   let isEditMode = true, isPipetteMode = false, isCompareMode = false;
   let highlightedColorCode = null;
+  let colorFlashCode = null;
+  let colorFlashOn = false;
+  let colorFlashTimer = 0;
+  let colorOutlineCode = null;
   let selectedCells = new Set();
+  let colorLockedCells = new Set();
+  let colorListPickMode = false;
+  let colorListPicked = new Set();
   let editSelectParts = [];
   let editScalePartIndex = -1;
   let hoverEditPartIndex = -1;
@@ -4240,8 +4964,11 @@ function updateGlobalHistoryButtons() {
   let selectMiniBarDrag = null;
   let editPaintTool = "none";
   let editBrushSize = 1;
+  let editSelectBrushSize = 1;
   let isPainting = false;
+  let isSelectBrushing = false;
   let paintStrokeDirty = false;
+  let selectBrushDirty = false;
   let editPolyPoints = [];
   let editPolyHover = null;
   let isPolyHandleDrag = false;
@@ -4251,6 +4978,9 @@ function updateGlobalHistoryButtons() {
   let editPolyRedo = [];
   let editPolyClosedUndo = null;
   let uploadTool = "none";
+  let uploadSelectBrushSize = 1;
+  let isUploadBrushing = false;
+  let uploadBrushLive = null;
   let polyPoints = [];
   let polyPolygons = [];
   let polyPointRedo = [];
@@ -4281,6 +5011,8 @@ function updateGlobalHistoryButtons() {
   let scalePreviewBounds = null;
   let processDebounceTimer = null;
   let autoDetectActive = false;
+  let autoDetectSliderBackup = null;
+  let maxColorsAutoFit = true;
 
   const MAX_HISTORY = 30;
   let historyStack = [];
@@ -4298,6 +5030,11 @@ function updateGlobalHistoryButtons() {
   let splitTiles = [];
   let activeSplitKey = "full";
   let activeSplitSize = 0;
+  let splitPreviewId = 0;
+  let splitFlashTile = null;
+  let splitFlashAlpha = 0;
+  let splitFlashTimer = 0;
+  let splitHintTimer = 0;
 
   function ensureFullPatternBackup() {
     if (!fullPatternBackup && patternGridData.length) {
@@ -4315,6 +5052,9 @@ function updateGlobalHistoryButtons() {
     if (wrap) wrap.classList.remove("is-open");
     if (bar) bar.innerHTML = "";
     document.querySelectorAll("#splitSizeRow [data-split-size]").forEach((b) => b.classList.remove("is-on"));
+    splitPreviewId = 0;
+    stopSplitTileFlash();
+    hideSplitTileHint();
   }
   function clearActiveSplit() {
     if (fullPatternBackup) {
@@ -4329,6 +5069,9 @@ function updateGlobalHistoryButtons() {
     document.querySelectorAll("#splitSizeRow [data-split-size]").forEach((b) => b.classList.remove("is-on"));
     setGridGuideVisible(false);
     document.getElementById("gridGuideDock")?.classList.remove("is-open");
+    splitPreviewId = 0;
+    stopSplitTileFlash();
+    hideSplitTileHint();
   }
   function extractSubgrid(grid, x0, y0, w, h) {
     const out = [];
@@ -4353,6 +5096,89 @@ function updateGlobalHistoryButtons() {
     renderInteractionLayer();
     updateMinimap();
   }
+  function syncSplitTileButtonStyles() {
+    document.querySelectorAll("#splitTileBar .zoom-btn").forEach((b) => {
+      const key = b.dataset.splitTile;
+      b.classList.toggle("is-on", key === String(activeSplitKey));
+      b.classList.toggle("is-preview", key !== "full" && Number(key) === splitPreviewId && activeSplitKey === "full");
+    });
+  }
+  function hideSplitTileHint() {
+    clearTimeout(splitHintTimer);
+    const hint = document.getElementById("splitTileHint");
+    if (hint) hint.hidden = true;
+  }
+  function stopSplitTileFlash() {
+    clearTimeout(splitFlashTimer);
+    splitFlashTile = null;
+    splitFlashAlpha = 0;
+    try { if (typeof renderInteractionLayer === "function") renderInteractionLayer(); } catch (_) {}
+  }
+  function drawSplitTileFlash(ctx, tile, cell, alpha) {
+    if (!tile || alpha <= 0) return;
+    const posX = Math.round(tile.x * cell);
+    const posY = Math.round(tile.y * cell);
+    const w = Math.round((tile.x + tile.w) * cell) - posX;
+    const h = Math.round((tile.y + tile.h) * cell) - posY;
+    ctx.save();
+    ctx.fillStyle = `rgba(255, 230, 0, ${0.3 * alpha})`;
+    ctx.fillRect(posX, posY, w, h);
+    ctx.strokeStyle = `rgba(255, 230, 0, ${0.95 * alpha})`;
+    ctx.lineWidth = Math.max(3, Math.round(cell * 0.22));
+    ctx.strokeRect(posX + 1.5, posY + 1.5, Math.max(1, w - 3), Math.max(1, h - 3));
+    ctx.restore();
+  }
+  function positionSplitTileHint(tile) {
+    const hint = document.getElementById("splitTileHint");
+    const host = document.getElementById("gridFrozenContainer");
+    const canvas = interactionCanvas;
+    if (!hint || !host || !canvas || !currentCols || !currentRows) return;
+    hint.hidden = false;
+    hint.textContent = `區塊 ${tile.id}：再點一次數字，進入此區塊`;
+    const cr = canvas.getBoundingClientRect();
+    const hr = host.getBoundingClientRect();
+    const hw = hint.offsetWidth || 220;
+    const hh = hint.offsetHeight || 36;
+    const left = cr.left + ((tile.x + tile.w / 2) / currentCols) * cr.width;
+    const top = cr.top + ((tile.y + tile.h / 2) / currentRows) * cr.height;
+    let x = left - hr.left - hw / 2;
+    let y = top - hr.top - hh - 12;
+    x = Math.max(8, Math.min(hr.width - hw - 8, x));
+    y = Math.max(8, Math.min(hr.height - hh - 8, y));
+    hint.style.left = `${Math.round(x)}px`;
+    hint.style.top = `${Math.round(y)}px`;
+  }
+  function showSplitTileHint(tile) {
+    hideSplitTileHint();
+    positionSplitTileHint(tile);
+    splitHintTimer = setTimeout(() => hideSplitTileHint(), 2600);
+  }
+  function flashSplitTile(tile) {
+    clearTimeout(splitFlashTimer);
+    splitFlashTile = tile;
+    const pulses = [1, 0, 1, 0];
+    let i = 0;
+    const step = () => {
+      if (!splitFlashTile) return;
+      if (i >= pulses.length) {
+        splitFlashAlpha = 0;
+        splitFlashTile = null;
+        if (typeof renderInteractionLayer === "function") renderInteractionLayer();
+        return;
+      }
+      splitFlashAlpha = pulses[i];
+      i += 1;
+      if (typeof renderInteractionLayer === "function") renderInteractionLayer();
+      splitFlashTimer = setTimeout(step, splitFlashAlpha ? 200 : 140);
+    };
+    step();
+  }
+  function fitSplitView() {
+    try {
+      if (typeof fitCanvasToWindow === "function") fitCanvasToWindow();
+      if (typeof centerPatternInView === "function") centerPatternInView();
+    } catch (_) {}
+  }
   function showSplitTile(key) {
     const src = ensureFullPatternBackup();
     if (!src) return;
@@ -4364,11 +5190,36 @@ function updateGlobalHistoryButtons() {
       if (!tile) return;
       applyVisiblePatternGrid(extractSubgrid(src.grid, tile.x, tile.y, tile.w, tile.h), tile.w, tile.h);
       activeSplitKey = key;
+      splitPreviewId = 0;
+      hideSplitTileHint();
+      stopSplitTileFlash();
     }
-    document.querySelectorAll("#splitTileBar .zoom-btn").forEach((b) => {
-      b.classList.toggle("is-on", b.dataset.splitTile === String(key));
-    });
+    syncSplitTileButtonStyles();
     applySplitGuideOnFullView();
+    fitSplitView();
+  }
+  function previewOrEnterSplitTile(id) {
+    const tile = splitTiles.find((t) => t.id === id);
+    if (!tile) return;
+    if (activeSplitKey === id) return;
+    if (activeSplitKey === "full" && splitPreviewId === id) {
+      showSplitTile(id);
+      return;
+    }
+    const afterFull = () => {
+      splitPreviewId = id;
+      syncSplitTileButtonStyles();
+      requestAnimationFrame(() => {
+        flashSplitTile(tile);
+        showSplitTileHint(tile);
+      });
+    };
+    if (activeSplitKey !== "full") {
+      showSplitTile("full");
+      requestAnimationFrame(() => requestAnimationFrame(afterFull));
+      return;
+    }
+    afterFull();
   }
   function renderSplitTileButtons(size) {
     const bar = document.getElementById("splitTileBar");
@@ -4376,10 +5227,15 @@ function updateGlobalHistoryButtons() {
     bar.innerHTML = "";
     const fullBtn = document.createElement("button");
     fullBtn.type = "button";
-    fullBtn.className = "zoom-btn is-on";
+    fullBtn.className = "zoom-btn";
     fullBtn.dataset.splitTile = "full";
     fullBtn.textContent = "完整圖紙";
-    fullBtn.onclick = () => showSplitTile("full");
+    fullBtn.onclick = () => {
+      splitPreviewId = 0;
+      hideSplitTileHint();
+      stopSplitTileFlash();
+      showSplitTile("full");
+    };
     bar.appendChild(fullBtn);
     splitTiles.forEach((t) => {
       const btn = document.createElement("button");
@@ -4388,13 +5244,14 @@ function updateGlobalHistoryButtons() {
       btn.dataset.splitTile = String(t.id);
       btn.textContent = String(t.id);
       btn.title = `${t.w}×${t.h} 格（${t.x + 1},${t.y + 1}）`;
-      btn.onclick = () => showSplitTile(t.id);
+      btn.onclick = () => previewOrEnterSplitTile(t.id);
       bar.appendChild(btn);
     });
     const note = document.createElement("span");
     note.className = "badge";
     note.textContent = `${size}×${size} ・ ${splitTiles.length} 張`;
     bar.appendChild(note);
+    syncSplitTileButtonStyles();
   }
   function splitPatternBySize(n) {
     n = Math.max(10, Math.min(600, parseInt(n, 10) || 0));
@@ -4430,10 +5287,21 @@ function updateGlobalHistoryButtons() {
       b.classList.toggle("is-on", Number(b.dataset.splitSize) === n);
     });
     renderSplitTileButtons(n);
+    splitPreviewId = 0;
+    hideSplitTileHint();
+    stopSplitTileFlash();
     showSplitTile("full");
   }
   document.getElementById("splitPatternBtn")?.addEventListener("click", () => {
-    document.getElementById("splitPatternWrap")?.classList.toggle("is-open");
+    const wrap = document.getElementById("splitPatternWrap");
+    if (!wrap) return;
+    wrap.classList.toggle("is-open");
+    if (wrap.classList.contains("is-open") && splitTiles.length) {
+      splitPreviewId = 0;
+      hideSplitTileHint();
+      stopSplitTileFlash();
+      showSplitTile("full");
+    }
   });
   document.getElementById("splitSizeRow")?.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-split-size]");
@@ -4489,8 +5357,16 @@ function updateGlobalHistoryButtons() {
       gridSize: String(baseCellSize || 24),
       showLabels: !!document.getElementById("beadShowCodes")?.checked,
       maxColors: document.getElementById("maxColors").value,
+      maxColorsAutoFit,
       autoDetectActive
     };
+  }
+
+  function syncAutoDetectEnabled() {
+    const btn = document.getElementById("autoDetectBtn");
+    if (!btn) return;
+    const ready = !!(currentImage && (currentImage.naturalWidth || currentImage.width));
+    btn.disabled = !ready;
   }
 
   function setAutoDetectActive(on) {
@@ -4542,7 +5418,10 @@ function updateGlobalHistoryButtons() {
       document.getElementById("maxColors").value = s.maxColors;
       syncMaxColorsVal();
     }
+    if (s.maxColorsAutoFit != null) maxColorsAutoFit = !!s.maxColorsAutoFit;
+    else maxColorsAutoFit = !(parseInt(s.maxColors, 10) || 0);
     setAutoDetectActive(!!s.autoDetectActive);
+    if (typeof syncRangeStepButtons === "function") syncRangeStepButtons();
   }
 
   function pushHistoryState(actionTitle) {
@@ -5514,16 +6393,15 @@ function updateHistoryButtons() {
     const slider = document.getElementById("maxColors");
     if (!slider) return;
     const used = currentUniqueColorCount();
-    const n = parseInt(slider.value, 10) || 0;
-    if (used > 0 && !n) {
-      const cap = Math.max(291, used);
-      slider.max = String(cap);
-      slider.value = String(used);
+    if (used > 0) {
+      slider.max = String(Math.max(parseInt(slider.max, 10) || 291, used, 291));
+      if (maxColorsAutoFit) slider.value = String(used);
     }
     syncMaxColorsVal();
   }
 
   function readMaxColorLimit() {
+    if (maxColorsAutoFit) return null;
     const n = parseInt(document.getElementById("maxColors").value, 10);
     if (!n || n < 1) return null;
     return Math.min(291, n);
@@ -5546,29 +6424,87 @@ function updateHistoryButtons() {
       }
     }
     if (unique.length <= maxN) return grid;
-    unique.sort((a, b) => counts[b] - counts[a]);
-    const keep = [];
-    for (const code of unique) {
-      if (protectedCodes.has(code)) keep.push(code);
-    }
-    for (const code of unique) {
-      if (keep.length >= maxN && keep.length >= protectedCodes.size) break;
-      if (!keep.includes(code)) keep.push(code);
-    }
-    const map = {};
-    for (const code of unique) {
-      if (keep.includes(code)) {
-        map[code] = BEAD_BY_CODE[code];
-        continue;
-      }
+    const total = totalBeadCount(counts);
+    const remaining = new Set(unique);
+    const remap = {};
+    unique.forEach((code) => { remap[code] = code; });
+
+    function nearestOther(code, pool) {
       const src = BEAD_BY_CODE[code];
-      let best = keep[0], bestD = Infinity;
-      for (const c of keep) {
+      let best = null, bestD = Infinity;
+      pool.forEach((c) => {
+        if (c === code) return;
         const d = labDist2(src.lab, BEAD_BY_CODE[c].lab);
         if (d < bestD) { bestD = d; best = c; }
-      }
-      map[code] = BEAD_BY_CODE[best];
+      });
+      return { code: best, dist: bestD };
     }
+
+    function familyOf(code) {
+      return colorFamilyKey(BEAD_BY_CODE[code]);
+    }
+
+    function familyShare(fam) {
+      let n = 0;
+      remaining.forEach((c) => {
+        if (familyOf(c) === fam) n += counts[c] || 0;
+      });
+      return total ? n / total : 0;
+    }
+
+    function familyMembers(fam) {
+      let n = 0;
+      remaining.forEach((c) => {
+        if (familyOf(c) === fam) n++;
+      });
+      return n;
+    }
+
+    const allowWipeLargeFamily = maxN <= 8;
+
+    while (remaining.size > maxN) {
+      let victim = null, victimCost = Infinity, victimTarget = null;
+      remaining.forEach((code) => {
+        const fam = familyOf(code);
+        const share = familyShare(fam);
+        const same = [];
+        remaining.forEach((c) => {
+          if (c !== code && familyOf(c) === fam) same.push(c);
+        });
+        const lastOfLarge = share >= 0.08 && familyMembers(fam) <= 1;
+        if (lastOfLarge && !allowWipeLargeFamily) return;
+        const pool = same.length ? new Set(same) : remaining;
+        const near = nearestOther(code, pool);
+        if (!near.code) return;
+        const cross = !same.length;
+        if (cross && share >= 0.08 && !allowWipeLargeFamily) return;
+        const accent = protectedCodes.has(code) || isDarkInkBead(BEAD_BY_CODE[code]) || isHighlightBead(BEAD_BY_CODE[code]);
+        const cost = near.dist * Math.sqrt((counts[code] || 0) + 1) * (cross ? 20 : 1) * (accent ? 30 : 1);
+        if (cost < victimCost) {
+          victimCost = cost;
+          victim = code;
+          victimTarget = near.code;
+        }
+      });
+      if (!victim || !victimTarget) break;
+      remaining.delete(victim);
+      remap[victim] = victimTarget;
+      counts[victimTarget] += counts[victim];
+      counts[victim] = 0;
+    }
+    Object.keys(remap).forEach((code) => {
+      let dest = remap[code];
+      const seen = new Set();
+      while (remap[dest] && remap[dest] !== dest && !seen.has(dest)) {
+        seen.add(dest);
+        dest = remap[dest];
+      }
+      remap[code] = dest;
+    });
+    const map = {};
+    unique.forEach((code) => {
+      map[code] = BEAD_BY_CODE[remap[code]] || BEAD_BY_CODE[code];
+    });
     return grid.map((row, y) => row.map((cell, x) => {
       if (!cell || !map[cell.code]) return cell;
       if (protectMask && protectMask[y * cols + x]) return cell;
@@ -6267,8 +7203,76 @@ function updateHistoryButtons() {
     }));
   }
 
+  function snapshotColorLockedBeads() {
+    const map = new Map();
+    colorLockedCells.forEach((key) => {
+      const [x, y] = String(key).split(",").map(Number);
+      if (!Number.isInteger(x) || !Number.isInteger(y)) return;
+      map.set(`${x},${y}`, patternGridData[y]?.[x] || null);
+    });
+    return map;
+  }
+
+  function restoreColorLockedBeads(map) {
+    if (!map || !map.size) return;
+    map.forEach((bead, key) => {
+      const [x, y] = String(key).split(",").map(Number);
+      if (!Number.isInteger(x) || !Number.isInteger(y)) return;
+      if (x < 0 || y < 0 || x >= currentCols || y >= currentRows) return;
+      if (!patternGridData[y]) return;
+      patternGridData[y][x] = bead;
+    });
+  }
+
+  function syncLockRegionColorBtn() {
+    const btn = document.getElementById("lockRegionColorBtn");
+    if (!btn) return;
+    const n = colorLockedCells.size;
+    btn.classList.toggle("is-on", n > 0);
+    btn.textContent = n > 0 ? "解除固定" : "固定區塊內顏色";
+  }
+
+  function clearColorLocks() {
+    colorLockedCells.clear();
+    syncLockRegionColorBtn();
+  }
+
+  function isColorLockedAt(x, y) {
+    return colorLockedCells.has(`${x},${y}`);
+  }
+
+  function showLockRegionColorHint(msg) {
+    const el = document.getElementById("lockRegionColorHint");
+    if (!el) return;
+    el.hidden = false;
+    el.textContent = msg;
+    clearTimeout(showLockRegionColorHint._t);
+    showLockRegionColorHint._t = setTimeout(() => { el.hidden = true; }, 2800);
+  }
+
+  function lockRegionColorsFromSelection() {
+    if (colorLockedCells.size) {
+      clearColorLocks();
+      clearSelection();
+      showLockRegionColorHint("已解除固定並取消選區。");
+      return;
+    }
+    if (!selectedCells.size) {
+      showLockRegionColorHint("請用選取工具畫出選取範圍，範圍內不會因為手動編輯改動顏色。");
+      return;
+    }
+    selectedCells.forEach((k) => colorLockedCells.add(k));
+    syncLockRegionColorBtn();
+    renderInteractionLayer();
+    syncSelectMiniBar();
+    showLockRegionColorHint("請用選取工具畫出選取範圍，範圍內不會因為手動編輯改動顏色。");
+  }
+
   function processImageCore(isInitial = false, actionName = "濾鏡調整") {
     if (!currentImage) return;
+    const resetLocks = isInitial && /載入圖片|確認上傳|還原上傳步驟|還原原圖/.test(actionName);
+    const lockedBeads = resetLocks ? new Map() : snapshotColorLockedBeads();
+    if (resetLocks) clearColorLocks();
 
     currentCols = parseInt(document.getElementById("beadWidth").value, 10);
     baseCellSize = baseCellSize || 24;
@@ -6346,7 +7350,14 @@ function updateHistoryButtons() {
     }
 
     if (cleanNoise) {
-      patternGridData = applyDenoiseFilter(patternGridData, currentCols, currentRows);
+      const protect = new Uint8Array(currentCols * currentRows);
+      for (let y = 0; y < currentRows; y++) {
+        for (let x = 0; x < currentCols; x++) {
+          const bead = patternGridData[y]?.[x];
+          if (isDarkInkBead(bead) || isHighlightBead(bead)) protect[y * currentCols + x] = 1;
+        }
+      }
+      patternGridData = applyDenoiseFilter(patternGridData, currentCols, currentRows, protect);
     }
     if (autoDetectActive) {
       if (maxColors) patternGridData = limitGridToMaxColors(patternGridData, currentCols, currentRows, maxColors);
@@ -6354,11 +7365,26 @@ function updateHistoryButtons() {
     } else if (maxColors) {
       patternGridData = limitGridToMaxColors(patternGridData, currentCols, currentRows, maxColors);
     }
+    restoreColorLockedBeads(lockedBeads);
 
     applySuggestedEditZoom();
 
     pushHistoryState(actionName);
-    clearSelection();
+    if (colorLockedCells.size) {
+      const keep = new Set();
+      selectedCells.forEach((key) => {
+        const [x, y] = String(key).split(",").map(Number);
+        if (Number.isInteger(x) && Number.isInteger(y) && x >= 0 && y >= 0 && x < currentCols && y < currentRows) {
+          keep.add(`${x},${y}`);
+        }
+      });
+      selectedCells = keep;
+      if (typeof rebuildPartsFromCells === "function") rebuildPartsFromCells();
+      updateSelectCount();
+      if (typeof syncSelectMiniBar === "function") syncSelectMiniBar();
+    } else {
+      clearSelection();
+    }
     recalculateStats();
     resizeCanvases();
     renderBasePattern();
@@ -6387,6 +7413,37 @@ function updateHistoryButtons() {
     snapMaxColorsSliderToUsed();
   }
 
+  function flashSoloColor(code) {
+    clearTimeout(colorFlashTimer);
+    colorFlashCode = code || null;
+    colorOutlineCode = code || null;
+    colorFlashOn = false;
+    document.querySelectorAll(".color-filter-btn").forEach((btn) => {
+      btn.classList.toggle("is-flashing", !!(code && btn.textContent === code));
+    });
+    if (!code) {
+      colorFlashCode = null;
+      if (typeof renderBasePattern === "function") renderBasePattern();
+      return;
+    }
+    const pulses = [1, 0, 1, 0];
+    let i = 0;
+    const step = () => {
+      if (colorFlashCode !== code) return;
+      if (i >= pulses.length) {
+        colorFlashOn = false;
+        colorFlashCode = null;
+        if (typeof renderBasePattern === "function") renderBasePattern();
+        return;
+      }
+      colorFlashOn = !!pulses[i];
+      i += 1;
+      if (typeof renderBasePattern === "function") renderBasePattern();
+      colorFlashTimer = setTimeout(step, colorFlashOn ? 180 : 120);
+    };
+    step();
+  }
+
   function filterByColor(code) {
     closePaletteDropdowns();
     if (code && highlightedColorCode === code) {
@@ -6408,6 +7465,8 @@ function updateHistoryButtons() {
     recalculateStats();
     renderBasePattern();
     renderInteractionLayer();
+    if (highlightedColorCode) flashSoloColor(highlightedColorCode);
+    else flashSoloColor(null);
   }
 
   function syncBeadFsColorDock(counts, codes, makeFilterBtn) {
@@ -6426,7 +7485,7 @@ function updateHistoryButtons() {
     const allBtn = document.createElement("button");
     allBtn.type = "button";
     allBtn.className = highlightedColorCode === null ? "all-colors-btn active" : "all-colors-btn";
-    allBtn.textContent = "全部";
+    allBtn.textContent = `全部${codes.length}色`;
     allBtn.onclick = () => filterByColor(null);
     extras.appendChild(allBtn);
     if (makeFilterBtn) {
@@ -6457,6 +7516,7 @@ function updateHistoryButtons() {
     colorFilterCard.style.display = "flex";
     paletteFilterItems.innerHTML = "";
     allColorsBtn.className = (highlightedColorCode === null) ? "all-colors-btn active" : "all-colors-btn";
+    allColorsBtn.textContent = `全部${codes.length}色`;
 
     const makeFilterBtn = (code) => {
       const bead = BEAD_PALETTE.find(b => b.code === code);
@@ -6613,7 +7673,7 @@ function updateHistoryButtons() {
     const showLabels = shouldShowBeadCodes();
 
     ctxPattern.globalAlpha = 1;
-    ctxPattern.fillStyle = "#181825";
+    ctxPattern.fillStyle = emptyCellColor();
     ctxPattern.fillRect(0, 0, totalW, totalH);
 
     for (let y = 0; y < currentRows; y++) {
@@ -6629,6 +7689,15 @@ function updateHistoryButtons() {
             ctxPattern.fillStyle = bead.hex;
             ctxPattern.fillRect(posX, posY, curCellW, curCellH);
 
+            if (colorFlashOn && colorFlashCode && bead.code === colorFlashCode) {
+              ctxPattern.fillStyle = "rgba(255, 230, 0, 0.55)";
+              ctxPattern.fillRect(posX, posY, curCellW, curCellH);
+            }
+            if (colorOutlineCode && bead.code === colorOutlineCode) {
+              ctxPattern.strokeStyle = "rgba(255, 230, 0, 0.95)";
+              ctxPattern.lineWidth = Math.max(1, Math.min(1.5, cell * 0.06));
+              ctxPattern.strokeRect(posX + 0.5, posY + 0.5, Math.max(0, curCellW - 1), Math.max(0, curCellH - 1));
+            }
             if (showLabels && cell >= 14) {
               ctxPattern.fillStyle = (bead.lab.L > 55) ? "rgba(0,0,0,0.85)" : "rgba(255,255,255,0.95)";
               ctxPattern.font = `bold ${Math.max(8, Math.floor(cell * 0.36))}px monospace`;
@@ -6644,8 +7713,8 @@ function updateHistoryButtons() {
             ctxPattern.globalAlpha = 1.0;
           }
         } else {
-          ctxPattern.fillStyle = "#1e1e2e";
-          ctxPattern.fillRect(posX + 1, posY + 1, curCellW - 2, curCellH - 2);
+          ctxPattern.fillStyle = emptyCellColor();
+          ctxPattern.fillRect(posX, posY, curCellW, curCellH);
         }
       }
     }
@@ -6756,7 +7825,8 @@ function updateHistoryButtons() {
 
     const img = minimapCtx.createImageData(w, h);
     const data = img.data;
-    const bgR = 24, bgG = 24, bgB = 37;
+    const emptyRgb = emptyCellRgb();
+    const bgR = emptyRgb.r, bgG = emptyRgb.g, bgB = emptyRgb.b;
     for (let py = 0; py < h; py++) {
       const row = Math.min(currentRows - 1, Math.floor(py * currentRows / h));
       for (let px = 0; px < w; px++) {
@@ -6988,9 +8058,15 @@ function updateHistoryButtons() {
     if (!editSelectParts.length && selectedCells.size) rebuildPartsFromCells();
   }
 
+  function cellsInEditMarquee(c1, r1, c2, r2) {
+    const empty = new Set();
+    if (editSelectTool === "circle") return selectCellsInEllipse(c1, r1, c2, r2, empty, false, true);
+    if (editSelectTool === "ellipse") return selectCellsInEllipse(c1, r1, c2, r2, empty, false, false);
+    return selectCellsInRoundRect(c1, r1, c2, r2, empty, false, editRoundRadiusPct);
+  }
+
   function liveEditSelectParts() {
     if (isMouseDown && isMarqueeSelectTool() && dragStartCell) {
-      const snap = selectionSnapshot;
       if (isDeselecting) {
         return editSelectParts.map((p) => {
           const n = new Set();
@@ -6998,8 +8074,8 @@ function updateHistoryButtons() {
           return n;
         }).filter((p) => p.size);
       }
-      const added = new Set();
-      selectedCells.forEach((k) => { if (!snap.has(k)) added.add(k); });
+      const end = hoveredCell || dragStartCell;
+      const added = cellsInEditMarquee(dragStartCell.col, dragStartCell.row, end.col, end.row);
       const parts = editSelectParts.map((p) => new Set(p));
       if (added.size) parts.push(added);
       else if (!parts.length && selectedCells.size) parts.push(new Set(selectedCells));
@@ -7009,7 +8085,7 @@ function updateHistoryButtons() {
     return editSelectParts.length ? editSelectParts : (selectedCells.size ? [selectedCells] : []);
   }
 
-  function commitMarqueeParts(snap, deselecting) {
+  function commitMarqueeParts(snap, deselecting, startCell, endCell) {
     if (deselecting) {
       editSelectParts = editSelectParts.map((p) => {
         const n = new Set();
@@ -7017,12 +8093,17 @@ function updateHistoryButtons() {
         return n;
       }).filter((p) => p.size);
     } else {
-      const added = new Set();
-      selectedCells.forEach((k) => { if (!snap.has(k)) added.add(k); });
+      let added = new Set();
+      if (startCell && endCell) {
+        added = cellsInEditMarquee(startCell.col, startCell.row, endCell.col, endCell.row);
+      } else {
+        selectedCells.forEach((k) => { if (!snap.has(k)) added.add(k); });
+      }
       if (added.size) editSelectParts.push(added);
       else if (!editSelectParts.length && selectedCells.size) {
         editSelectParts = [new Set(selectedCells)];
       }
+      if (editSelectParts.length) hoverEditPartIndex = editSelectParts.length - 1;
     }
     syncSelectedFromParts();
   }
@@ -7264,11 +8345,12 @@ function updateHistoryButtons() {
         ctxInteract.restore();
       }
       const drawingMarquee = isMouseDown && isMarqueeSelectTool() && !isScalingSelection && !isMovingMarquee;
-      if (canScaleSelection() && !isMovingSelection && !isMovingMarquee && !drawingMarquee) {
-        const multi = parts.length > 1;
+      const drawingBrushSelect = isSelectBrushing && editSelectTool === "brush";
+      const scaleHandlesNeedHover = parts.length > 1 || editSelectTool === "brush";
+      if (canScaleSelection() && !isMovingSelection && !isMovingMarquee && !drawingMarquee && !drawingBrushSelect) {
         parts.forEach((part, i) => {
           if (isScalingSelection && i !== editScalePartIndex) return;
-          if (!isScalingSelection && multi && i !== hoverEditPartIndex) return;
+          if (!isScalingSelection && scaleHandlesNeedHover && i !== hoverEditPartIndex) return;
           const box = (isScalingSelection && i === editScalePartIndex && scalePreviewBounds)
             ? scalePreviewBounds
             : boundsOfCells(part);
@@ -7345,8 +8427,8 @@ function updateHistoryButtons() {
     }
 
     if (hoveredCell && hoveredCell.col < currentCols && hoveredCell.row < currentRows) {
-      if (editPaintTool === "pencil" || editPaintTool === "eraser") {
-        const size = Math.max(1, editBrushSize | 0);
+      if (editPaintTool === "pencil" || editPaintTool === "eraser" || editSelectTool === "brush") {
+        const size = Math.max(1, ((editSelectTool === "brush" ? editSelectBrushSize : editBrushSize) | 0));
         const half = Math.floor((size - 1) / 2);
         const x0 = hoveredCell.col - half;
         const y0 = hoveredCell.row - half;
@@ -7354,9 +8436,10 @@ function updateHistoryButtons() {
         const posY = Math.round(y0 * cell);
         const posX2 = Math.round((x0 + size) * cell);
         const posY2 = Math.round((y0 + size) * cell);
-        ctxInteract.fillStyle = "rgba(255, 51, 68, 0.22)";
+        const isSelBrush = editSelectTool === "brush";
+        ctxInteract.fillStyle = isSelBrush ? "rgba(255, 107, 157, 0.22)" : "rgba(255, 51, 68, 0.22)";
         ctxInteract.fillRect(posX, posY, posX2 - posX, posY2 - posY);
-        ctxInteract.strokeStyle = "#ff3344";
+        ctxInteract.strokeStyle = isSelBrush ? "#ff6b9d" : "#ff3344";
         ctxInteract.lineWidth = 2;
         ctxInteract.setLineDash([4, 3]);
         ctxInteract.strokeRect(posX + 1, posY + 1, posX2 - posX - 2, posY2 - posY - 2);
@@ -7373,6 +8456,9 @@ function updateHistoryButtons() {
         ctxInteract.lineWidth = Math.max(2, Math.floor(cell * 0.12));
         ctxInteract.strokeRect(hX + 1, hY + 1, hW - 2, hH - 2);
       }
+    }
+    if (splitFlashTile && splitFlashAlpha > 0 && activeSplitKey === "full") {
+      drawSplitTileFlash(ctxInteract, splitFlashTile, cell, splitFlashAlpha);
     }
     syncAnchorMiniBar();
     syncSelectMiniBar();
@@ -7512,7 +8598,7 @@ function updateHistoryButtons() {
 
   function renderCompareCanvas() {
     if (!isCompareMode || !currentImage || currentCols === 0) return;
-    ctxCompare.fillStyle = "#181825";
+    ctxCompare.fillStyle = patternPaperColor();
     ctxCompare.fillRect(0, 0, compareCanvas.width, compareCanvas.height);
     ctxCompare.imageSmoothingQuality = "high";
     ctxCompare.drawImage(currentImage, 0, 0, compareCanvas.width, compareCanvas.height);
@@ -7564,6 +8650,7 @@ function updateHistoryButtons() {
     if (editSelectTool === "rect") return "editRectSelectBtn";
     if (editSelectTool === "circle") return "editCircleSelectBtn";
     if (editSelectTool === "ellipse") return "editEllipseSelectBtn";
+    if (editSelectTool === "brush") return "editBrushSelectBtn";
     if (editSelectTool === "wand") return "editWandSelectBtn";
     if (editSelectTool === "poly") return "editPolySelectBtn";
     if (editSelectTool === "movecopy") return "editMoveCopySelectBtn";
@@ -7651,6 +8738,7 @@ function updateHistoryButtons() {
     if (selectedCells.size === 0) { alert("請先在圖紙上選取拼豆！"); return false; }
     selectedCells.forEach(key => {
       const [x, y] = key.split(",").map(Number);
+      if (isColorLockedAt(x, y)) return;
       patternGridData[y][x] = currentSelectedBead;
     });
     if (highlightedColorCode && currentSelectedBead) highlightedColorCode = currentSelectedBead.code;
@@ -7911,13 +8999,13 @@ function updateHistoryButtons() {
     const parts = liveEditSelectParts();
     if (!parts.length) return null;
     const ignoreHover = opts && opts.ignoreHover;
-    const multi = parts.length > 1 && !isScalingSelection && !ignoreHover;
+    const needHover = (parts.length > 1 || editSelectTool === "brush") && !isScalingSelection && !ignoreHover;
     const rect = interactionCanvas.getBoundingClientRect();
     const { clientX, clientY } = clientPointFromEvent(e, { show: false });
     const cssX = clientX - rect.left, cssY = clientY - rect.top;
     const cellCss = rect.width > 0 ? rect.width / currentCols : 1;
     for (let pi = parts.length - 1; pi >= 0; pi--) {
-      if (multi && pi !== hoverEditPartIndex) continue;
+      if (needHover && pi !== hoverEditPartIndex) continue;
       const bounds = boundsOfCells(parts[pi]);
       if (!bounds) continue;
       const hitR = selectionHandleHitSize(cellCss, bounds);
@@ -7936,8 +9024,9 @@ function updateHistoryButtons() {
     ensureEditSelectParts();
     const parts = liveEditSelectParts();
     let next = -1;
-    if (parts.length === 1) next = 0;
-    else if (parts.length > 1) {
+    const hoverGated = parts.length > 1 || editSelectTool === "brush";
+    if (parts.length === 1 && !hoverGated) next = 0;
+    else if (parts.length >= 1 && hoverGated) {
       const { col, row } = getCanvasCoordsFromEvent(e);
       if (col >= 0 && row >= 0 && col < currentCols && row < currentRows) {
         const key = `${col},${row}`;
@@ -8062,8 +9151,34 @@ function updateHistoryButtons() {
     }
   }
 
+  function forEachSelectBrushCell(col, row, fn) {
+    const size = Math.max(1, editSelectBrushSize | 0);
+    const half = Math.floor((size - 1) / 2);
+    for (let dy = 0; dy < size; dy++) {
+      for (let dx = 0; dx < size; dx++) {
+        const x = col + dx - half;
+        const y = row + dy - half;
+        if (x < 0 || y < 0 || x >= currentCols || y >= currentRows) continue;
+        fn(x, y);
+      }
+    }
+  }
+
+  function paintSelectBrushAt(col, row) {
+    const subtract = selectBoolMode === "subtract";
+    forEachSelectBrushCell(col, row, (x, y) => {
+      const key = `${x},${y}`;
+      if (subtract) selectedCells.delete(key);
+      else selectedCells.add(key);
+    });
+    selectBrushDirty = true;
+    updateSelectCount();
+    renderInteractionLayer();
+  }
+
   function paintBrushAt(col, row) {
     forEachBrushCell(col, row, (x, y) => {
+      if (isColorLockedAt(x, y)) return;
       patternGridData[y][x] = editPaintTool === "eraser" ? null : currentSelectedBead;
     });
     paintStrokeDirty = true;
@@ -8644,36 +9759,39 @@ function updateHistoryButtons() {
   }
 
   function isDockedSelectMiniBar(bar) {
-    return !!(bar && bar.closest && bar.closest("#compactSelectSlot"));
+    return !!(bar && bar.closest && (bar.closest("#compactSelectSlot") || bar.closest("#editStatusSlot")));
   }
 
   function placeSelectMiniBarsForUi() {
     try {
     const slot = document.getElementById("compactSelectSlot");
+    const editSlot = document.getElementById("editStatusSlot");
     const uploadBar = document.getElementById("uploadSelectMiniBar");
     const selectBar = document.getElementById("selectMiniBar");
+    const anchorBar = document.getElementById("anchorMiniBar");
     const uploadHome = document.querySelector(".orig-viewport-wrap");
-    const selectHome = document.getElementById("gridFrozenContainer");
     const compact = isCoarseUi();
     document.body.classList.toggle("is-compact-ui", compact);
+    if (selectBar && editSlot) {
+      selectBar.style.left = "";
+      selectBar.style.top = "";
+      if (selectBar.parentElement !== editSlot) editSlot.appendChild(selectBar);
+    }
+    if (anchorBar && editSlot) {
+      anchorBar.style.left = "";
+      anchorBar.style.top = "";
+      if (anchorBar.parentElement !== editSlot) editSlot.appendChild(anchorBar);
+    }
     if (compact && slot) {
-      [uploadBar, selectBar].forEach((bar) => {
-        if (!bar) return;
-        bar.style.left = "";
-        bar.style.top = "";
-        if (bar.parentElement !== slot) slot.appendChild(bar);
-      });
-    } else {
-      if (uploadBar && uploadHome && uploadBar.parentElement !== uploadHome) {
-        const vp = document.getElementById("origViewport");
-        if (vp && vp.parentElement === uploadHome) uploadHome.insertBefore(uploadBar, vp);
-        else uploadHome.appendChild(uploadBar);
+      if (uploadBar) {
+        uploadBar.style.left = "";
+        uploadBar.style.top = "";
+        if (uploadBar.parentElement !== slot) slot.appendChild(uploadBar);
       }
-      if (selectBar && selectHome && selectBar.parentElement !== selectHome) {
-        const scroll = document.getElementById("mainScroll");
-        if (scroll && scroll.parentElement === selectHome) selectHome.insertBefore(selectBar, scroll);
-        else selectHome.appendChild(selectBar);
-      }
+    } else if (uploadBar && uploadHome && uploadBar.parentElement !== uploadHome) {
+      const vp = document.getElementById("origViewport");
+      if (vp && vp.parentElement === uploadHome) uploadHome.insertBefore(uploadBar, vp);
+      else uploadHome.appendChild(uploadBar);
     }
     if (typeof layoutStatusMiniBars === "function") layoutStatusMiniBars();
     if (typeof syncCompactSelectSlot === "function") syncCompactSelectSlot();
@@ -8687,7 +9805,7 @@ function updateHistoryButtons() {
     if (!slot) return;
     const uploadBar = document.getElementById("uploadSelectMiniBar");
     const selectBar = document.getElementById("selectMiniBar");
-    const any = (uploadBar && !uploadBar.hidden) || (selectBar && !selectBar.hidden);
+    const any = uploadBar && !uploadBar.hidden;
     slot.hidden = !(isCoarseUi() && any);
   }
 
@@ -8728,7 +9846,7 @@ function updateHistoryButtons() {
     const anchorBar = document.getElementById("anchorMiniBar");
     const selectOn = !!(selectBar && !selectBar.hidden && !isDockedSelectMiniBar(selectBar));
     const uploadOn = !!(uploadBar && !uploadBar.hidden && !isDockedSelectMiniBar(uploadBar));
-    const anchorOn = !!(anchorBar && !anchorBar.hidden);
+    const anchorOn = !!(anchorBar && !anchorBar.hidden && !isDockedSelectMiniBar(anchorBar));
     if (!selectOn && !uploadOn && !anchorOn) return;
 
     const selBar = selectOn ? selectBar : (uploadOn ? uploadBar : null);
@@ -8756,6 +9874,27 @@ function updateHistoryButtons() {
     function occupy(box) {
       if (box) occupied.push(box);
       return box;
+    }
+    if (!isCoarseUi() && typeof currentStage === "string" && currentStage === "upload") {
+      const toolbox = document.getElementById("imageToolbox");
+      const menu = document.getElementById("imageToolboxMenu");
+      if (toolbox) occupy(statusMiniBarClientBox(toolbox));
+      if (menu) {
+        const r = menu.getBoundingClientRect();
+        if (r.width > 8 && r.height > 8) {
+          occupy({ left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width, height: r.height });
+        } else if (toolbox) {
+          const tr = toolbox.getBoundingClientRect();
+          occupy({
+            left: tr.left,
+            top: tr.bottom,
+            right: tr.left + Math.max(tr.width, 420),
+            bottom: tr.bottom + 92,
+            width: Math.max(tr.width, 420),
+            height: 92
+          });
+        }
+      }
     }
     function dodge(left, top, w, h) {
       let x = left;
@@ -8813,7 +9952,7 @@ function updateHistoryButtons() {
   }
 
   function canCombineEditSelection() {
-    return isMarqueeSelectTool() || editSelectTool === "wand" || isAnchorSelectTool();
+    return isMarqueeSelectTool() || editSelectTool === "wand" || editSelectTool === "brush" || isAnchorSelectTool();
   }
 
   function syncSelectMiniBar() {
@@ -8878,6 +10017,7 @@ function updateHistoryButtons() {
     if (bar) {
       bar.addEventListener("pointerdown", (e) => {
         e.stopPropagation();
+        if (isDockedSelectMiniBar(bar)) return;
         if (e.target.closest("button")) return;
         const rect = bar.getBoundingClientRect();
         anchorMiniBarDrag = {
@@ -9192,12 +10332,14 @@ function updateHistoryButtons() {
     const rectBtn = document.getElementById("editRectSelectBtn");
     const circleBtn = document.getElementById("editCircleSelectBtn");
     const ellipseBtn = document.getElementById("editEllipseSelectBtn");
+    const brushBtn = document.getElementById("editBrushSelectBtn");
     const wandBtn = document.getElementById("editWandSelectBtn");
     const polyBtn = document.getElementById("editPolySelectBtn");
     const moveCopyBtn = document.getElementById("editMoveCopySelectBtn");
     if (rectBtn) rectBtn.classList.toggle("highlight", editSelectTool === "rect");
     if (circleBtn) circleBtn.classList.toggle("highlight", editSelectTool === "circle" || editSelectTool === "ellipse");
     if (ellipseBtn) ellipseBtn.classList.toggle("highlight", editSelectTool === "ellipse");
+    if (brushBtn) brushBtn.classList.toggle("highlight", editSelectTool === "brush");
     if (wandBtn) wandBtn.classList.toggle("highlight", editSelectTool === "wand");
     if (polyBtn) polyBtn.classList.toggle("highlight", editSelectTool === "poly");
     if (moveCopyBtn) moveCopyBtn.classList.toggle("highlight", editSelectTool === "movecopy");
@@ -9476,18 +10618,12 @@ function updateHistoryButtons() {
       b = { minX: vis.minX, minY: vis.minY, maxX: vis.maxX, maxY: vis.maxY };
       editLastRectBounds = b;
     }
-    const base = new Set(selectedCells);
-    for (let y = b.minY; y <= b.maxY; y++) {
-      for (let x = b.minX; x <= b.maxX; x++) base.delete(`${x},${y}`);
-    }
-    selectedCells = selectCellsInRoundRect(b.minX, b.minY, b.maxX, b.maxY, base, false, editRoundRadiusPct);
-    const other = new Set();
-    editSelectParts.slice(0, -1).forEach((p) => p.forEach((k) => other.add(k)));
-    const last = new Set();
-    selectedCells.forEach((k) => { if (!other.has(k)) last.add(k); });
+    const last = selectCellsInRoundRect(b.minX, b.minY, b.maxX, b.maxY, new Set(), false, editRoundRadiusPct);
+    ensureEditSelectParts();
     if (editSelectParts.length) editSelectParts[editSelectParts.length - 1] = last;
     else if (last.size) editSelectParts = [last];
     editSelectParts = editSelectParts.filter((p) => p.size);
+    syncSelectedFromParts();
     updateSelectCount();
     renderInteractionLayer();
     syncSelectMiniBar();
@@ -9655,6 +10791,13 @@ function updateHistoryButtons() {
       return;
     }
 
+    if (editSelectTool === "brush") {
+      isSelectBrushing = true;
+      selectBrushDirty = false;
+      paintSelectBrushAt(col, row);
+      return;
+    }
+
     if (isAnchorSelectTool()) {
       if (anchorPaused) return;
       if (!selectAddArmed && selectedCells.size && !editPolyPoints.length) {
@@ -9738,6 +10881,8 @@ function updateHistoryButtons() {
     const snapAtEnd = new Set(selectionSnapshot);
     const dragMoved = marqueeDragMoved;
     const wasDeselecting = isDeselecting;
+    const dragStartAtEnd = dragStartCell;
+    const dragEndAtEnd = hoveredCell;
     if (isScalingSelection) {
       if (scalePreviewBounds) applySelectionScale(scalePreviewBounds, editScalePartIndex);
       isScalingSelection = false;
@@ -9768,8 +10913,15 @@ function updateHistoryButtons() {
       pushHistoryState(editPaintTool === "eraser" ? "橡皮擦" : "畫筆");
       recalculateStats();
     }
+    if (isSelectBrushing && selectBrushDirty) {
+      rebuildPartsFromCells();
+      commitSelectionHistory("畫筆選取");
+      syncSelectMiniBar();
+    }
     isPainting = false;
     paintStrokeDirty = false;
+    isSelectBrushing = false;
+    selectBrushDirty = false;
     isPolyHandleDrag = false;
     polyHandleAnchorIndex = -1;
     polyHandleKind = null;
@@ -9783,7 +10935,7 @@ function updateHistoryButtons() {
       renderInteractionLayer();
       syncSelectMiniBar();
     } else if (finishedMarquee) {
-      commitMarqueeParts(snapAtEnd, wasDeselecting);
+      commitMarqueeParts(snapAtEnd, wasDeselecting, dragStartAtEnd, dragEndAtEnd);
       selectAddArmed = false;
       selectBoolMode = "add";
       isDeselecting = false;
@@ -9805,7 +10957,7 @@ function updateHistoryButtons() {
       handlePointerMove(e);
       return;
     }
-    if (isEditMode && (isMouseDown || isPainting || isPolyHandleDrag || isMovingSelection || isMovingMarquee || isScalingSelection || (isAnchorSelectTool() && editPolyPoints.length))) { e.preventDefault(); handlePointerMove(e); }
+    if (isEditMode && (isMouseDown || isPainting || isSelectBrushing || isPolyHandleDrag || isMovingSelection || isMovingMarquee || isScalingSelection || (isAnchorSelectTool() && editPolyPoints.length))) { e.preventDefault(); handlePointerMove(e); }
   }, { passive: false });
   mainScroll.addEventListener("touchmove", (e) => {
     if (!isBeadStage()) return;
@@ -9836,6 +10988,9 @@ function updateHistoryButtons() {
 
     if (!isBeadStage() && isEditMode && isPainting && (editPaintTool === "pencil" || editPaintTool === "eraser")) {
       if (col >= 0 && col < currentCols && row >= 0 && row < currentRows) paintBrushAt(col, row);
+    }
+    if (!isBeadStage() && isEditMode && isSelectBrushing && editSelectTool === "brush") {
+      if (col >= 0 && col < currentCols && row >= 0 && row < currentRows) paintSelectBrushAt(col, row);
     }
 
     if (!isBeadStage() && isEditMode && isScalingSelection && scaleStartBounds) {
@@ -9950,6 +11105,7 @@ function updateHistoryButtons() {
           ${!isBeadStage() && isPipetteMode ? '<div style="color:#0088ff; margin-top:2px;">💧 點擊吸取此色</div>' : ''}
           ${!isBeadStage() && !isPipetteMode && editPaintTool === "pencil" ? '<div style="color:#ff6b9d; margin-top:2px;">畫筆：拖曳上色</div>' : ''}
           ${!isBeadStage() && !isPipetteMode && editPaintTool === "eraser" ? '<div style="color:#ff6b9d; margin-top:2px;">橡皮擦：拖曳清除</div>' : ''}
+          ${!isBeadStage() && !isPipetteMode && editSelectTool === "brush" ? '<div style="color:#ff6b9d; margin-top:2px;">畫筆選取：拖曳選取拼豆</div>' : ''}
           ${!isBeadStage() && !isPipetteMode && editSelectTool === "circle" ? '<div style="color:#ff6b9d; margin-top:2px;">圓形選取：從圓心拖曳</div>' : ''}
           ${!isBeadStage() && !isPipetteMode && editSelectTool === "ellipse" ? '<div style="color:#ff6b9d; margin-top:2px;">橢圓形選取：從圓心拖曳</div>' : ''}
           ${!isBeadStage() && !isPipetteMode && editSelectTool === "wand" ? '<div style="color:#ff6b9d; margin-top:2px;">魔術棒：點選同一顏色的連續色塊</div>' : ''}
@@ -9973,7 +11129,7 @@ function updateHistoryButtons() {
     if (hoveredCell !== null) hoveredCell = null;
     if (editPolyHover) { editPolyHover = null; dirty = true; }
     if (polyHandleHover) { polyHandleHover = null; dirty = true; }
-    if (hoverEditPartIndex >= 0 && liveEditSelectParts().length > 1) {
+    if (hoverEditPartIndex >= 0 && (liveEditSelectParts().length > 1 || editSelectTool === "brush")) {
       hoverEditPartIndex = -1;
       dirty = true;
     }
@@ -10008,8 +11164,10 @@ function updateHistoryButtons() {
     const text = document.getElementById("origZoomText");
     const slider = document.getElementById("origZoomSlider");
     const fitBtn = document.getElementById("floatingFitBtn");
+    ignoreZoomSlider = true;
     if (text) text.textContent = `${percent}%`;
     if (slider) slider.value = String(percent);
+    ignoreZoomSlider = false;
     if (fitBtn) fitBtn.textContent = isPatternStage() ? "🔍 全圖顯示" : "🔍 適應視窗";
   }
   function rectsOverlap(a, b) {
@@ -10092,6 +11250,7 @@ function updateHistoryButtons() {
   }
   function setOrigZoom(scale) {
     origZoom = Math.min(MAX_VIEW_ZOOM, Math.max(MIN_VIEW_ZOOM, scale));
+    if (origZoom > 0.05) lastGoodOrigZoom = origZoom;
     const wrap = document.getElementById("origZoomWrapper");
     const frame = document.getElementById("origZoomFrame");
     const img = document.getElementById("originalImg");
@@ -10115,10 +11274,13 @@ function updateHistoryButtons() {
     const img = document.getElementById("originalImg");
     if (!img.complete || img.naturalWidth === 0) return;
     const vp = document.getElementById("origViewport");
+    if (!vp || vp.clientWidth < 40 || vp.clientHeight < 40) return;
     const scale = Math.min((vp.clientWidth - 48) / img.naturalWidth, (vp.clientHeight - 48) / img.naturalHeight, 1.0);
+    if (!(scale > 0)) return;
     setOrigZoom(Math.max(MIN_VIEW_ZOOM, scale));
   }
   document.getElementById("origZoomSlider").addEventListener("input", (e) => {
+    if (ignoreZoomSlider) return;
     setFloatingZoom(parseInt(e.target.value, 10) / 100);
   });
   function setCanvasZoom(scale) {
@@ -10246,19 +11408,159 @@ function updateHistoryButtons() {
 
   function updateStats(counts, total) {
     document.getElementById("statsCard").style.display = "block";
+    const codes = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+    const totalColorsEl = document.getElementById("totalColors");
+    if (totalColorsEl) totalColorsEl.textContent = String(codes.length);
     document.getElementById("totalBeads").textContent = total;
     const colorList = document.getElementById("colorList");
     colorList.innerHTML = "";
-    const codes = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+    colorListPicked.forEach((code) => {
+      if (!counts[code]) colorListPicked.delete(code);
+    });
     codes.forEach(code => {
       const bead = BEAD_PALETTE.find(b => b.code === code);
       if (!bead) return;
-      const item = document.createElement("div");
-      item.className = "color-item";
-      item.innerHTML = `<div class="color-swatch" style="background: ${bead.hex}"></div><div><div><strong>${bead.code}</strong></div><div style="color: #a6adc8;">${counts[code]} 顆</div></div>`;
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "color-item-btn";
+      if (colorListPicked.has(code)) item.classList.add("is-picked");
+      const check = colorListPickMode
+        ? `<input type="checkbox" class="color-check" ${colorListPicked.has(code) ? "checked" : ""} data-code="${code}" />`
+        : "";
+      item.innerHTML = `${check}<div class="color-swatch" style="background: ${bead.hex}"></div><div><div><strong>${bead.code}</strong></div><div style="color: #a6adc8;">${counts[code]} 顆</div></div>`;
+      item.addEventListener("click", (e) => {
+        if (colorListPickMode) {
+          e.preventDefault();
+          e.stopPropagation();
+          let nowOn = false;
+          if (e.target && e.target.classList && e.target.classList.contains("color-check")) {
+            nowOn = !!e.target.checked;
+            if (nowOn) colorListPicked.add(code);
+            else colorListPicked.delete(code);
+          } else if (colorListPicked.has(code)) {
+            colorListPicked.delete(code);
+            nowOn = false;
+          } else {
+            colorListPicked.add(code);
+            nowOn = true;
+          }
+          hideColorMergeTargets();
+          updateStats(counts, total);
+          if (nowOn) flashSoloColor(code);
+          else if (colorOutlineCode === code) flashSoloColor(null);
+          return;
+        }
+        flashSoloColor(code);
+      });
       colorList.appendChild(item);
     });
     renderBeadUsagePanel(counts, total);
+  }
+
+  function hideColorMergeTargets() {
+    const box = document.getElementById("colorMergeTargets");
+    if (box) {
+      box.hidden = true;
+      box.innerHTML = "";
+    }
+  }
+
+  function remapGridCodes(fromCodes, destBead) {
+    if (!destBead || !fromCodes.size) return 0;
+    let n = 0;
+    for (let y = 0; y < currentRows; y++) {
+      for (let x = 0; x < currentCols; x++) {
+        if (isColorLockedAt(x, y)) continue;
+        const cell = patternGridData[y]?.[x];
+        if (!cell || !fromCodes.has(cell.code)) continue;
+        patternGridData[y][x] = destBead;
+        n++;
+      }
+    }
+    return n;
+  }
+
+  function deleteGridCodes(fromCodes) {
+    if (!fromCodes.size) return 0;
+    let n = 0;
+    for (let y = 0; y < currentRows; y++) {
+      for (let x = 0; x < currentCols; x++) {
+        if (isColorLockedAt(x, y)) continue;
+        const cell = patternGridData[y]?.[x];
+        if (!cell || !fromCodes.has(cell.code)) continue;
+        patternGridData[y][x] = null;
+        n++;
+      }
+    }
+    return n;
+  }
+
+  function setColorListPickMode(on) {
+    colorListPickMode = !!on;
+    if (!on) {
+      colorListPicked.clear();
+      hideColorMergeTargets();
+      flashSoloColor(null);
+    }
+    const mergeBtn = document.getElementById("colorListMergeBtn");
+    if (mergeBtn) mergeBtn.classList.toggle("highlight", colorListPickMode);
+    recalculateStats();
+  }
+
+  function showColorMergeTargets() {
+    const box = document.getElementById("colorMergeTargets");
+    if (!box) return;
+    const codes = [...colorListPicked].filter((c) => BEAD_BY_CODE[c]);
+    box.innerHTML = "";
+    if (codes.length < 2) {
+      box.hidden = true;
+      return;
+    }
+    const lab = document.createElement("div");
+    lab.className = "color-merge-label";
+    lab.textContent = "合併成下列某色：";
+    box.appendChild(lab);
+    codes.forEach((code) => {
+      const bead = BEAD_BY_CODE[code];
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "zoom-btn";
+      btn.innerHTML = `<span class="color-swatch" style="background:${bead.hex};display:inline-block;vertical-align:middle;margin-right:4px;"></span>${code}`;
+      btn.addEventListener("click", () => {
+        const from = new Set(codes);
+        remapGridCodes(from, bead);
+        pushHistoryState("合併顏色");
+        setColorListPickMode(false);
+        recalculateStats();
+        renderBasePattern();
+        renderInteractionLayer();
+      });
+      box.appendChild(btn);
+    });
+    box.hidden = false;
+  }
+
+  function onColorListMerge() {
+    if (!colorListPickMode) {
+      setColorListPickMode(true);
+      return;
+    }
+    if (colorListPicked.size < 2) return;
+    showColorMergeTargets();
+  }
+
+  function onColorListDelete() {
+    if (!colorListPickMode) {
+      setColorListPickMode(true);
+      return;
+    }
+    if (!colorListPicked.size) return;
+    deleteGridCodes(colorListPicked);
+    pushHistoryState("刪除顏色");
+    setColorListPickMode(false);
+    recalculateStats();
+    renderBasePattern();
+    renderInteractionLayer();
   }
 
   function renderBeadUsagePanel(counts, total) {
@@ -10286,6 +11588,90 @@ function updateHistoryButtons() {
     if (btn) btn.classList.toggle("highlight", panel.classList.contains("is-open"));
   }
 
+  function rangeStepAmount(el) {
+    if (el.step && el.step !== "any") {
+      const n = parseFloat(el.step);
+      if (Number.isFinite(n) && n > 0) return n;
+    }
+    return 1;
+  }
+  function syncRangeStepButtons(root) {
+    const scope = root || document;
+    scope.querySelectorAll(".range-step-row input[type='range']").forEach((el) => {
+      const row = el.closest(".range-step-row");
+      if (!row) return;
+      const left = row.querySelector(".range-step-btn[data-dir='-1']");
+      const right = row.querySelector(".range-step-btn[data-dir='1']");
+      const v = parseFloat(el.value);
+      const min = el.min === "" ? -Infinity : parseFloat(el.min);
+      const max = el.max === "" ? Infinity : parseFloat(el.max);
+      if (left) left.disabled = Number.isFinite(v) && Number.isFinite(min) && v <= min;
+      if (right) right.disabled = Number.isFinite(v) && Number.isFinite(max) && v >= max;
+    });
+  }
+  function nudgeRangeInput(el, dir) {
+    if (!el || el.disabled) return;
+    const step = rangeStepAmount(el);
+    const min = el.min === "" ? NaN : parseFloat(el.min);
+    const max = el.max === "" ? NaN : parseFloat(el.max);
+    let next = parseFloat(el.value);
+    if (!Number.isFinite(next)) next = Number.isFinite(min) ? min : 0;
+    next += dir * step;
+    if (Number.isFinite(min)) next = Math.max(min, next);
+    if (Number.isFinite(max)) next = Math.min(max, next);
+    if (Number.isFinite(min) && step > 0) {
+      const steps = Math.round((next - min) / step);
+      next = min + steps * step;
+      if (Number.isFinite(max)) next = Math.min(max, next);
+      if (Number.isFinite(min)) next = Math.max(min, next);
+    }
+    const decimals = (String(step).split(".")[1] || "").length;
+    const nextStr = decimals ? next.toFixed(decimals) : String(Math.round(next));
+    if (el.value === nextStr) {
+      syncRangeStepButtons(el.closest(".range-step-row"));
+      return;
+    }
+    el.value = nextStr;
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+    el.dispatchEvent(new Event("change", { bubbles: true }));
+    syncRangeStepButtons(el.closest(".range-step-row"));
+  }
+  function enhanceRangeSliders() {
+    document.querySelectorAll('input[type="range"]').forEach((el) => {
+      if (el.closest(".range-step-row")) return;
+      if (el.id === "origZoomSlider") return;
+      const row = document.createElement("div");
+      row.className = "range-step-row";
+      el.parentNode.insertBefore(row, el);
+      const left = document.createElement("button");
+      left.type = "button";
+      left.className = "range-step-btn";
+      left.dataset.dir = "-1";
+      left.setAttribute("aria-label", "減少");
+      left.textContent = "◀";
+      const right = document.createElement("button");
+      right.type = "button";
+      right.className = "range-step-btn";
+      right.dataset.dir = "1";
+      right.setAttribute("aria-label", "增加");
+      right.textContent = "▶";
+      row.append(left, el, right);
+      const stepOnce = (dir, ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        nudgeRangeInput(el, dir);
+      };
+      left.addEventListener("click", (e) => stepOnce(-1, e));
+      right.addEventListener("click", (e) => stepOnce(1, e));
+      left.addEventListener("pointerdown", (e) => e.stopPropagation());
+      right.addEventListener("pointerdown", (e) => e.stopPropagation());
+      el.addEventListener("input", () => syncRangeStepButtons(row));
+      el.addEventListener("change", () => syncRangeStepButtons(row));
+    });
+    syncRangeStepButtons();
+  }
+  enhanceRangeSliders();
+
   document.getElementById("beadWidth").addEventListener("input", (e) => {
     updateBeadSizeLabel(e.target.value);
     scheduleProcessImage("調整寬度");
@@ -10297,6 +11683,23 @@ function updateHistoryButtons() {
       const val = document.getElementById("editBrushSizeVal");
       if (val) val.textContent = String(editBrushSize);
       renderInteractionLayer();
+    });
+  }
+  const selectBrushSizeEl = document.getElementById("editSelectBrushSize");
+  if (selectBrushSizeEl) {
+    selectBrushSizeEl.addEventListener("input", (e) => {
+      editSelectBrushSize = Math.max(1, parseInt(e.target.value, 10) || 1);
+      const val = document.getElementById("editSelectBrushSizeVal");
+      if (val) val.textContent = String(editSelectBrushSize);
+      renderInteractionLayer();
+    });
+  }
+  const uploadSelectBrushSizeEl = document.getElementById("uploadSelectBrushSize");
+  if (uploadSelectBrushSizeEl) {
+    uploadSelectBrushSizeEl.addEventListener("input", (e) => {
+      uploadSelectBrushSize = Math.max(1, parseInt(e.target.value, 10) || 1);
+      const val = document.getElementById("uploadSelectBrushSizeVal");
+      if (val) val.textContent = String(uploadSelectBrushSize);
     });
   }
   const BEAD_WIDTH_MARKS = [52, 78, 104, 120];
@@ -10315,6 +11718,8 @@ function updateHistoryButtons() {
         const cols = widthForShortSide(n);
         slider.value = String(cols);
         updateBeadSizeLabel(cols);
+        slider.dispatchEvent(new Event("input", { bubbles: true }));
+        syncRangeStepButtons(slider.closest(".range-step-row"));
         scheduleProcessImage("調整寬度");
       });
       chips.appendChild(chip);
@@ -10374,11 +11779,16 @@ function updateHistoryButtons() {
     }
   });
   document.getElementById("maxColors").addEventListener("input", (e) => {
+    maxColorsAutoFit = !(parseInt(e.target.value, 10) || 0);
     syncMaxColorsVal();
     if (currentImage) scheduleProcessImage("調整限色");
   });
+  document.getElementById("lockRegionColorBtn")?.addEventListener("click", lockRegionColorsFromSelection);
+  document.getElementById("colorListMergeBtn")?.addEventListener("click", onColorListMerge);
+  document.getElementById("colorListDeleteBtn")?.addEventListener("click", onColorListDelete);
   document.getElementById("autoDetectBtn").addEventListener("change", () => {
-    if (document.getElementById("autoDetectBtn").checked) runAutoDetect();
+    const on = document.getElementById("autoDetectBtn").checked;
+    if (on) runAutoDetect();
     else stopAutoDetect();
   });
 
@@ -10387,8 +11797,10 @@ function updateHistoryButtons() {
       setAutoDetectActive(false);
       return;
     }
+    if (!autoDetectSliderBackup) autoDetectSliderBackup = getSliderState();
     document.getElementById("samplingMode").value = "pixel";
     document.getElementById("cleanNoise").checked = false;
+    maxColorsAutoFit = true;
     document.getElementById("maxColors").value = 0;
     syncMaxColorsVal();
     document.getElementById("contrast").value = 0;
@@ -10398,12 +11810,20 @@ function updateHistoryButtons() {
     document.getElementById("sharpen").value = 0;
     document.getElementById("sharpenVal").textContent = "0%";
     setAutoDetectActive(true);
-    processImageCore(false, "AI美化");
+    scheduleProcessImage("AI美化");
   }
 
   function stopAutoDetect() {
     setAutoDetectActive(false);
-    if (currentImage) processImageCore(false, "關閉AI美化");
+    if (autoDetectSliderBackup) {
+      const keepWidth = document.getElementById("beadWidth").value;
+      const s = autoDetectSliderBackup;
+      autoDetectSliderBackup = null;
+      s.autoDetectActive = false;
+      s.beadWidth = keepWidth;
+      setSliderState(s);
+    }
+    if (currentImage) scheduleProcessImage("關閉AI美化");
   }
 
   function collectGridColorUsage(grid, cols, rows) {
@@ -10804,13 +12224,23 @@ function updateHistoryButtons() {
   const aCtx = offscreenAnts.getContext("2d");
   let uploadStaticDirty = true;
 
+  function isLoadedImageClickTarget(t) {
+    return !!(t && t.closest && t.closest("#origZoomFrame, #originalImg, #cropOverlayCanvas"));
+  }
+  function isClickOnLoadedImagePixels(e) {
+    if (!e || !document.body.classList.contains("has-upload-image")) return false;
+    const img = document.getElementById("originalImg");
+    if (!img || img.style.display === "none") return false;
+    const r = img.getBoundingClientRect();
+    if (r.width < 2 || r.height < 2) return false;
+    return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+  }
   function triggerFileInput(e) {
-    if (document.body.classList.contains("has-upload-image")) return;
-    if (!e || uploadTool !== "none") return;
+    if (!e) return;
     const t = e.target;
     if (!t) return;
-    if (t.tagName && t.tagName.toLowerCase() === "button") return;
-    if (t.closest && t.closest("#origUploadHit, label[for='imageInput'], #uploadLoadBtn")) return;
+    if (t.closest && t.closest("#polyConfirmBar, #uploadSelectMiniBar, #origUploadHit, #uploadLoadBtn, button, .zoom-btn")) return;
+    if (isClickOnLoadedImagePixels(e)) return;
     openImageFilePicker();
   }
 
@@ -10821,7 +12251,7 @@ function updateHistoryButtons() {
     if (typeof scheduleMinimapViewport === "function") scheduleMinimapViewport();
   }, { passive: true });
   origViewport.addEventListener("dragover", (e) => {
-    if (document.body.classList.contains("has-upload-image")) return;
+    if (isClickOnLoadedImagePixels(e)) return;
     e.preventDefault();
     origViewport.classList.add("drag-over");
   });
@@ -10829,14 +12259,41 @@ function updateHistoryButtons() {
   origViewport.addEventListener("drop", (e) => {
     e.preventDefault();
     origViewport.classList.remove("drag-over");
-    if (document.body.classList.contains("has-upload-image")) return;
+    if (isClickOnLoadedImagePixels(e)) return;
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleImageLoad(e.dataTransfer.files[0]);
     }
   });
 
+  let uploadBusyToken = 0;
+  let uploadBusyTimer = 0;
+  function showUploadHourglass(on) {
+    const el = document.getElementById("uploadHourglass");
+    if (!el) return;
+    el.hidden = !on;
+    el.classList.toggle("is-on", !!on);
+    el.setAttribute("aria-hidden", on ? "false" : "true");
+  }
+  function beginUploadBusy() {
+    uploadBusyToken += 1;
+    const token = uploadBusyToken;
+    clearTimeout(uploadBusyTimer);
+    showUploadHourglass(false);
+    uploadBusyTimer = setTimeout(() => {
+      if (token !== uploadBusyToken) return;
+      showUploadHourglass(true);
+    }, 420);
+  }
+  function endUploadBusy() {
+    uploadBusyToken += 1;
+    clearTimeout(uploadBusyTimer);
+    uploadBusyTimer = 0;
+    showUploadHourglass(false);
+  }
+
   async function handleImageLoad(file) {
     if (!file) return;
+    beginUploadBusy();
     const dim = document.getElementById("origDimensions");
     if (dim) dim.textContent = "載入圖片中…";
     const readAsDataUrl = () => new Promise((resolve) => {
@@ -10853,13 +12310,19 @@ function updateHistoryButtons() {
         img.onerror = async () => {
           const dataUrl = await readAsDataUrl();
           if (dataUrl) setupImageFromDataUrl(dataUrl);
-          else if (dim) dim.textContent = "無法載入此圖片";
+          else {
+            if (dim) dim.textContent = "無法載入此圖片";
+            endUploadBusy();
+          }
         };
         img.src = objUrl;
       } catch (_) {
         readAsDataUrl().then((dataUrl) => {
           if (dataUrl) setupImageFromDataUrl(dataUrl);
-          else if (dim) dim.textContent = "無法載入此圖片";
+          else {
+            if (dim) dim.textContent = "無法載入此圖片";
+            endUploadBusy();
+          }
         });
       }
     };
@@ -10921,7 +12384,10 @@ function updateHistoryButtons() {
   }
 
   function applyLoadedWorkingImage(working) {
-    if (!working) return;
+    if (!working) {
+      endUploadBusy();
+      return;
+    }
     editingLibraryId = null;
     rawSourceImage = working;
     const reveal = () => {
@@ -10936,6 +12402,8 @@ function updateHistoryButtons() {
       document.body.classList.add("has-upload-image");
       document.getElementById("uploadHintBanner").style.display = "block";
       updateOrigDimensionsLabel();
+      const autoBtn = document.getElementById("autoDetectBtn");
+      if (autoBtn) autoBtn.disabled = false;
       try { restoreVirtualPointerIfCompact(); } catch (_) {}
 
       cropOverlay.width = working.naturalWidth || working.width;
@@ -10964,22 +12432,24 @@ function updateHistoryButtons() {
         runCore();
       }
       setTimeout(() => { fitOrigToWindow(); fitCanvasToWindow(); }, 50);
+      endUploadBusy();
     };
     if (working.complete && (working.naturalWidth || working.width)) reveal();
     else {
       working.onload = reveal;
-      working.onerror = () => {};
+      working.onerror = () => { endUploadBusy(); };
     }
   }
 
   function setupImageFromDataUrl(dataUrl) {
     editingLibraryId = null;
     if (!isUsableImageUrl(dataUrl) && !(typeof dataUrl === "string" && dataUrl.indexOf("data:image") === 0 && dataUrl.length > 24)) {
+      endUploadBusy();
       return;
     }
     rawSourceImage = new Image();
     rawSourceImage.onload = () => downscaleWorkingImage(rawSourceImage, applyLoadedWorkingImage);
-    rawSourceImage.onerror = () => {};
+    rawSourceImage.onerror = () => { endUploadBusy(); };
     rawSourceImage.src = dataUrl;
   }
 
@@ -11035,6 +12505,8 @@ function updateHistoryButtons() {
       start: s.start ? { x: s.start.x, y: s.start.y } : null,
       current: s.current ? { x: s.current.x, y: s.current.y } : null,
       radiusPct: s.radiusPct != null ? s.radiusPct : 0,
+      radius: s.radius != null ? s.radius : 0,
+      stamps: Array.isArray(s.stamps) ? s.stamps.map((p) => ({ x: p.x, y: p.y })) : null,
       op: s.op === "subtract" ? "subtract" : "add"
     };
   }
@@ -11098,6 +12570,19 @@ function updateHistoryButtons() {
 
   function getShapeBounds(shape) {
     if (!shape) return null;
+    if (shape.tool === "brush") {
+      const stamps = shape.stamps || [];
+      if (!stamps.length) return null;
+      const r = Math.max(1, shape.radius || uploadBrushRadius());
+      let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
+      stamps.forEach((p) => {
+        x1 = Math.min(x1, p.x - r);
+        y1 = Math.min(y1, p.y - r);
+        x2 = Math.max(x2, p.x + r);
+        y2 = Math.max(y2, p.y + r);
+      });
+      return { x: x1, y: y1, w: x2 - x1, h: y2 - y1 };
+    }
     if (shape.tool === "poly") {
       const acc = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
       expandPolyBounds(shape.polygon, acc);
@@ -11112,6 +12597,7 @@ function updateHistoryButtons() {
 
   function isShapeComplete(shape) {
     if (!shape) return false;
+    if (shape.tool === "brush") return !!(shape.stamps && shape.stamps.length);
     if (isUploadBoxTool(shape.tool)) {
       const r = getShapeRect(shape);
       return !!(r && r.w >= 5 && r.h >= 5);
@@ -11134,6 +12620,14 @@ function updateHistoryButtons() {
 
   function pointInShape(shape, x, y) {
     if (!isShapeComplete(shape)) return false;
+    if (shape.tool === "brush") {
+      const r = Math.max(1, shape.radius || uploadBrushRadius());
+      const r2 = r * r;
+      return (shape.stamps || []).some((p) => {
+        const dx = x - p.x, dy = y - p.y;
+        return dx * dx + dy * dy <= r2;
+      });
+    }
     if (isUploadBoxTool(shape.tool)) {
       const r = getShapeRect(shape);
       const rad = shapeCornerRadius(shape);
@@ -11181,7 +12675,9 @@ function updateHistoryButtons() {
   }
 
   function hasCompletedUploadMarquee() {
-    return (uploadMarquees || []).some(isShapeComplete) || hasLiveUploadMarquee();
+    return (uploadMarquees || []).some(isShapeComplete)
+      || hasLiveUploadMarquee()
+      || !!(uploadBrushLive && uploadBrushLive.stamps && uploadBrushLive.stamps.length);
   }
 
   function pointInUploadMarquee(x, y) {
@@ -11204,9 +12700,9 @@ function updateHistoryButtons() {
   }
 
   function countUploadHandleShapes() {
-    let n = (uploadMarquees || []).filter((s) => s && s.tool !== "poly").length;
+    let n = (uploadMarquees || []).filter((s) => s && s.tool !== "poly" && s.tool !== "brush").length;
     const live = liveUploadShape();
-    if (live && live.tool !== "poly" && isShapeComplete(live)) n++;
+    if (live && live.tool !== "poly" && live.tool !== "brush" && isShapeComplete(live)) n++;
     return n;
   }
 
@@ -11224,7 +12720,6 @@ function updateHistoryButtons() {
         }
       }
     }
-    if (covered < 0 && next >= 0 && next < collectUploadShapes().length - 1) covered = next;
     if (next === hoverUploadShapeIndex && covered === hoverUploadCoveredIndex) return false;
     hoverUploadShapeIndex = next;
     hoverUploadCoveredIndex = covered;
@@ -11270,6 +12765,8 @@ function updateHistoryButtons() {
     rectStart = null;
     rectCurrent = null;
     uploadMarquees = [];
+    uploadBrushLive = null;
+    isUploadBrushing = false;
     uploadSelAddArmed = false;
     uploadBoolMode = "add";
     uploadLiveOp = "add";
@@ -11296,6 +12793,8 @@ function updateHistoryButtons() {
     rectStart = snap.rectStart ? { x: snap.rectStart.x, y: snap.rectStart.y } : null;
     rectCurrent = snap.rectCurrent ? { x: snap.rectCurrent.x, y: snap.rectCurrent.y } : null;
     uploadMarquees = (snap.extras || []).map(cloneUploadShape);
+    uploadBrushLive = null;
+    isUploadBrushing = false;
     uploadSelAddArmed = !!snap.addArmed;
     uploadBoolMode = snap.boolMode === "subtract" ? "subtract" : "add";
     uploadLiveOp = snap.liveOp === "subtract" ? "subtract" : "add";
@@ -11307,15 +12806,15 @@ function updateHistoryButtons() {
   }
 
   function canUndoUploadMarquee() {
-    return currentStage === "upload" && isUploadMarqueeTool() && (hasCompletedUploadMarquee() || uploadSelUndo.length > 0);
+    return currentStage === "upload" && (isUploadMarqueeTool() || uploadTool === "brush") && (hasCompletedUploadMarquee() || uploadSelUndo.length > 0);
   }
 
   function canRedoUploadMarquee() {
-    return currentStage === "upload" && isUploadMarqueeTool() && uploadSelRedo.length > 0;
+    return currentStage === "upload" && (isUploadMarqueeTool() || uploadTool === "brush") && uploadSelRedo.length > 0;
   }
 
   function undoUploadMarquee() {
-    if (currentStage !== "upload" || !isUploadMarqueeTool()) return false;
+    if (currentStage !== "upload" || !(isUploadMarqueeTool() || uploadTool === "brush")) return false;
     if (uploadSelUndo.length) {
       uploadSelRedo.push(snapshotUploadMarquee());
       restoreUploadMarquee(uploadSelUndo.pop());
@@ -11328,7 +12827,7 @@ function updateHistoryButtons() {
   }
 
   function redoUploadMarquee() {
-    if (currentStage !== "upload" || !isUploadMarqueeTool() || !uploadSelRedo.length) return false;
+    if (currentStage !== "upload" || !(isUploadMarqueeTool() || uploadTool === "brush") || !uploadSelRedo.length) return false;
     uploadSelUndo.push(snapshotUploadMarquee());
     restoreUploadMarquee(uploadSelRedo.pop());
     return true;
@@ -11369,6 +12868,15 @@ function updateHistoryButtons() {
     ox = ox || 0;
     oy = oy || 0;
     ctx.beginPath();
+    if (shape.tool === "brush") {
+      const stamps = shape.stamps || [];
+      const r = Math.max(1, shape.radius || uploadBrushRadius());
+      stamps.forEach((p) => {
+        ctx.moveTo(p.x - ox + r, p.y - oy);
+        ctx.arc(p.x - ox, p.y - oy, r, 0, Math.PI * 2);
+      });
+      return;
+    }
     if (shape.tool === "poly") {
       const pts = shape.polygon || [];
       if (pts.length < 3) return;
@@ -11570,6 +13078,9 @@ function updateHistoryButtons() {
     const shapes = [...(uploadMarquees || [])];
     const live = liveUploadShape();
     if (live) shapes.push(live);
+    if (uploadBrushLive && uploadBrushLive.stamps && uploadBrushLive.stamps.length) {
+      shapes.push(uploadBrushLive);
+    }
     (polyPolygons || []).forEach((p) => {
       if (p && p.length >= 3) {
         shapes.push({
@@ -11580,6 +13091,37 @@ function updateHistoryButtons() {
       }
     });
     return shapes;
+  }
+
+  function uploadBrushRadius() {
+    return Math.max(3, (uploadSelectBrushSize | 0) * 8);
+  }
+
+  function paintUploadBrushAt(x, y) {
+    const r = uploadBrushRadius();
+    if (!uploadBrushLive) {
+      uploadBrushLive = {
+        tool: "brush",
+        stamps: [],
+        radius: r,
+        op: uploadBoolMode === "subtract" ? "subtract" : "add"
+      };
+    }
+    uploadBrushLive.radius = r;
+    const last = uploadBrushLive.stamps[uploadBrushLive.stamps.length - 1];
+    if (last && Math.hypot(x - last.x, y - last.y) < r * 0.35) return;
+    uploadBrushLive.stamps.push({ x, y });
+    drawUploadMarquee();
+    updateCropConfirmBar();
+  }
+
+  function commitUploadBrushLive() {
+    if (!uploadBrushLive || !(uploadBrushLive.stamps && uploadBrushLive.stamps.length)) {
+      uploadBrushLive = null;
+      return;
+    }
+    uploadMarquees.push(cloneUploadShape(uploadBrushLive));
+    uploadBrushLive = null;
   }
 
   function drawUploadSelectionMask(ctx, shapes, ox, oy) {
@@ -11756,22 +13298,22 @@ function updateHistoryButtons() {
     let boxIdx = -1;
     if (filledIdx.length <= 1) {
       boxIdx = filledIdx[0] != null ? filledIdx[0] : -1;
-    } else if (isScalingRect || isMovingRect) {
+    } else if (isDrawingRect || isScalingRect || isMovingRect) {
       boxIdx = uploadEditExtraIndex >= 0 ? uploadEditExtraIndex : liveUploadShapeIndex();
+    } else if (hoverUploadShapeIndex >= 0) {
+      boxIdx = hoverUploadShapeIndex;
     } else {
-      boxIdx = hoverUploadCoveredIndex >= 0 ? hoverUploadCoveredIndex : hoverUploadShapeIndex;
+      boxIdx = filledIdx[filledIdx.length - 1];
     }
     shapes.forEach((s, i) => {
       if (i !== boxIdx || !isUploadShapeFilled(s)) return;
-      const highlight = filledIdx.length > 1 && (
-        i === hoverUploadCoveredIndex || (i === hoverUploadShapeIndex && i < shapes.length - 1)
-      );
+      const highlight = filledIdx.length > 1 && i === hoverUploadShapeIndex;
       strokeUploadShapeBox(ctxCrop, s, viewScale, highlight);
     });
     if (!uploadHideMarqueeHandles && isUploadMarqueeTool() && !isDrawingRect) {
       const handleable = [];
       shapes.forEach((s, i) => {
-        if (s && s.tool !== "poly") handleable.push({ s, i });
+        if (s && s.tool !== "poly" && s.tool !== "brush") handleable.push({ s, i });
       });
       const multi = handleable.length > 1;
       const scaleIdx = isScalingRect
@@ -11965,9 +13507,10 @@ function updateHistoryButtons() {
       syncUploadSelectMiniBar();
       return;
     }
-    if (!isUploadMarqueeTool()) return;
+    if (!(isUploadMarqueeTool() || uploadTool === "brush")) return;
     if (!hasCompletedUploadMarquee() && !(polyPolygons && polyPolygons.length)) return;
     commitLiveUploadMarquee();
+    commitUploadBrushLive();
     if (nextMode === "subtract") {
       uploadSelAddArmed = true;
       uploadBoolMode = "subtract";
@@ -12046,6 +13589,7 @@ function updateHistoryButtons() {
     if (circleBtn) circleBtn.classList.toggle("highlight", uploadTool === "circle" || uploadTool === "ellipse");
     if (ellipseBtn) ellipseBtn.classList.toggle("highlight", uploadTool === "ellipse");
     document.getElementById("wandBtn")?.classList.toggle("highlight", uploadTool === "wand");
+    document.getElementById("brushCropBtn")?.classList.toggle("highlight", uploadTool === "brush");
     const polyBtn = document.getElementById("polyCropBtn");
     if (polyBtn) polyBtn.classList.toggle("highlight", uploadTool === "poly");
   }
@@ -12056,7 +13600,7 @@ function updateHistoryButtons() {
 
   function isUploadCombineTool(tool) {
     const t = tool || uploadTool;
-    return isUploadMarqueeName(t) || t === "poly";
+    return isUploadMarqueeName(t) || t === "poly" || t === "brush";
   }
 
   function hasAnyUploadSelection() {
@@ -12085,6 +13629,7 @@ function updateHistoryButtons() {
     const keepMode = uploadBoolMode === "subtract" ? "subtract" : "add";
     uploadSelBeforeDraw = snapshotUploadMarquee();
     commitLiveUploadMarquee();
+    commitUploadBrushLive();
     if (uploadTool === "poly" && nextTool !== "poly") {
       polyPoints = [];
       polyPointRedo = [];
@@ -12099,6 +13644,7 @@ function updateHistoryButtons() {
     isDrawingRect = false;
     isMovingRect = false;
     isScalingRect = false;
+    isUploadBrushing = false;
     rectScaleHandle = null;
     rectScaleOrigin = null;
     commitUploadMarqueeHistory();
@@ -12180,6 +13726,8 @@ function updateHistoryButtons() {
     uploadSelRedo = [];
     uploadSelBeforeDraw = null;
     uploadMarquees = [];
+    uploadBrushLive = null;
+    isUploadBrushing = false;
     uploadSelAddArmed = false;
     uploadBoolMode = "add";
     uploadLiveOp = "add";
@@ -12191,7 +13739,7 @@ function updateHistoryButtons() {
     
     cropOverlay.classList.toggle("active", uploadTool !== 'none');
     cropOverlay.classList.toggle("is-paused", false);
-    cropOverlay.style.cursor = (isUploadMarqueeTool() || uploadTool === 'poly') ? "crosshair" : "";
+    cropOverlay.style.cursor = (isUploadMarqueeTool() || uploadTool === 'poly' || uploadTool === 'brush') ? "crosshair" : "";
     
     syncUploadToolHighlights();
     updateCropConfirmBar();
@@ -12293,7 +13841,7 @@ function updateHistoryButtons() {
 
   function updateCropConfirmBar() {
     const toolsRow = document.getElementById("uploadToolsRow");
-    const on = uploadTool === "poly" || hasCompletedUploadMarquee() || (polyPolygons && polyPolygons.length > 0);
+    const on = uploadTool === "poly" || uploadTool === "brush" || hasCompletedUploadMarquee() || (polyPolygons && polyPolygons.length > 0);
     if (toolsRow) toolsRow.classList.toggle("has-crop-actions", on);
     const bar = document.getElementById("polyConfirmBar");
     if (bar) bar.classList.remove("has-crop-actions");
@@ -12301,7 +13849,7 @@ function updateHistoryButtons() {
   }
 
   function cancelCropAction() {
-    if (isUploadMarqueeTool() || uploadTool === "poly" || hasCompletedUploadMarquee() || (polyPolygons && polyPolygons.length)) {
+    if (isUploadMarqueeTool() || uploadTool === "poly" || uploadTool === "brush" || hasCompletedUploadMarquee() || (polyPolygons && polyPolygons.length)) {
       if (hasCompletedUploadMarquee()) {
         uploadSelUndo.push(snapshotUploadMarquee());
         uploadSelRedo = [];
@@ -12355,14 +13903,7 @@ function updateHistoryButtons() {
       }
       if (!uploadSelAddArmed) {
         const stackHits = uploadShapesAtPoint(x, y);
-        if (stackHits.length > 1) {
-          const newIdx = raiseUploadShapeToFront(stackHits[1]);
-          hoverUploadShapeIndex = newIdx;
-          hoverUploadCoveredIndex = -1;
-          drawUploadMarquee();
-          return;
-        }
-        if (stackHits.length === 1 && stackHits[0] < collectUploadShapes().length - 1) {
+        if (stackHits.length && stackHits[0] < collectUploadShapes().length - 1) {
           const newIdx = raiseUploadShapeToFront(stackHits[0]);
           hoverUploadShapeIndex = newIdx;
           hoverUploadCoveredIndex = -1;
@@ -12371,6 +13912,10 @@ function updateHistoryButtons() {
       }
       const shapeHit = !uploadSelAddArmed && hitTestAnyUploadShape(x, y);
       if (shapeHit) {
+        if (shapeHit.extra >= 0 && uploadMarquees[shapeHit.extra] && uploadMarquees[shapeHit.extra].tool === "brush") {
+          flashUploadSelectHints();
+          return;
+        }
         uploadSelBeforeDraw = snapshotUploadMarquee();
         uploadEditExtraIndex = shapeHit.extra;
         isMovingRect = true;
@@ -12413,6 +13958,15 @@ function updateHistoryButtons() {
         drawUploadMarquee();
         updateCropConfirmBar();
       }
+    } else if (uploadTool === "brush") {
+      if (!uploadSelAddArmed && hasAnyUploadSelection()) {
+        flashUploadSelectHints();
+        return;
+      }
+      uploadSelBeforeDraw = snapshotUploadMarquee();
+      if (uploadSelAddArmed) commitUploadBrushLive();
+      isUploadBrushing = true;
+      paintUploadBrushAt(x, y);
     } else if (uploadTool === 'poly') {
       if (anchorPaused) return;
       const handle = hitTestPolyHandle(polyPoints, x, y, clickTolerance);
@@ -12613,6 +14167,15 @@ function updateHistoryButtons() {
 
   cropOverlay.addEventListener("mousemove", (e) => {
     if (shouldSuppressMouseAfterTouch(e)) return;
+    if (uploadTool === "brush") {
+      if (!isUploadBrushing) {
+        cropOverlay.style.cursor = "crosshair";
+        return;
+      }
+      const { x, y } = getCropPreciseCoords(e);
+      paintUploadBrushAt(x, y);
+      return;
+    }
     if (uploadTool === "poly") {
       const { x, y } = getCropPreciseCoords(e);
       if (isMovingUploadPoly) {
@@ -12689,6 +14252,11 @@ function updateHistoryButtons() {
 
   window.addEventListener("mousemove", (e) => {
     if (shouldSuppressMouseAfterTouch(e)) return;
+    if (uploadTool === "brush" && isUploadBrushing) {
+      const { x, y } = getCropPreciseCoords(e);
+      paintUploadBrushAt(x, y);
+      return;
+    }
     if (uploadTool === "poly" && isMovingUploadPoly) {
       const { x, y } = getCropPreciseCoords(e);
       applyClosedPolyDrag(x, y);
@@ -12727,6 +14295,18 @@ function updateHistoryButtons() {
 
   window.addEventListener("mouseup", (e) => {
     if (shouldSuppressMouseAfterTouch(e)) return;
+    if (uploadTool === "brush") {
+      if (isUploadBrushing) {
+        isUploadBrushing = false;
+        commitUploadBrushLive();
+        uploadSelAddArmed = false;
+        drawUploadMarquee();
+        commitUploadMarqueeHistory();
+        updateCropConfirmBar();
+        updateGlobalHistoryButtons();
+      }
+      return;
+    }
     if (uploadTool === "poly") {
       if (isMovingUploadPoly) {
         resetUploadPolyMove();
@@ -12752,6 +14332,8 @@ function updateHistoryButtons() {
           rectStart = { x: r.x, y: r.y };
           rectCurrent = { x: r.x + r.w, y: r.y + r.h };
           uploadSelAddArmed = false;
+          hoverUploadShapeIndex = liveUploadShapeIndex();
+          hoverUploadCoveredIndex = -1;
           drawUploadMarquee();
           commitUploadMarqueeHistory();
         }
@@ -12762,6 +14344,8 @@ function updateHistoryButtons() {
         else drawUploadMarquee();
       } else {
         uploadSelAddArmed = false;
+        hoverUploadShapeIndex = liveUploadShapeIndex();
+        hoverUploadCoveredIndex = -1;
         drawUploadMarquee();
         commitUploadMarqueeHistory();
       }
@@ -13183,7 +14767,14 @@ function updateHistoryButtons() {
 
       updateOrigDimensionsLabel();
 
-      setUploadTool('none');
+      if (uploadTool === "wand") {
+        cropOverlay.classList.add("active");
+        cropOverlay.classList.remove("is-paused");
+        if (typeof syncUploadToolHighlights === "function") syncUploadToolHighlights();
+        if (typeof updateCropConfirmBar === "function") updateCropConfirmBar();
+      } else {
+        setUploadTool('none');
+      }
       processImageCore(false, "去背與裁切");
       pushUploadHistoryState();
       scheduleFaceDetect();
@@ -13205,6 +14796,7 @@ function updateHistoryButtons() {
   let libraryFolderFilter = "all";
   let libraryPickMode = null;
   let libraryPickedIds = new Set();
+  let libraryPickedFolderIds = new Set();
   let editingLibraryId = null;
   let appModalCallback = null;
   let appModalAltCallback = null;
@@ -13321,36 +14913,37 @@ function updateHistoryButtons() {
   function makeLibraryThumbnail(grid, cols, rows) {
     const w0 = Math.max(1, cols | 0);
     const h0 = Math.max(1, rows | 0);
-    const src = document.createElement("canvas");
-    src.width = w0;
-    src.height = h0;
-    const sctx = src.getContext("2d");
-    const img = sctx.createImageData(w0, h0);
-    const data = img.data;
+    const maxSide = 320;
+    const cell = Math.max(1, Math.floor(maxSide / Math.max(w0, h0)));
+    const w = w0 * cell;
+    const h = h0 * cell;
+    const out = document.createElement("canvas");
+    out.width = w;
+    out.height = h;
+    const ctx = out.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = "#1e1e2e";
+    ctx.fillRect(0, 0, w, h);
     for (let y = 0; y < h0; y++) {
       const row = grid[y] || [];
       for (let x = 0; x < w0; x++) {
         const bead = row[x];
-        const i = (y * w0 + x) * 4;
-        if (bead) {
-          data[i] = bead.r; data[i + 1] = bead.g; data[i + 2] = bead.b; data[i + 3] = 255;
-        } else {
-          data[i] = 30; data[i + 1] = 30; data[i + 2] = 46; data[i + 3] = 255;
-        }
+        if (!bead) continue;
+        ctx.fillStyle = bead.hex || `rgb(${bead.r | 0},${bead.g | 0},${bead.b | 0})`;
+        ctx.fillRect(x * cell, y * cell, cell, cell);
       }
     }
-    sctx.putImageData(img, 0, 0);
-    const maxSide = 220;
-    const scale = Math.min(1, maxSide / Math.max(w0, h0));
-    const w = Math.max(1, Math.round(w0 * scale));
-    const h = Math.max(1, Math.round(h0 * scale));
-    const out = document.createElement("canvas");
-    out.width = w;
-    out.height = h;
-    const octx = out.getContext("2d");
-    octx.imageSmoothingEnabled = false;
-    octx.drawImage(src, 0, 0, w, h);
-    return out.toDataURL("image/jpeg", 0.78);
+    return out.toDataURL("image/png");
+  }
+  function libraryCardThumbSrc(item) {
+    if (item && item.thumbnail && item.thumbnail.indexOf("image/png") !== -1) return item.thumbnail;
+    try {
+      const grid = inflateLibraryGrid(item);
+      if (!grid.length) return (item && item.thumbnail) || "";
+      return makeLibraryThumbnail(grid, item.cols, item.rows);
+    } catch (_) {
+      return (item && item.thumbnail) || "";
+    }
   }
   function gridToImageDataUrl(grid, cols, rows) {
     const w = Math.max(1, cols | 0);
@@ -13380,7 +14973,7 @@ function updateHistoryButtons() {
       codes = item.grid && item.grid.length ? packGridCodes(item.grid, cols, rows) : "";
     }
     let thumbnail = item.thumbnail || "";
-    if (!thumbnail || thumbnail.length > 120000) {
+    if (!thumbnail || thumbnail.indexOf("image/jpeg") !== -1 || thumbnail.length > 400000) {
       const grid = item.grid && item.grid.length ? item.grid : unpackGridCodes(codes, cols, rows);
       thumbnail = makeLibraryThumbnail(grid, cols, rows);
     }
@@ -13689,6 +15282,16 @@ function updateHistoryButtons() {
     const altBtn = document.getElementById("appModalAlt");
     if (!modal || !nameInput) return;
     title.textContent = opts.title || "儲存";
+    const messageEl = document.getElementById("appModalMessage");
+    if (messageEl) {
+      if (opts.message) {
+        messageEl.hidden = false;
+        messageEl.textContent = opts.message;
+      } else {
+        messageEl.hidden = true;
+        messageEl.textContent = "";
+      }
+    }
     nameLabel.textContent = opts.nameLabel || "檔名";
     nameField.style.display = opts.showName === false ? "none" : "flex";
     folderField.style.display = opts.showFolder ? "flex" : "none";
@@ -13772,8 +15375,8 @@ function updateHistoryButtons() {
     closeAppModal();
     if (cb) cb();
   });
-  document.getElementById("appModalNameInput")?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") { e.preventDefault(); confirmAppModal(); }
+  document.getElementById("appModal")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") e.preventDefault();
     if (e.key === "Escape") closeAppModal();
   });
 
@@ -13898,21 +15501,21 @@ function updateHistoryButtons() {
       btn.textContent = f.name;
       btn.onclick = () => { libraryFolderFilter = f.id; renderLibraryGrid(); };
       if (f.id !== "all" && f.id !== "none") {
-        btn.title = "雙擊重新命名；點 × 刪除資料夾";
-        btn.ondblclick = (e) => { e.stopPropagation(); renameLibraryFolder(f.id, f.name); };
-        const x = document.createElement("span");
-        x.textContent = " ×";
-        x.onclick = (e) => {
-          e.stopPropagation();
-          if (!confirm(`刪除資料夾「${f.name}」？裡面的圖紙會回到未分類。`)) return;
-          const next = getLibraryData();
-          next.folders = next.folders.filter((folder) => folder.id !== f.id);
-          next.items.forEach((it) => { if (it.folderId === f.id) it.folderId = null; });
-          saveLibraryData(next);
-          if (libraryFolderFilter === f.id) libraryFolderFilter = "all";
-          renderLibraryGrid();
-        };
-        btn.appendChild(x);
+        if (libraryPickMode === "delete") {
+          btn.classList.add("is-pickable");
+          if (libraryPickedFolderIds.has(f.id)) btn.classList.add("is-picked");
+          const check = document.createElement("span");
+          check.className = "library-folder-check";
+          btn.insertBefore(check, btn.firstChild);
+          btn.title = "勾選後可刪除資料夾及其內圖紙";
+          btn.onclick = (e) => {
+            e.stopPropagation();
+            toggleLibraryFolderPick(f.id);
+          };
+        } else {
+          btn.title = "雙擊重新命名資料夾";
+          btn.ondblclick = (e) => { e.stopPropagation(); renameLibraryFolder(f.id, f.name); };
+        }
       }
       bar.appendChild(btn);
     });
@@ -13958,22 +15561,36 @@ function updateHistoryButtons() {
     const moveWrap = document.getElementById("libraryMoveWrap");
     const delWrap = document.getElementById("libraryDeleteWrap");
     const picking = !!libraryPickMode;
-    const hasPicks = libraryPickedIds.size > 0;
+    const hasItemPicks = libraryPickedIds.size > 0;
+    const hasFolderPicks = libraryPickedFolderIds.size > 0;
+    const hasDeletePicks = hasItemPicks || hasFolderPicks;
     if (moveBtn) moveBtn.classList.toggle("is-on", libraryPickMode === "move");
     if (delBtn) delBtn.classList.toggle("is-on", libraryPickMode === "delete");
-    const showMenu = picking && (hasPicks || libraryPickMode === "move");
+    const showMenu = picking;
     if (menu) {
       const host = libraryPickMode === "delete" ? delWrap : moveWrap;
       if (showMenu && host && menu.parentElement !== host) host.appendChild(menu);
       menu.hidden = !showMenu;
     }
-    if (confirmBtn) confirmBtn.hidden = libraryPickMode === "move" || !hasPicks;
+    if (confirmBtn) confirmBtn.hidden = libraryPickMode !== "delete" || !hasDeletePicks;
     renderMoveFolderOptions();
   }
+  function exitLibraryPickMode() {
+    libraryPickMode = null;
+    libraryPickedIds.clear();
+    libraryPickedFolderIds.clear();
+    syncLibraryHeaderActions();
+    renderLibraryGrid();
+  }
   function setLibraryPickMode(mode) {
-    if (mode && libraryPickMode === mode) return;
-    libraryPickMode = mode || null;
-    if (!libraryPickMode) libraryPickedIds.clear();
+    const next = mode || null;
+    if (!next) {
+      exitLibraryPickMode();
+      return;
+    }
+    libraryPickMode = next;
+    libraryPickedIds.clear();
+    libraryPickedFolderIds.clear();
     syncLibraryHeaderActions();
     renderLibraryGrid();
   }
@@ -13986,17 +15603,62 @@ function updateHistoryButtons() {
     else renderLibraryGrid();
     syncLibraryHeaderActions();
   }
+  function toggleLibraryFolderPick(id) {
+    if (libraryPickMode !== "delete") return;
+    if (libraryPickedFolderIds.has(id)) libraryPickedFolderIds.delete(id);
+    else libraryPickedFolderIds.add(id);
+    renderLibraryFolders(getLibraryData());
+    syncLibraryHeaderActions();
+  }
+  function describeLibraryDelete(data, itemIds, folderIds) {
+    const folderSet = new Set(folderIds);
+    const folders = (data.folders || []).filter((f) => folderSet.has(f.id));
+    const looseItems = itemIds.filter((id) => {
+      const it = data.items.find((x) => x.id === id);
+      return it && !folderSet.has(it.folderId);
+    });
+    const parts = [];
+    if (folders.length) {
+      const names = folders.map((f) => `「${f.name}」`).join("、");
+      parts.push(`${folders.length} 個資料夾${names}及其內全部圖紙`);
+    }
+    if (looseItems.length) parts.push(`${looseItems.length} 張圖紙`);
+    return `確定刪除 ${parts.join("、")}？此操作無法復原。`;
+  }
+  function applyLibraryDelete(itemIds, folderIds) {
+    const folderSet = new Set(folderIds);
+    const itemSet = new Set(itemIds);
+    const data = getLibraryData();
+    data.folders = (data.folders || []).filter((folder) => !folderSet.has(folder.id));
+    data.items = data.items.filter((it) => !itemSet.has(it.id) && !folderSet.has(it.folderId));
+    saveLibraryData(data);
+    if (folderSet.has(libraryFolderFilter)) libraryFolderFilter = "all";
+    setLibraryPickMode(null);
+  }
+  function confirmDeleteLibrarySelection(itemIds, folderIds) {
+    if (!itemIds.length && !folderIds.length) return;
+    const data = getLibraryData();
+    openAppModal({
+      title: "確認刪除",
+      message: describeLibraryDelete(data, itemIds, folderIds),
+      showName: false,
+      showFolder: false,
+      okLabel: "確定刪除",
+      onConfirm: () => applyLibraryDelete(itemIds, folderIds)
+    });
+  }
+  function confirmDeleteLibraryFolders(folderIds) {
+    confirmDeleteLibrarySelection([], folderIds);
+  }
   function confirmLibraryPick() {
     const ids = [...libraryPickedIds];
-    if (!ids.length || !libraryPickMode) return;
+    const folderIds = [...libraryPickedFolderIds];
+    if (!libraryPickMode) return;
     if (libraryPickMode === "delete") {
-      if (!confirm(`確定刪除選取的 ${ids.length} 張圖紙嗎？`)) return;
-      const data = getLibraryData();
-      data.items = data.items.filter((it) => !libraryPickedIds.has(it.id));
-      saveLibraryData(data);
-      setLibraryPickMode(null);
+      confirmDeleteLibrarySelection(ids, folderIds);
       return;
     }
+    if (!ids.length) return;
     openAppModal({
       title: "移至資料夾",
       showName: false,
@@ -14078,7 +15740,7 @@ function updateHistoryButtons() {
       const check = document.createElement("div");
       check.className = "library-card-check";
       const img = document.createElement("img");
-      img.src = item.thumbnail;
+      img.src = libraryCardThumbSrc(item);
       img.alt = item.title;
       img.title = picking ? "點選以勾選圖紙" : "開啟拼豆模式";
       if (!picking) img.onclick = () => loadPatternFromLibrary(item.id, "bead");
@@ -14194,9 +15856,20 @@ function updateHistoryButtons() {
   document.getElementById("beadStockBtn")?.addEventListener("click", toggleBeadStockPanel);
   document.getElementById("libraryNewFolderBtn")?.addEventListener("click", createLibraryFolder);
   document.getElementById("libraryMoveBtn")?.addEventListener("click", () => setLibraryPickMode("move"));
-  document.getElementById("libraryDeleteBtn")?.addEventListener("click", () => setLibraryPickMode("delete"));
+  document.getElementById("libraryDeleteBtn")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    libraryPickMode = null;
+    libraryPickedIds.clear();
+    libraryPickedFolderIds.clear();
+    setLibraryPickMode("delete");
+  });
   document.getElementById("libraryPickConfirmBtn")?.addEventListener("click", confirmLibraryPick);
-  document.getElementById("libraryPickCancelBtn")?.addEventListener("click", () => setLibraryPickMode(null));
+  document.getElementById("libraryPickCancelBtn")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    exitLibraryPickMode();
+  });
 
   function loadPatternFromLibrary(id, destStage) {
     const items = getLibraryItems();
@@ -14223,6 +15896,7 @@ function updateHistoryButtons() {
       document.getElementById("uploadHintBanner").style.display = "block";
       updateOrigDimensionsLabel();
       try { restoreVirtualPointerIfCompact(); } catch (_) {}
+      try { syncAutoDetectEnabled(); } catch (_) {}
 
       cropOverlay.width = currentImage.width;
       cropOverlay.height = currentImage.height;
@@ -14240,6 +15914,7 @@ function updateHistoryButtons() {
 
       historyStack = [];
       historyIndex = -1;
+      clearColorLocks();
       pushHistoryState("載入收藏圖紙");
 
       clearSelection();
@@ -14256,11 +15931,7 @@ function updateHistoryButtons() {
   }
 
   function deletePatternFromLibrary(id) {
-    if (!confirm("確定要刪除這份收藏圖紙嗎？")) return;
-    let items = getLibraryItems();
-    items = items.filter(it => it.id !== id);
-    saveLibraryItems(items);
-    renderLibraryGrid();
+    confirmDeleteLibrarySelection([id], []);
   }
 
   initLibraryStorage();
